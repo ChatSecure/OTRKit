@@ -14,4 +14,4 @@ To compile libotr and dependencies for iOS, run the included scripts in this ord
 
 License
 -------
-The code for this project is provided under the Modified BSD license. The required dependencies are under terms of a seperate license. More information is available in the LICENSE file.
+The code for this project is provided under the Modified BSD license. The required dependencies are under terms of a seperate license. More information is available in the [LICENSE](https://github.com/chatsecure/OTRKit/blob/master/LICENSE) file.
