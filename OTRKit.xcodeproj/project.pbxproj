@@ -13,6 +13,7 @@
 		D905CFDA155B2B2F00654181 /* libotr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D905CF98155B04AD00654181 /* libotr.a */; };
 		D905CFDB155B2B3C00654181 /* OTRCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = D905CFB4155B060200654181 /* OTRCodec.m */; };
 		D905CFDC155B2B3E00654181 /* OTRMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = D905CFB8155B060200654181 /* OTRMessage.m */; };
+		D905D086155B3D8200654181 /* OTRKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D905CFB6155B060200654181 /* OTRKit.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -191,6 +192,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D905CFD5155B2B0000654181 /* Build configuration list for PBXNativeTarget "OTRKit" */;
 			buildPhases = (
+				D905D063155B388000654181 /* ShellScript */,
 				D905CFC7155B2B0000654181 /* Sources */,
 				D905CFC8155B2B0000654181 /* Frameworks */,
 				D905CFC9155B2B0000654181 /* Headers */,
@@ -229,6 +231,22 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		D905D063155B388000654181 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd $SRCROOT\nsh build-all.sh";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		D905CFC7155B2B0000654181 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -236,6 +254,7 @@
 			files = (
 				D905CFDB155B2B3C00654181 /* OTRCodec.m in Sources */,
 				D905CFDC155B2B3E00654181 /* OTRMessage.m in Sources */,
+				D905D086155B3D8200654181 /* OTRKit.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,6 +324,7 @@
 				DSTROOT = /tmp/OTRKit.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OTRKit/OTRKit-Prefix.pch";
+				GCC_THUMB_SUPPORT = NO;
 				HEADER_SEARCH_PATHS = "./dependencies/include/**";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -326,6 +346,7 @@
 				DSTROOT = /tmp/OTRKit.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OTRKit/OTRKit-Prefix.pch";
+				GCC_THUMB_SUPPORT = NO;
 				HEADER_SEARCH_PATHS = "./dependencies/include/**";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

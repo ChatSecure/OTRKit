@@ -32,6 +32,17 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###########################################################################
 
-sh build-libgpg-error.sh
-sh build-libgcrypt.sh
-sh build-libotr.sh
+LIBPATH="./dependencies/lib/"
+LIBS="libgpg-error libgcrypt libotr"
+
+for LIB in ${LIBS}
+do
+	LIB_PATH="${LIBPATH}${LIB}.a"
+	if [ ! -f $LIB_PATH ]
+	then
+		echo "Building ${LIB}..."
+		sh build-${LIB}.sh
+	else
+		echo "Skipping ${LIB}..."
+	fi
+done
