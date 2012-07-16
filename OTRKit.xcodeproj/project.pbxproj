@@ -11,8 +11,6 @@
 		D905CFD8155B2B2A00654181 /* libgcrypt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D905CF96155B04AD00654181 /* libgcrypt.a */; };
 		D905CFD9155B2B2D00654181 /* libgpg-error.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D905CF97155B04AD00654181 /* libgpg-error.a */; };
 		D905CFDA155B2B2F00654181 /* libotr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D905CF98155B04AD00654181 /* libotr.a */; };
-		D905CFDB155B2B3C00654181 /* OTRCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = D905CFB4155B060200654181 /* OTRCodec.m */; };
-		D905CFDC155B2B3E00654181 /* OTRMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = D905CFB8155B060200654181 /* OTRMessage.m */; };
 		D905D086155B3D8200654181 /* OTRKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D905CFB6155B060200654181 /* OTRKit.m */; };
 /* End PBXBuildFile section */
 
@@ -40,12 +38,8 @@
 		D905CF96155B04AD00654181 /* libgcrypt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libgcrypt.a; sourceTree = "<group>"; };
 		D905CF97155B04AD00654181 /* libgpg-error.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libgpg-error.a"; sourceTree = "<group>"; };
 		D905CF98155B04AD00654181 /* libotr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libotr.a; sourceTree = "<group>"; };
-		D905CFB3155B060200654181 /* OTRCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRCodec.h; sourceTree = "<group>"; };
-		D905CFB4155B060200654181 /* OTRCodec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRCodec.m; sourceTree = "<group>"; };
 		D905CFB5155B060200654181 /* OTRKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRKit.h; sourceTree = "<group>"; };
 		D905CFB6155B060200654181 /* OTRKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKit.m; sourceTree = "<group>"; };
-		D905CFB7155B060200654181 /* OTRMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRMessage.h; sourceTree = "<group>"; };
-		D905CFB8155B060200654181 /* OTRMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRMessage.m; sourceTree = "<group>"; };
 		D905CFCB155B2B0000654181 /* libOTRKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOTRKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -157,12 +151,8 @@
 		D905CFB2155B05C300654181 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				D905CFB3155B060200654181 /* OTRCodec.h */,
-				D905CFB4155B060200654181 /* OTRCodec.m */,
 				D905CFB5155B060200654181 /* OTRKit.h */,
 				D905CFB6155B060200654181 /* OTRKit.m */,
-				D905CFB7155B060200654181 /* OTRMessage.h */,
-				D905CFB8155B060200654181 /* OTRMessage.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -252,8 +242,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D905CFDB155B2B3C00654181 /* OTRCodec.m in Sources */,
-				D905CFDC155B2B3E00654181 /* OTRMessage.m in Sources */,
 				D905D086155B3D8200654181 /* OTRKit.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
