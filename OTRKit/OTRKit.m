@@ -35,25 +35,24 @@
  */
 
 #import "OTRKit.h"
+#import "proto.h"
 #import "message.h"
 #import "privkey.h"
 
 #define PRIVKEYFNAME @"otr.private_key"
 #define STOREFNAME @"otr.fingerprints"
 
+static OtrlUserState userState;
+
 @interface OTRKit(Private)
-+(void) updateEncryptionStatusWithContext:(ConnContext*)context secure:(BOOL)secure;
+- (void) updateEncryptionStatusWithContext:(ConnContext*)context secure:(BOOL)secure;
 @end
 
 @implementation OTRKit
-@synthesize userState, delegate;
+@synthesize delegate;
 
 static OtrlPolicy policy_cb(void *opdata, ConnContext *context)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
-    if (otrKit.delegate && [otrKit.delegate respondsToSelector:@selector(policyForContext:policyForContext:)]) {
-        return [otrKit.delegate policyForContext:context];
-    }
     return OTRL_POLICY_DEFAULT;
 }
 
@@ -75,7 +74,7 @@ static void create_privkey_cb(void *opdata, const char *accountname,
         FILE *privf;
         NSString *path = [otrKit privateKeyPath];
         privf = fopen([path UTF8String], "w+b");
-        otrl_privkey_generate_FILEp([OTRKit sharedInstance].userState, privf, accountname, protocol);
+        otrl_privkey_generate_FILEp(userState, privf, accountname, protocol);
         fclose(privf);
     }
     
@@ -141,9 +140,9 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
 {
     char our_hash[45], their_hash[45];
     
-    ConnContext *context = otrl_context_find([OTRKit sharedInstance].userState, username,accountname, protocol,NO,NULL,NULL, NULL);
+    ConnContext *context = otrl_context_find(userState, username,accountname, protocol,NO,NULL,NULL, NULL);
     
-    otrl_privkey_fingerprint([OTRKit sharedInstance].userState, our_hash, context->accountname, context->protocol);
+    otrl_privkey_fingerprint(userState, our_hash, context->accountname, context->protocol);
     
     otrl_privkey_hash_to_human(their_hash, fingerprint);
     
@@ -163,7 +162,7 @@ static void write_fingerprints_cb(void *opdata)
         NSString *path = [otrKit fingerprintsPath];
         storef = fopen([path UTF8String], "wb");
         if (!storef) return;
-        otrl_privkey_write_fingerprints_FILEp([OTRKit sharedInstance].userState, storef);
+        otrl_privkey_write_fingerprints_FILEp(userState, storef);
         fclose(storef);
     }
 }
@@ -172,31 +171,34 @@ static void write_fingerprints_cb(void *opdata)
 static void gone_secure_cb(void *opdata, ConnContext *context)
 {
     OTRKit *otrKit = [OTRKit sharedInstance];
-    if (otrKit.delegate && [otrKit.delegate respondsToSelector:@selector(goneSecureForContext:)]) {
-        [otrKit.delegate goneSecureForContext:context];
-    } else {
-        [OTRKit updateEncryptionStatusWithContext:context secure:YES];
-    }
+    [otrKit updateEncryptionStatusWithContext:context secure:YES];
+
 }
 
-static void gone_insecure_cb(void *opdata, ConnContext *context)
+static void gone_insecure_cb(void *opdata, ConnContext *context) // this method is never called
 {
     OTRKit *otrKit = [OTRKit sharedInstance];
-    if (otrKit.delegate && [otrKit.delegate respondsToSelector:@selector(goneInsecureForContext:)]) {
-        [otrKit.delegate goneInsecureForContext:context];
+    [otrKit updateEncryptionStatusWithContext:context secure:NO];
+}
+
+- (void) updateEncryptionStatusWithContext:(ConnContext*)context secure:(BOOL)secure {
+    if (delegate && [delegate respondsToSelector:@selector(updateMessageStateForUsername:accountName:protocol:messageState:)]) {
+        OTRKitMessageState messageState;
+        if (secure) {
+            messageState = kOTRKitMessageStateEncrypted;
+        } else {
+            messageState = [self messageStateForUsername:[NSString stringWithUTF8String:context->username] accountName:[NSString stringWithUTF8String:context->accountname] protocol:[NSString stringWithUTF8String:context->protocol]];
+        }
+        [delegate updateMessageStateForUsername:[NSString stringWithUTF8String:context->username] accountName:[NSString stringWithUTF8String:context->accountname] protocol:[NSString stringWithUTF8String:context->protocol] messageState:messageState];
     } else {
-        [OTRKit updateEncryptionStatusWithContext:context secure:NO];
+        NSLog(@"Your delegate must implement the updateMessageStateForUsername:accountName:protocol:messageState: selector!");
     }
 }
 
 static void still_secure_cb(void *opdata, ConnContext *context, int is_reply)
 {
     OTRKit *otrKit = [OTRKit sharedInstance];
-    if (otrKit.delegate && [otrKit.delegate respondsToSelector:@selector(stillSecureForContext:isReply:)]) {
-        [otrKit.delegate stillSecureForContext:context isReply:is_reply];
-    } else {
-        [OTRKit updateEncryptionStatusWithContext:context secure:YES];
-    }
+    [otrKit updateEncryptionStatusWithContext:context secure:YES];
 }
 
 static void log_message_cb(void *opdata, const char *message)
@@ -261,21 +263,6 @@ static OtrlMessageAppOps ui_ops = {
     NULL,                   /* account_name */
     NULL                    /* account_name_free */
 };
-
-+(void) updateEncryptionStatusWithContext:(ConnContext*)context secure:(BOOL)secure {
-    NSString *username = [NSString stringWithUTF8String:context->username];
-    NSString *accountname = [NSString stringWithUTF8String:context->accountname];
-    NSString *protocol = [NSString stringWithUTF8String:context->protocol];
-    
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity:3];
-    [userInfo setObject:username forKey:@"username"];
-    [userInfo setObject:protocol forKey:@"protocol"];
-    [userInfo setObject:accountname forKey:@"accountname"];
-    [userInfo setObject:[NSNumber numberWithBool:secure] forKey:@"secure"];
-    
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:kOTREncryptionStateNotification object:nil userInfo:userInfo];
-}
 
 -(id)init
 {
@@ -368,6 +355,59 @@ static OtrlMessageAppOps ui_ops = {
     
     return newMessage;
 }
+
+- (NSString*) fingerprintForAccountName:(NSString*)accountName protocol:(NSString*) protocol {
+    NSString *fingerprintString = nil;
+    char our_hash[45];
+    otrl_privkey_fingerprint(userState, our_hash, [accountName UTF8String], [protocol UTF8String]);
+    fingerprintString = [NSString stringWithUTF8String:our_hash];
+    return fingerprintString;
+}
+
+- (ConnContext*) contextForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
+    ConnContext *context = otrl_context_find(userState, [accountName UTF8String],[username UTF8String], [protocol UTF8String],NO,NULL,NULL, NULL);
+    return context;
+}
+
+- (NSString *) fingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
+    ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
+    NSString *fingerprintString = nil;
+    if(context)
+    {
+        char their_hash[45];
+        
+        Fingerprint *fingerprint = context->active_fingerprint;
+        
+        if(fingerprint && fingerprint->fingerprint) {
+            otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
+            fingerprintString = [NSString stringWithUTF8String:their_hash];
+        }
+    }
+    return fingerprintString;
+}
+
+- (OTRKitMessageState) messageStateForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
+    ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
+    OTRKitMessageState messageState = kOTRKitMessageStatePlaintext;
+    if (context) {
+        switch (context->msgstate) {
+            case OTRL_MSGSTATE_ENCRYPTED:
+                messageState = kOTRKitMessageStateEncrypted;
+                break;
+            case OTRL_MSGSTATE_FINISHED:
+                messageState = kOTRKitMessageStateFinished;
+                break;
+            case OTRL_MSGSTATE_PLAINTEXT:
+                messageState = kOTRKitMessageStatePlaintext;
+                break;
+            default:
+                messageState = kOTRKitMessageStatePlaintext;
+                break;
+        }
+    }
+    return messageState;
+}
+
 
 #pragma mark -
 #pragma mark Singleton Object Methods

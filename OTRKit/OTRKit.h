@@ -35,41 +35,39 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "proto.h"
 
-#define kOTREncryptionStateNotification @"kOTREncryptionStateNotification"
+typedef unsigned int OTRKitMessageState;
+
+enum OTRKitMessageState { // OtrlMessageState
+    kOTRKitMessageStatePlaintext = 0, //OTRL_MSGSTATE_PLAINTEXT
+    kOTRKitMessageStateEncrypted = 1, // OTRL_MSGSTATE_ENCRYPTED
+    kOTRKitMessageStateFinished = 2 // OTRL_MSGSTATE_FINISHED
+}; //
 
 @protocol OTRKitDelegate <NSObject>
 @required
 // Implement this delegate method to forward the injected message to the appropriate protocol
 - (void) injectMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol;
-
+- (void) updateMessageStateForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*)protocol messageState:(OTRKitMessageState)messageState; 
 
 @optional
 // If you don't implement these methods there are some defaults in place that you might want to check out in OTRCodec.m
 
 // You will probably want to show a dialog for fingerprint confirmation though
 - (void) showFingerprintConfirmationForAccountName:(NSString*)accountName protocol:(NSString*)protocol userName:(NSString*)userName theirHash:(NSString*)theirHash ourHash:(NSString*)ourHash;
-// If you don't implement these, updateEncryptionStatusWithContext will send a kOTREncryptionStateNotification
-- (void) goneInsecureForContext:(ConnContext*)context;
-- (void) goneSecureForContext:(ConnContext*)context;
-- (void) stillSecureForContext:(ConnContext*)context isReply:(int)isReply;
 
 - (void) createPrivateKeyForAccountName:(NSString*)accountName protocol:(NSString*)protocol;
 - (BOOL) recipientIsLoggedIn:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol;
-- (OtrlPolicy) policyForContext:(ConnContext*)context;
 - (void) writeFingerprints;
 - (int) maxMessageSizeForProtocol:(NSString*)protocol;
 - (void) updateContextList;
 - (void) logMessage:(NSString*)message;
 - (void) showNotificationForAccountName:(NSString*)accountName protocol:(NSString*)protocol userName:(NSString*)userName title:(NSString*)title primary:(NSString*)primary secondary:(NSString*)secondary level:(int)level;
 - (void) showMessageDialogForAccountName:(NSString*)accountName protocol:(NSString*)protocol userName:(NSString*)userName message:(NSString*)message;
-
 @end
 
 @interface OTRKit : NSObject
 
-@property (nonatomic) OtrlUserState userState;
 @property (nonatomic, assign) id<OTRKitDelegate> delegate;
 
 - (NSString*) privateKeyPath;
@@ -77,6 +75,11 @@
 
 - (NSString*) decodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol;
 - (NSString*) encodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol;
+
+- (NSString*) fingerprintForAccountName:(NSString*)accountName protocol:(NSString*) protocol; // Returns your fingerprint
+- (NSString *) fingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol; // Returns buddy's fingerprint
+
+- (OTRKitMessageState) messageStateForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol;
 
 
 + (OTRKit*) sharedInstance; // Singleton method
