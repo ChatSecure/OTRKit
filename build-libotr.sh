@@ -23,7 +23,7 @@
 #  Choose your libotr version and your currently-installed iOS SDK version:
 #
 VERSION="4.0.0"
-SDKVERSION="5.1"
+SDKVERSION="6.0"
 #
 #
 ###########################################################################
@@ -34,7 +34,7 @@ SDKVERSION="5.1"
 
 # No need to change this since xcode build will only compile in the
 # necessary bits from the libraries we create
-ARCHS="i386 armv7 armv6"
+ARCHS="i386 armv7 armv7s"
 
 DEVELOPER=`xcode-select -print-path`
 
@@ -101,7 +101,7 @@ do
 
 	mkdir -p "${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 
-	./configure --disable-shared --enable-static --disable-gcc-hardening --disable-linker-hardening --with-libgcrypt-prefix=${OUTPUTDIR} ${EXTRA_CONFIG} \
+	./configure --disable-shared --enable-static --with-pic --disable-gcc-hardening --disable-linker-hardening --with-libgcrypt-prefix=${OUTPUTDIR} ${EXTRA_CONFIG} \
     --prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
     CC="${CCACHE}${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/usr/bin/gcc" \
     LDFLAGS="$LDFLAGS ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
