@@ -36,7 +36,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef unsigned int OTRKitMessageState;
+typedef int16_t OTRKitMessageState;
 
 enum OTRKitMessageState { // OtrlMessageState
     kOTRKitMessageStatePlaintext = 0, //OTRL_MSGSTATE_PLAINTEXT
