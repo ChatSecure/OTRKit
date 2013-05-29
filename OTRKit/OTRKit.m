@@ -603,35 +603,38 @@ static OtrlMessageAppOps ui_ops = {
 
 - (NSString*) decodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol 
 {
-    int ignore_message;
-    char *newmessage = NULL;
-    ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
-
-    ignore_message = otrl_message_receiving(userState, &ui_ops, NULL,[accountName UTF8String], [protocol UTF8String], [recipient UTF8String], [message UTF8String], &newmessage, NULL, &context, NULL, NULL);
-    NSString *newMessage = nil;
-    
-    if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
-        [self disableEncryptionForUsername:recipient accountName:accountName protocol:protocol];
-    }
-    
-    if(ignore_message == 0)
-    {
-        if(newmessage)
+    if ([message length] && [recipient length] && [accountName length] && [protocol length]) {
+        int ignore_message;
+        char *newmessage = NULL;
+        ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
+        
+        ignore_message = otrl_message_receiving(userState, &ui_ops, NULL,[accountName UTF8String], [protocol UTF8String], [recipient UTF8String], [message UTF8String], &newmessage, NULL, &context, NULL, NULL);
+        NSString *newMessage = nil;
+        
+        if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
+            [self disableEncryptionForUsername:recipient accountName:accountName protocol:protocol];
+        }
+        
+        if(ignore_message == 0)
         {
-            newMessage = [NSString stringWithUTF8String:newmessage];
+            if(newmessage)
+            {
+                newMessage = [NSString stringWithUTF8String:newmessage];
+            }
+            else
+                newMessage = message;
         }
         else
-            newMessage = message;
-    }
-    else
-    {
+        {
+            otrl_message_free(newmessage);
+            return nil;
+        }
+        
         otrl_message_free(newmessage);
-        return nil;
+        
+        return newMessage;
     }
-    
-    otrl_message_free(newmessage);
-    
-    return newMessage;
+    return @"";
 }
 
 
