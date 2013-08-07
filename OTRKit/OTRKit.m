@@ -77,10 +77,37 @@ static void create_privkey_cb(void *opdata, const char *accountname,
         FILE *privf;
         NSString *path = [otrKit privateKeyPath];
         privf = fopen([path UTF8String], "w+b");
+        
+        // Generate Key
         otrl_privkey_generate_FILEp(userState, privf, accountname, protocol);
         fclose(privf);
+        
     }
     
+    
+}
+
+-(void)generatePrivateKeyForUserState:(OtrlUserState)userState accountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void(^)(void))completionBlock
+{
+    OTRKit *otrKit = [OTRKit sharedInstance];
+    FILE *privf;
+    NSString *path = [otrKit privateKeyPath];
+    privf = fopen([path UTF8String], "w+b");
+    
+    void *newkeyp;
+    otrl_privkey_generate_start(userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        otrl_privkey_generate_calculate(newkeyp);
+        
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            otrl_privkey_generate_finish_FILEp(userState,newkeyp,privf);
+            fclose(privf);
+            if (completionBlock) {
+                completionBlock();
+            }
+        });
+    });
     
 }
 
@@ -637,13 +664,62 @@ static OtrlMessageAppOps ui_ops = {
     return @"";
 }
 
+- (void) encodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol success:(void (^)(NSString * message))success
+{
+    __block gcry_error_t err;
+    __block char *newmessage = NULL;
+    
+    
+    __block ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
+    
+    NSString * (^encodeBlock)(void) = ^() {
+        err = otrl_message_sending(userState, &ui_ops, NULL,
+                                   [accountName UTF8String], [protocol UTF8String], [recipient UTF8String], OTRL_INSTAG_BEST, [message UTF8String], NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP, &context,
+                                   NULL, NULL);
+        NSString *newMessage = nil;
+        //NSLog(@"newmessage char: %s",newmessage);
+        if(newmessage)
+            newMessage = [NSString stringWithUTF8String:newmessage];
+        else
+            newMessage = @"";
+        
+        otrl_message_free(newmessage);
+        
+        return newMessage;
+    };
+    
+    __block NSString * finalMessage = nil;
+    //need to check/create keys
+    OtrlPrivKey * privateKey = otrl_privkey_find(userState, [accountName UTF8String], [protocol UTF8String]);
+    if (!privateKey) {
+        //async generate new key
+        [self generatePrivateKeyForUserState:userState accountName:accountName protocol:protocol completion:^{
+            finalMessage = encodeBlock();
+            if (success) {
+                success(finalMessage);
+            }
+        }];
+    }
+    else
+    {
+        finalMessage = encodeBlock();
+        if (success) {
+            success(finalMessage);
+        }
+    }
+    
+    
+}
 
-- (NSString*) encodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol 
+
+- (NSString*) encodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol
 {
     gcry_error_t err;
     char *newmessage = NULL;
+
     
     ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
+    
     err = otrl_message_sending(userState, &ui_ops, NULL,
                                [accountName UTF8String], [protocol UTF8String], [recipient UTF8String], OTRL_INSTAG_BEST, [message UTF8String], NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP, &context,
                                NULL, NULL);
