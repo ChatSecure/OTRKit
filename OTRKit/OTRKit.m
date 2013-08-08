@@ -638,9 +638,12 @@ static OtrlMessageAppOps ui_ops = {
         ignore_message = otrl_message_receiving(userState, &ui_ops, NULL,[accountName UTF8String], [protocol UTF8String], [recipient UTF8String], [message UTF8String], &newmessage, NULL, &context, NULL, NULL);
         NSString *newMessage = nil;
         
-        if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
-            [self disableEncryptionForUsername:recipient accountName:accountName protocol:protocol];
+        if (context) {
+            if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
+                [self disableEncryptionForUsername:recipient accountName:accountName protocol:protocol];
+            }
         }
+        
         
         if(ignore_message == 0)
         {
