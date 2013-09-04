@@ -22,8 +22,8 @@
 ###########################################################################
 #  Choose your libgpg-error version and your currently-installed iOS SDK version:
 #
-VERSION="1.10"
-SDKVERSION="6.0"
+VERSION="1.12"
+SDKVERSION="6.1"
 #
 #
 ###########################################################################
