@@ -87,6 +87,20 @@ static void create_privkey_cb(void *opdata, const char *accountname,
     
 }
 
+-(void)generatePrivateKeyForUserState:(OtrlUserState)userState accountName:(NSString *)accountName protocol:(NSString *)protocol startGenerating:(void(^)(void))startGeneratingBlock completion:(void(^)(void))completionBlock
+{
+    OtrlPrivKey * privateKey = otrl_privkey_find(userState, [accountName UTF8String], [protocol UTF8String]);
+    if (!privateKey) {
+        if (startGeneratingBlock) {
+            startGeneratingBlock();
+        }
+        [self generatePrivateKeyForUserState:userState accountName:accountName protocol:protocol completion:completionBlock];
+    }
+    else if(completionBlock) {
+        completionBlock();
+    }
+}
+
 -(void)generatePrivateKeyForUserState:(OtrlUserState)userState accountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void(^)(void))completionBlock
 {
     OTRKit *otrKit = [OTRKit sharedInstance];
@@ -108,7 +122,6 @@ static void create_privkey_cb(void *opdata, const char *accountname,
             }
         });
     });
-    
 }
 
 static int is_logged_in_cb(void *opdata, const char *accountname,
@@ -667,7 +680,7 @@ static OtrlMessageAppOps ui_ops = {
     return @"";
 }
 
-- (void) encodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol success:(void (^)(NSString * message))success
+- (void) encodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol startGeneratingKeysBlock:(void (^)(void))generatingKeysBlock success:(void (^)(NSString * message))success
 {
     __block gcry_error_t err;
     __block char *newmessage = NULL;
@@ -693,25 +706,12 @@ static OtrlMessageAppOps ui_ops = {
     
     __block NSString * finalMessage = nil;
     //need to check/create keys
-    OtrlPrivKey * privateKey = otrl_privkey_find(userState, [accountName UTF8String], [protocol UTF8String]);
-    if (!privateKey) {
-        //async generate new key
-        [self generatePrivateKeyForUserState:userState accountName:accountName protocol:protocol completion:^{
-            finalMessage = encodeBlock();
-            if (success) {
-                success(finalMessage);
-            }
-        }];
-    }
-    else
-    {
+    [self generatePrivateKeyForUserState:userState accountName:accountName protocol:protocol startGenerating:generatingKeysBlock completion:^{
         finalMessage = encodeBlock();
         if (success) {
             success(finalMessage);
         }
-    }
-    
-    
+    }];
 }
 
 
