@@ -23,7 +23,7 @@
 #  Choose your libgpg-error version and your currently-installed iOS SDK version:
 #
 VERSION="1.12"
-SDKVERSION="6.1"
+SDKVERSION="7.0"
 #
 #
 ###########################################################################
@@ -34,7 +34,7 @@ SDKVERSION="6.1"
 
 # No need to change this since xcode build will only compile in the
 # necessary bits from the libraries we create
-ARCHS="i386 armv7 armv7s"
+ARCHS="i386 armv7 armv7s arm64"
 
 DEVELOPER=`xcode-select -print-path`
 
@@ -90,20 +90,24 @@ do
 	if [ "${ARCH}" == "i386" ];
 	then
 		PLATFORM="iPhoneSimulator"
-        EXTRA_CONFIG=""
+        EXTRA_CONFIG="--host i386-apple-darwin12.5.0"
+        EXTRA_CFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
 	else
 		PLATFORM="iPhoneOS"
-        EXTRA_CONFIG="--host=arm-apple-darwin10"
+        EXTRA_CONFIG="--host arm-apple-darwin12.5.0"
+        EXTRA_CFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
 	fi
 
 	mkdir -p "${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 
 	./configure --disable-shared --enable-static --with-pic ${EXTRA_CONFIG} \
     --prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
-    CC="${CCACHE}${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/usr/bin/gcc -arch ${ARCH}" \
-    LDFLAGS="$LDFLAGS -L${OUTPUTDIR}/lib" \
-    CFLAGS="$CFLAGS -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
-    CPPFLAGS="$CPPFLAGS -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk"
+    --with-sysroot=${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk \
+    CC="${CCACHE}${DEVELOPER}/usr/bin/gcc" \
+    LDFLAGS="$LDFLAGS ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
+    CFLAGS="$CFLAGS ${EXTRA_CFLAGS} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
 
     # Build the application and install it to the fake SDK intermediary dir
     # we have set up. Make sure to clean up afterward because we will re-use

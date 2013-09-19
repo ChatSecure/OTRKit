@@ -1,6 +1,6 @@
 #!/bin/bash
-#  Builds libgcrypt, libgpg-error and libotr for all three current iPhone targets: 
-#  iPhoneSimulator-i386, iPhoneOS-armv6, iPhoneOS-armv7.
+#  Builds libgcrypt, libgpg-error and libotr for all four current iPhone targets: 
+#  iPhoneSimulator-i386, iPhoneOS-armv7, iPhoneOS-armv7s, iPhoneOS-arm64.
 #
 #  Copyright 2012 Chris Ballinger <chris@chatsecure.org>
 #
