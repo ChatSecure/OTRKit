@@ -87,6 +87,22 @@ static void create_privkey_cb(void *opdata, const char *accountname,
     
 }
 
+- (void)checkIfGeneratingKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void (^)(BOOL isGeneratingKey))completion
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __block void *newkeyp;
+        __block gcry_error_t generateError;
+        generateError = otrl_privkey_generate_start(userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
+        if (!generateError) {
+            otrl_privkey_generate_cancelled(userState, newkeyp);
+        }
+        
+        if (completion) {
+            completion (generateError == gcry_error(GPG_ERR_EEXIST));
+        }
+    });
+}
+
 -(void)generatePrivateKeyForUserState:(OtrlUserState)userState accountName:(NSString *)accountName protocol:(NSString *)protocol startGenerating:(void(^)(void))startGeneratingBlock completion:(void(^)(BOOL didGenerateKey))completionBlock
 {
     dispatch_async(self.isolationQueue, ^{
@@ -114,10 +130,7 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 -(void)generatePrivateKeyForUserState:(OtrlUserState)userState accountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void(^)(BOOL didGenerateKey))completionBlock
 {
     dispatch_async(self.isolationQueue, ^{
-        OTRKit *otrKit = [OTRKit sharedInstance];
-        FILE *privf;
-        NSString *path = [otrKit privateKeyPath];
-        privf = fopen([path UTF8String], "w+b");
+        
         
         __block void *newkeyp;
         __block gcry_error_t generateError;
@@ -126,6 +139,10 @@ static void create_privkey_cb(void *opdata, const char *accountname,
         });
         
         if (generateError != gcry_error(GPG_ERR_EEXIST)) {
+            OTRKit *otrKit = [OTRKit sharedInstance];
+            FILE *privf;
+            NSString *path = [otrKit privateKeyPath];
+            privf = fopen([path UTF8String], "w+b");
             otrl_privkey_generate_calculate(newkeyp);
             dispatch_sync(dispatch_get_main_queue(), ^{
                 otrl_privkey_generate_finish_FILEp(userState,newkeyp,privf);
