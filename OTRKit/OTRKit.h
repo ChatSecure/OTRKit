@@ -70,6 +70,7 @@ enum OTRKitMessageState { // OtrlMessageState
 
 @property (nonatomic, assign) id<OTRKitDelegate> delegate;
 @property (nonatomic, retain) NSTimer *pollTimer;
+@property (nonatomic, assign) dispatch_queue_t isolationQueue;
 
 - (NSString*) privateKeyPath;
 - (NSString*) fingerprintsPath;

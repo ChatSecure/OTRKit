@@ -87,41 +87,66 @@ static void create_privkey_cb(void *opdata, const char *accountname,
     
 }
 
--(void)generatePrivateKeyForUserState:(OtrlUserState)userState accountName:(NSString *)accountName protocol:(NSString *)protocol startGenerating:(void(^)(void))startGeneratingBlock completion:(void(^)(void))completionBlock
+-(void)generatePrivateKeyForUserState:(OtrlUserState)userState accountName:(NSString *)accountName protocol:(NSString *)protocol startGenerating:(void(^)(void))startGeneratingBlock completion:(void(^)(BOOL didGenerateKey))completionBlock
 {
-    OtrlPrivKey * privateKey = otrl_privkey_find(userState, [accountName UTF8String], [protocol UTF8String]);
-    if (!privateKey) {
-        if (startGeneratingBlock) {
-            startGeneratingBlock();
+    dispatch_async(self.isolationQueue, ^{
+        __block OtrlPrivKey *privateKey;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            privateKey = otrl_privkey_find(userState, [accountName UTF8String], [protocol UTF8String]);
+        });
+        
+        if (!privateKey) {
+            if (startGeneratingBlock) {
+                startGeneratingBlock();
+            }
+            [self generatePrivateKeyForUserState:userState accountName:accountName protocol:protocol completion:completionBlock];
         }
-        [self generatePrivateKeyForUserState:userState accountName:accountName protocol:protocol completion:completionBlock];
-    }
-    else if(completionBlock) {
-        completionBlock();
-    }
+        else if(completionBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(NO);
+            });
+            
+        }
+    });
+    
 }
 
--(void)generatePrivateKeyForUserState:(OtrlUserState)userState accountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void(^)(void))completionBlock
+-(void)generatePrivateKeyForUserState:(OtrlUserState)userState accountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void(^)(BOOL didGenerateKey))completionBlock
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
-    FILE *privf;
-    NSString *path = [otrKit privateKeyPath];
-    privf = fopen([path UTF8String], "w+b");
-    
-    void *newkeyp;
-    otrl_privkey_generate_start(userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        otrl_privkey_generate_calculate(newkeyp);
+    dispatch_async(self.isolationQueue, ^{
+        OTRKit *otrKit = [OTRKit sharedInstance];
+        FILE *privf;
+        NSString *path = [otrKit privateKeyPath];
+        privf = fopen([path UTF8String], "w+b");
         
+        __block void *newkeyp;
+        __block gcry_error_t generateError;
         dispatch_sync(dispatch_get_main_queue(), ^{
-            otrl_privkey_generate_finish_FILEp(userState,newkeyp,privf);
-            fclose(privf);
-            if (completionBlock) {
-                completionBlock();
-            }
+            generateError = otrl_privkey_generate_start(userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
         });
+        
+        if (generateError != gcry_error(GPG_ERR_EEXIST)) {
+            otrl_privkey_generate_calculate(newkeyp);
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                otrl_privkey_generate_finish_FILEp(userState,newkeyp,privf);
+                fclose(privf);
+                if (completionBlock) {
+                    completionBlock(YES);
+                }
+            });
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completionBlock) {
+                    completionBlock(NO);
+                }
+            });
+        }
+        
+            
+        
     });
+    
 }
 
 static int is_logged_in_cb(void *opdata, const char *accountname,
@@ -588,6 +613,8 @@ static OtrlMessageAppOps ui_ops = {
 {
     if(self = [super init])
     {
+        NSString * label = [NSString stringWithFormat:@"%@.isolation.%@",[self class],self];
+        self.isolationQueue = dispatch_queue_create([label UTF8String], 0);
         // initialize OTR
         OTRL_INIT;
         userState = otrl_userstate_create();
@@ -706,7 +733,7 @@ static OtrlMessageAppOps ui_ops = {
     
     __block NSString * finalMessage = nil;
     //need to check/create keys
-    [self generatePrivateKeyForUserState:userState accountName:accountName protocol:protocol startGenerating:generatingKeysBlock completion:^{
+    [self generatePrivateKeyForUserState:userState accountName:accountName protocol:protocol startGenerating:generatingKeysBlock completion:^(BOOL didGenerateKey) {
         finalMessage = encodeBlock();
         if (success) {
             success(finalMessage);
