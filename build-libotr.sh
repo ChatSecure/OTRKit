@@ -34,7 +34,7 @@ SDKVERSION="7.0"
 
 # No need to change this since xcode build will only compile in the
 # necessary bits from the libraries we create
-ARCHS="i386 armv7 armv7s arm64"
+ARCHS="i386 x86_64 armv7 armv7s arm64"
 
 DEVELOPER=`xcode-select -print-path`
 
@@ -86,18 +86,17 @@ set -e # back to regular "bail out on error" mode
 
 for ARCH in ${ARCHS}
 do
-	if [ "${ARCH}" == "i386" ];
-	then
-		PLATFORM="iPhoneSimulator"
-        EXTRA_CONFIG="--host i386-apple-darwin12.5.0"
-        EXTRA_CFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+	if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ] ; then
+        PLATFORM="iPhoneSimulator"
+        EXTRA_CONFIG="--host ${ARCH}-apple-darwin"
+        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
         EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
-	else
-		PLATFORM="iPhoneOS"
-        EXTRA_CONFIG="--host arm-apple-darwin12.5.0"
-        EXTRA_CFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+    else
+        PLATFORM="iPhoneOS"
+        EXTRA_CONFIG="--host arm-apple-darwin"
+        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
         EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
-	fi
+    fi
 
 	mkdir -p "${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 
@@ -124,8 +123,7 @@ OUTPUT_LIBS="libotr.a"
 for OUTPUT_LIB in ${OUTPUT_LIBS}; do
     INPUT_LIBS=""
     for ARCH in ${ARCHS}; do
-        if [ "${ARCH}" == "i386" ];
-        then
+        if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ] ; then
             PLATFORM="iPhoneSimulator"
         else
             PLATFORM="iPhoneOS"
@@ -145,8 +143,7 @@ for OUTPUT_LIB in ${OUTPUT_LIBS}; do
 done
 
 for ARCH in ${ARCHS}; do
-    if [ "${ARCH}" == "i386" ];
-    then
+    if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ] ; then
         PLATFORM="iPhoneSimulator"
     else
         PLATFORM="iPhoneOS"
