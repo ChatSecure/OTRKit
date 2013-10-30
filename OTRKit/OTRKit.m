@@ -592,7 +592,13 @@ static void timer_control_cb(void *opdata, unsigned int interval)
         [otrKit.pollTimer invalidate];
         otrKit.pollTimer = nil;
     }
-    otrKit.pollTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:otrKit selector:@selector(messagePoll) userInfo:nil repeats:YES];
+    if (interval > 0) {
+        otrKit.pollTimer = [NSTimer scheduledTimerWithTimeInterval:interval
+                                                            target:otrKit
+                                                          selector:@selector(messagePoll)
+                                                          userInfo:nil
+                                                           repeats:YES];
+    }
 }
 
 static OtrlMessageAppOps ui_ops = {
