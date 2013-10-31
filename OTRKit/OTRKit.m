@@ -35,7 +35,6 @@
  */
 
 #import "OTRKit.h"
-#import "proto.h"
 #import "message.h"
 #import "privkey.h"
 
@@ -52,11 +51,14 @@ static OtrlUserState userState;
 @end
 
 @implementation OTRKit
-@synthesize delegate, pollTimer;
+@synthesize delegate;
+@synthesize pollTimer;
+@synthesize otrPolicy = _otrPolicy;
+//@synthesize queryMessage;
 
 static OtrlPolicy policy_cb(void *opdata, ConnContext *context)
 {
-    return OTRL_POLICY_DEFAULT;
+    return [OTRKit sharedInstance].otrPolicy;
 }
 
 static const char *protocol_name_cb(void *opdata, const char *protocol)
@@ -113,7 +115,9 @@ static void create_privkey_cb(void *opdata, const char *accountname,
         
         if (!privateKey) {
             if (startGeneratingBlock) {
-                startGeneratingBlock();
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    startGeneratingBlock();
+                });
             }
             [self generatePrivateKeyForUserState:userState accountName:accountName protocol:protocol completion:completionBlock];
         }
@@ -758,6 +762,17 @@ static OtrlMessageAppOps ui_ops = {
     }];
 }
 
+- (void)sendOtrInitiateOrRefreshMessageToRecipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol startGeneratingKeysBlock:(void (^)(void))generatingKeysBlock completion:(void (^)(void))completionBlock {
+    
+    [self encodeMessage:@"?OTR?" recipient:recipient accountName:accountName protocol:protocol startGeneratingKeysBlock:generatingKeysBlock success:^(NSString *message) {
+        
+        [self.delegate injectMessage:message recipient:recipient accountName:accountName protocol:protocol];
+        if (completionBlock) {
+            completionBlock();
+        }
+    }];
+}
+
 
 - (NSString*) encodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol
 {
@@ -901,6 +916,13 @@ static OtrlMessageAppOps ui_ops = {
         }
     }
     return messageState;
+}
+
+-(OtrlPolicy)otrPolicy {
+    if (_otrPolicy) {
+        return _otrPolicy;
+    }
+    return OTRL_POLICY_DEFAULT;
 }
 
 
