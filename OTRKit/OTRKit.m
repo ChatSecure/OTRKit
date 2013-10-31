@@ -855,7 +855,7 @@ static OtrlMessageAppOps ui_ops = {
     
 }
 
-- (BOOL) finerprintIsVerifiedForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol
+- (BOOL) fingerprintIsVerifiedForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol
 {
     BOOL verified = NO;
     Fingerprint * fingerprint = [self fullFingerprintForUsername:username accountName:accountName protocol:protocol];

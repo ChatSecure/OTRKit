@@ -146,7 +146,7 @@ startGeneratingKeysBlock:(void (^)(void))generatingKeysBlock
                          accountName:(NSString*)accountName
                             protocol:(NSString*) protocol; // Returns buddy's fingerprint
 
-- (BOOL)finerprintIsVerifiedForUsername:(NSString*)username
+- (BOOL)fingerprintIsVerifiedForUsername:(NSString*)username
                              accountName:(NSString*)accountName
                                 protocol:(NSString*) protocol;
 
