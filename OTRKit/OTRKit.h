@@ -43,6 +43,8 @@ typedef NS_ENUM(int16_t, OTRKitMessageState) {
     kOTRKitMessageStateFinished  = 2  // OTRL_MSGSTATE_FINISHED
 };
 
+typedef void (^OTRKitMessageCompletionBlock)(NSString *message);
+
 @protocol OTRKitDelegate <NSObject>
 @required
 // Implement this delegate method to forward the injected message to the appropriate protocol
@@ -110,64 +112,61 @@ typedef NS_ENUM(int16_t, OTRKitMessageState) {
 - (NSString*)fingerprintsPath;
 - (NSString*)instanceTagsPath;
 
-- (NSString*)decodeMessage:(NSString*)message
-                 recipient:(NSString*)recipient
-               accountName:(NSString*)accountName
-                  protocol:(NSString*)protocol;
+- (void)generatePrivateKeyForAccountName:(NSString *)accountName
+                                protocol:(NSString *)protocol
+                          completionBock:(void(^)(BOOL didGenerateKey))completionBlock;
 
-- (NSString*)encodeMessage:(NSString*)message
-                 recipient:(NSString*)recipient
-               accountName:(NSString*)accountName
-                  protocol:(NSString*)protocol;
-
-
-
-- (void)encodeMessage:(NSString*)message
-             recipient:(NSString*)recipient
-           accountName:(NSString*)accountName
-              protocol:(NSString*)protocol
-startGeneratingKeysBlock:(void (^)(void))generatingKeysBlock
-               success:(void (^)(NSString * message))success;
-
-- (void)sendOtrInitiateOrRefreshMessageToRecipient:(NSString*)recipient
-                                       accountName:(NSString*)accountName
-                                          protocol:(NSString*)protocol
-                          startGeneratingKeysBlock:(void (^)(void))generatingKeysBlock
-                                        completion:(void (^)(void))completionBlock;
+- (void)hasPrivateKeyForAccountName:(NSString *)accountName
+                           protocol:(NSString *)protocol
+                     completionBock:(void(^)(BOOL hasPrivateKey))completionBlock;
 
 - (void)checkIfGeneratingKeyForAccountName:(NSString *)accountName
                                   protocol:(NSString *)protocol
                                 completion:(void (^)(BOOL isGeneratingKey))completion;
 
-- (NSString*)fingerprintForAccountName:(NSString*)accountName
-                              protocol:(NSString*) protocol; // Returns your fingerprint
+- (void)encodeMessage:(NSString *)message
+            recipient:(NSString*)recipient
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol
+      completionBlock:(OTRKitMessageCompletionBlock)completionBlock;
+
+- (void)decodeMessage:(NSString *)message
+            recipient:(NSString*)recipient
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol
+      completionBlock:(OTRKitMessageCompletionBlock)completionBlock;    
+
+- (void)generateInitiateOrRefreshMessageToRecipient:(NSString*)recipient
+                                       accountName:(NSString*)accountName
+                                           protocol:(NSString*)protocol
+                                    completionBlock:(OTRKitMessageCompletionBlock)completionBlock;
+
+- (NSString *)fingerprintForAccountName:(NSString*)accountName
+                              protocol:(NSString*)protocol; // Returns your fingerprint
 
 - (NSString *)fingerprintForUsername:(NSString*)username
                          accountName:(NSString*)accountName
-                            protocol:(NSString*) protocol; // Returns buddy's fingerprint
+                            protocol:(NSString*)protocol; // Returns buddy's fingerprint
 
 - (BOOL)fingerprintIsVerifiedForUsername:(NSString*)username
                              accountName:(NSString*)accountName
-                                protocol:(NSString*) protocol;
+                                protocol:(NSString*)protocol;
 
 - (void)changeVerifyFingerprintForUsername:(NSString*)username
                                accountName:(NSString*)accountName
-                                  protocol:(NSString*) protocol
+                                  protocol:(NSString*)protocol
                                  verrified:(BOOL)trusted;
-
-- (void)writeFingerprints;
 
 - (void)disableEncryptionForUsername:(NSString*)username
                           accountName:(NSString*)accountName
-                             protocol:(NSString*) protocol;
+                             protocol:(NSString*)protocol;
 
 
 - (OTRKitMessageState)messageStateForUsername:(NSString*)username
                                   accountName:(NSString*)accountName
-                                     protocol:(NSString*) protocol;
+                                     protocol:(NSString*)protocol;
 
-
-+ (OTRKit*) sharedInstance; // Singleton method
++ (OTRKit*)sharedInstance; // Singleton method
 
 
 @end
