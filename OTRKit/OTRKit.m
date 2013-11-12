@@ -107,19 +107,17 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 
 - (void)hasPrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBock:(void (^)(BOOL))completionBlock {
     
-    dispatch_async(self.isolationQueue, ^{
-        __block OtrlPrivKey *privateKey;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            privateKey = otrl_privkey_find(userState, [accountName UTF8String], [protocol UTF8String]);
-        });
-        __block BOOL result = NO;
-        if (privateKey) {
-            result = YES;
-        }
+    dispatch_async(dispatch_get_main_queue(), ^{
         if (completionBlock) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                completionBlock(result);
-            });
+            __block OtrlPrivKey *privateKey;
+            privateKey = otrl_privkey_find(userState, [accountName UTF8String], [protocol UTF8String]);
+            __block BOOL result = NO;
+            
+            if (privateKey) {
+                result = YES;
+            }
+            
+            completionBlock(result);
         }
     });
     
@@ -144,42 +142,31 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 }
 
 -(void)generatePrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBock:(void (^)(BOOL))completionBlock {
-    
-    dispatch_async(self.isolationQueue, ^{
-        
-        
+    dispatch_async(dispatch_get_main_queue(), ^{
         __block void *newkeyp;
         __block gcry_error_t generateError;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            generateError = otrl_privkey_generate_start(userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
-        });
-        
+        generateError = otrl_privkey_generate_start(userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
+        FILE *privf;
+        OTRKit *otrKit = [OTRKit sharedInstance];
+        NSString *path = [otrKit privateKeyPath];
+        privf = fopen([path UTF8String], "w+b");
         if (generateError != gcry_error(GPG_ERR_EEXIST)) {
-            OTRKit *otrKit = [OTRKit sharedInstance];
-            FILE *privf;
-            NSString *path = [otrKit privateKeyPath];
-            privf = fopen([path UTF8String], "w+b");
-            otrl_privkey_generate_calculate(newkeyp);
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                otrl_privkey_generate_finish_FILEp(userState,newkeyp,privf);
-                fclose(privf);
-                if (completionBlock) {
-                    completionBlock(YES);
-                }
+            dispatch_async(self.isolationQueue, ^{
+                otrl_privkey_generate_calculate(newkeyp);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    otrl_privkey_generate_finish_FILEp(userState,newkeyp,privf);
+                    fclose(privf);
+                    if (completionBlock) {
+                        completionBlock(YES);
+                    }
+                });
             });
+        } else {
+            if (completionBlock) {
+                completionBlock(NO);
+            }
         }
-        else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (completionBlock) {
-                    completionBlock(NO);
-                }
-            });
-        }
-        
-            
-        
     });
-    
 }
 
 static int is_logged_in_cb(void *opdata, const char *accountname,
