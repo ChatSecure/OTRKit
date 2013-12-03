@@ -35,6 +35,7 @@
  */
 
 #import "OTRKit.h"
+#import "proto.h"
 #import "message.h"
 #import "privkey.h"
 
@@ -58,7 +59,7 @@ static OtrlUserState userState;
 
 static OtrlPolicy policy_cb(void *opdata, ConnContext *context)
 {
-    return [OTRKit sharedInstance].otrPolicy;
+    return [[OTRKit sharedInstance] otrlPolicy];
 }
 
 static const char *protocol_name_cb(void *opdata, const char *protocol)
@@ -921,11 +922,34 @@ static OtrlMessageAppOps ui_ops = {
     return messageState;
 }
 
--(OtrlPolicy)otrPolicy {
+-(OTRKitPolicy)otrPolicy {
     if (_otrPolicy) {
         return _otrPolicy;
     }
-    return OTRL_POLICY_DEFAULT;
+    return OTRKitPolicyDefault;
+}
+
+-(OtrlPolicy)otrlPolicy {
+    switch (self.otrPolicy) {
+        case OTRKitPolicyDefault:
+            return OTRL_POLICY_DEFAULT;
+            break;
+        case OTRKitPolicyAlways:
+            return OTRL_POLICY_ALWAYS;
+            break;
+        case OTRKitPolicyManual:
+            return OTRL_POLICY_MANUAL;
+            break;
+        case OTRKitPolicyOpportunistic:
+            return OTRL_POLICY_OPPORTUNISTIC;
+            break;
+        case OTRKitPolicyNever:
+            return OTRL_POLICY_NEVER;
+            break;
+        default:
+            return OTRL_POLICY_DEFAULT;
+            break;
+    }
 }
 
 
