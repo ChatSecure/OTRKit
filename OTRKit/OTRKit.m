@@ -38,6 +38,7 @@
 #import "proto.h"
 #import "message.h"
 #import "privkey.h"
+#import "proto.h"
 
 #define PRIVKEYFNAME @"otr.private_key"
 #define STOREFNAME @"otr.fingerprints"
