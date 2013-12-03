@@ -35,12 +35,19 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "proto.h"
 
 typedef NS_ENUM(int16_t, OTRKitMessageState) {
     kOTRKitMessageStatePlaintext = 0, // OTRL_MSGSTATE_PLAINTEXT
     kOTRKitMessageStateEncrypted = 1, // OTRL_MSGSTATE_ENCRYPTED
     kOTRKitMessageStateFinished  = 2  // OTRL_MSGSTATE_FINISHED
+};
+
+typedef NS_ENUM(NSUInteger, OTRKitPolicy) {
+    OTRKitPolicyNever = 0,
+    OTRKitPolicyOpportunistic = 1,
+    OTRKitPolicyManual = 2,
+    OTRKitPolicyAlways = 3,
+    OTRKitPolicyDefault = 4
 };
 
 typedef void (^OTRKitMessageCompletionBlock)(NSString *message);
@@ -106,7 +113,7 @@ typedef void (^OTRKitMessageCompletionBlock)(NSString *message);
 
 /** If none it uses `OTRL_POLICY_DEFAULT`
  */
-@property (nonatomic) OtrlPolicy otrPolicy;
+@property (nonatomic) OTRKitPolicy otrPolicy;
 
 - (NSString*)privateKeyPath;
 - (NSString*)fingerprintsPath;
