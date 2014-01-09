@@ -93,6 +93,12 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 
 - (void)checkIfGeneratingKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void (^)(BOOL isGeneratingKey))completion
 {
+    if (!accountName.length || !protocol.length) {
+        if (completion) {
+            completion(NO);
+        }
+        return;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         __block void *newkeyp;
         __block gcry_error_t generateError;
@@ -108,7 +114,12 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 }
 
 - (void)hasPrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBock:(void (^)(BOOL))completionBlock {
-    
+    if (!accountName.length || !protocol.length) {
+        if (completionBlock) {
+            completionBlock(NO);
+        }
+        return;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         if (completionBlock) {
             __block OtrlPrivKey *privateKey;
@@ -126,6 +137,12 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 }
 -(void)generatePrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol startGenerating:(void(^)(void))startGeneratingBlock completion:(void(^)(BOOL didGenerateKey))completionBlock
 {
+    if (!accountName.length || !protocol.length) {
+        if (completionBlock) {
+            completionBlock(NO);
+        }
+        return;
+    }
     [self hasPrivateKeyForAccountName:accountName protocol:protocol completionBock:^(BOOL hasPrivateKey) {
         if (!hasPrivateKey) {
             if (startGeneratingBlock) {
@@ -144,6 +161,12 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 }
 
 -(void)generatePrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBock:(void (^)(BOOL))completionBlock {
+    if (!accountName.length || !protocol.length) {
+        if (completionBlock) {
+            completionBlock(NO);
+        }
+        return;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         __block void *newkeyp;
         __block gcry_error_t generateError;
