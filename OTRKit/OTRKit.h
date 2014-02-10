@@ -164,6 +164,10 @@ typedef void (^OTRKitMessageCompletionBlock)(NSString *message);
                                   protocol:(NSString*)protocol
                                  verrified:(BOOL)trusted;
 
+- (BOOL)isConversationEncryptedForUsername:(NSString *)username
+                               accountName:(NSString *)accountName
+                                  protocol:(NSString *)protocol;
+
 - (void)disableEncryptionForUsername:(NSString*)username
                           accountName:(NSString*)accountName
                              protocol:(NSString*)protocol;

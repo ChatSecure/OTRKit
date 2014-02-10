@@ -913,6 +913,34 @@ static OtrlMessageAppOps ui_ops = {
     
 }
 
+- (BOOL)isConversationEncryptedForUsername:(NSString *)username
+                               accountName:(NSString *)accountName
+                                  protocol:(NSString *)protocol
+{
+    ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
+    if (!context){
+        return NO;
+    }
+    
+    BOOL isEncrypted = NO;
+    switch (context->msgstate) {
+        case OTRL_MSGSTATE_ENCRYPTED:
+            isEncrypted = YES;
+            break;
+        case OTRL_MSGSTATE_FINISHED:
+            isEncrypted = NO;
+            break;
+        case OTRL_MSGSTATE_PLAINTEXT:
+            isEncrypted = NO;
+            break;
+        default:
+            isEncrypted = NO;
+            break;
+    }
+    
+    return isEncrypted;
+}
+
 -(void)writeFingerprints
 {
     OTRKit *otrKit = [OTRKit sharedInstance];
