@@ -155,9 +155,13 @@ typedef void (^OTRKitMessageCompletionBlock)(NSString *message);
                          accountName:(NSString*)accountName
                             protocol:(NSString*)protocol; // Returns buddy's fingerprint
 
-- (BOOL)fingerprintIsVerifiedForUsername:(NSString*)username
+- (BOOL)activeFingerprintIsVerifiedForUsername:(NSString*)username
                              accountName:(NSString*)accountName
                                 protocol:(NSString*)protocol;
+
+- (BOOL)hasVerifiedFingerprintsForUsername:(NSString *)username
+                               accountName:(NSString*)accountName
+                                  protocol:(NSString *)protocol;
 
 - (void)changeVerifyFingerprintForUsername:(NSString*)username
                                accountName:(NSString*)accountName

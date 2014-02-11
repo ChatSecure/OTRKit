@@ -858,7 +858,7 @@ static OtrlMessageAppOps ui_ops = {
     return context;
 }
 
--(Fingerprint *) fullFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
+- (Fingerprint *)activeFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
     Fingerprint * fingerprint = nil;
     ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
     if(context)
@@ -874,7 +874,7 @@ static OtrlMessageAppOps ui_ops = {
     
     NSString *fingerprintString = nil;
     char their_hash[45];
-    Fingerprint * fingerprint = [self fullFingerprintForUsername:username accountName:accountName protocol:protocol];
+    Fingerprint * fingerprint = [self activeFingerprintForUsername:username accountName:accountName protocol:protocol];
     if(fingerprint && fingerprint->fingerprint) {
         otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
         fingerprintString = [NSString stringWithUTF8String:their_hash];
@@ -883,15 +883,39 @@ static OtrlMessageAppOps ui_ops = {
     
 }
 
-- (BOOL) fingerprintIsVerifiedForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol
+- (BOOL)hasVerifiedFingerprintsForUsername:(NSString *)username
+                               accountName:(NSString*)accountName
+                                  protocol:(NSString *)protocol
+{
+    BOOL hasVerifiedFingerprints = NO;
+    
+    ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
+    if (context) {
+        Fingerprint *currentFingerPrint = context->fingerprint_root.next;
+        while (currentFingerPrint != NULL) {
+            if (currentFingerPrint->trust) {
+                if(otrl_context_is_fingerprint_trusted(currentFingerPrint)) {
+                    hasVerifiedFingerprints = YES;
+                }
+
+            }
+            currentFingerPrint = currentFingerPrint->next;
+        }
+    }
+    
+    return hasVerifiedFingerprints;
+}
+
+- (BOOL) activeFingerprintIsVerifiedForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol
 {
     BOOL verified = NO;
-    Fingerprint * fingerprint = [self fullFingerprintForUsername:username accountName:accountName protocol:protocol];
+    Fingerprint * fingerprint = [self activeFingerprintForUsername:username accountName:accountName protocol:protocol];
     
     if( fingerprint && fingerprint->trust)
     {
-        if(otrl_context_is_fingerprint_trusted(fingerprint))
+        if(otrl_context_is_fingerprint_trusted(fingerprint)) {
             verified = YES;
+        }
     }
     
     
@@ -900,7 +924,7 @@ static OtrlMessageAppOps ui_ops = {
 }
 - (void) changeVerifyFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol verrified:(BOOL)trusted
 {
-    Fingerprint * fingerprint = [self fullFingerprintForUsername:username accountName:accountName protocol:protocol];
+    Fingerprint * fingerprint = [self activeFingerprintForUsername:username accountName:accountName protocol:protocol];
     const char * newTrust = nil;
     if(trusted)
         newTrust = [@"verified" UTF8String];
