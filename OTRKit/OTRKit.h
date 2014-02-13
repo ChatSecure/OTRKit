@@ -52,6 +52,13 @@ typedef NS_ENUM(NSUInteger, OTRKitPolicy) {
 
 typedef void (^OTRKitMessageCompletionBlock)(NSString *message);
 
+extern NSString*const OTRUsernameKey;
+extern NSString*const OTRAccountNameKey;
+extern NSString*const OTRFingerprintKey;
+extern NSString*const OTRProtocolKey;
+extern NSString*const OTRTrustKey;
+
+
 @protocol OTRKitDelegate <NSObject>
 @required
 // Implement this delegate method to forward the injected message to the appropriate protocol
@@ -180,6 +187,16 @@ typedef void (^OTRKitMessageCompletionBlock)(NSString *message);
 - (OTRKitMessageState)messageStateForUsername:(NSString*)username
                                   accountName:(NSString*)accountName
                                      protocol:(NSString*)protocol;
+/***
+ Returns an array of dictionaries using OTRAccountNameKey, OTRUsernameKey, OTRFingerprintKey, OTRProtocolKey, OTRFingerprintKey to
+ store the relevant information
+ **/
+- (NSArray *)allFingerprints;
+
+- (BOOL)deleteFingerprint:(NSString *)fingerprint
+                 username:(NSString *)username
+              accountName:(NSString *)accountName
+                 protocol:(NSString *)protocol;
 
 + (OTRKit*)sharedInstance; // Singleton method
 

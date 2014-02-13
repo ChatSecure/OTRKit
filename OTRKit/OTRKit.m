@@ -46,6 +46,12 @@
 
 static OtrlUserState userState;
 
+NSString*const OTRUsernameKey    = @"OTRUsernameKey";
+NSString*const OTRAccountNameKey = @"OTRAccountNameKey";
+NSString*const OTRFingerprintKey = @"OTRFingerprintKey";
+NSString*const OTRProtocolKey    = @"OTRProtocolKey";
+NSString*const OTRTrustKey       = @"OTRTrustKey";
+
 @interface OTRKit(Private)
 - (void) updateEncryptionStatusWithContext:(ConnContext*)context;
 - (void) messagePoll;
@@ -1028,6 +1034,68 @@ static OtrlMessageAppOps ui_ops = {
     }
 }
 
+- (NSArray *)allFingerprints
+{
+    NSMutableArray * fingerprintsArray = [NSMutableArray array];
+    ConnContext * context = userState->context_root;
+    while (context) {
+        Fingerprint * fingerprint = context->fingerprint_root.next;
+        while (fingerprint) {
+            char their_hash[45];
+            otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
+            NSString * fingerprintString = [NSString stringWithUTF8String:their_hash];
+            NSString * username = [NSString stringWithUTF8String:fingerprint->context->username];
+            NSString * accountName = [NSString stringWithUTF8String:fingerprint->context->accountname];
+            NSString * protocol = [NSString stringWithUTF8String:fingerprint->context->protocol];
+            BOOL trusted = otrl_context_is_fingerprint_trusted(fingerprint);
+            
+            [fingerprintsArray addObject:@{OTRUsernameKey:username,
+                                           OTRAccountNameKey:accountName,
+                                           OTRFingerprintKey:fingerprintString,
+                                           OTRProtocolKey:protocol,
+                                           OTRTrustKey: @(trusted)}];
+            fingerprint = fingerprint->next;
+        }
+        context = context->next;
+    }
+    
+    if ([fingerprintsArray count]) {
+        return [NSArray arrayWithArray:fingerprintsArray];
+    }
+    return nil;
+}
+
+- (BOOL)deleteFingerprint:(NSString *)fingerprintString
+                 username:(NSString *)username
+              accountName:(NSString *)accountName
+                 protocol:(NSString *)protocol
+{
+    ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
+    BOOL stop = NO;
+    Fingerprint * fingerprint = nil;
+    Fingerprint * currentFingerprint = context->fingerprint_root.next;
+    while (currentFingerprint && !stop) {
+        char their_hash[45];
+        otrl_privkey_hash_to_human(their_hash, currentFingerprint->fingerprint);
+        NSString * currentFingerprintString = [NSString stringWithUTF8String:their_hash];
+        if ([currentFingerprintString isEqualToString:fingerprintString]) {
+            fingerprint = currentFingerprint;
+            stop = YES;
+        }
+        else {
+            currentFingerprint = currentFingerprint->next;
+        }
+    }
+    
+    if (fingerprint != [self activeFingerprintForUsername:username accountName:accountName protocol:protocol]) {
+        //will not delete if it is the active fingerprint;
+        otrl_context_forget_fingerprint(fingerprint, 0);
+        [self writeFingerprints];
+        return YES;
+    }
+    
+    return NO;
+}
 
 #pragma mark -
 #pragma mark Singleton Object Methods
