@@ -24,6 +24,8 @@
 #
 VERSION="4.0.0"
 SDKVERSION="7.0"
+MINIOSVERSION="6.0"
+VERIFYGPG=true
 #
 #
 ###########################################################################
@@ -65,9 +67,27 @@ set -e
 
 if [ ! -e "${SRCDIR}/libotr-${VERSION}.tar.gz" ]; then
 	echo "Downloading libotr-${VERSION}.tar.gz"
-    curl -LO http://www.cypherpunks.ca/otr/libotr-${VERSION}.tar.gz
+    curl -LO https://otr.cypherpunks.ca/libotr-${VERSION}.tar.gz
 else
 	echo "Using libotr-${VERSION}.tar.gz"
+fi
+
+# see https://www.openssl.org/about/,
+# up to you to set up `gpg` and add keys to your keychain
+if $VERIFYGPG; then
+    if [ ! -e "${SRCDIR}/libotr-${VERSION}.tar.gz.asc" ]; then
+        curl -O https://otr.cypherpunks.ca/libotr-${VERSION}.tar.gz.asc
+    fi
+    echo "Using libotr-${VERSION}.tar.gz.asc"
+    if out=$(gpg --status-fd 1 --verify "libotr-${VERSION}.tar.gz.asc" "libotr-${VERSION}.tar.gz" 2>/dev/null) &&
+    echo "$out" | grep -qs "^\[GNUPG:\] VALIDSIG"; then
+        echo "$out" | egrep "GOODSIG|VALIDSIG"
+        echo "Verified GPG signature for source..."
+    else
+        echo "$out" >&2
+        echo "COULD NOT VERIFY PACKAGE SIGNATURE..."
+        exit 1
+    fi
 fi
 
 tar zxf libotr-${VERSION}.tar.gz -C $SRCDIR
@@ -89,22 +109,21 @@ do
 	if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ] ; then
         PLATFORM="iPhoneSimulator"
         EXTRA_CONFIG="--host ${ARCH}-apple-darwin"
-        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
-        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
+        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
     else
         PLATFORM="iPhoneOS"
         EXTRA_CONFIG="--host arm-apple-darwin"
-        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
-        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
+        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
     fi
 
 	mkdir -p "${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 
 	./configure --disable-shared --enable-static --with-pic --with-libgcrypt-prefix=${OUTPUTDIR} ${EXTRA_CONFIG} \
     --prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
-    CC="${CCACHE}${DEVELOPER}/usr/bin/gcc" \
-    LDFLAGS="$LDFLAGS ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
-    CFLAGS="$CFLAGS ${EXTRA_CFLAGS} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
+    LDFLAGS="$LDFLAGS -flto ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
+    CFLAGS="$CFLAGS -Ofast -flto ${EXTRA_CFLAGS} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
 
     # Build the application and install it to the fake SDK intermediary dir
     # we have set up. Make sure to clean up afterward because we will re-use

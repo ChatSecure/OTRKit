@@ -24,6 +24,8 @@
 #
 VERSION="1.5.3"
 SDKVERSION="7.0"
+MINIOSVERSION="6.0"
+VERIFYGPG=true
 #
 #
 ###########################################################################
@@ -71,6 +73,24 @@ else
 	echo "Using libgcrypt-${VERSION}.tar.bz2"
 fi
 
+# see https://www.openssl.org/about/,
+# up to you to set up `gpg` and add keys to your keychain
+if $VERIFYGPG; then
+    if [ ! -e "${SRCDIR}/libgcrypt-${VERSION}.tar.bz2.sig" ]; then
+        curl -O ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-${VERSION}.tar.bz2.sig
+    fi
+    echo "Using libgcrypt-${VERSION}.tar.bz2.sig"
+    if out=$(gpg --status-fd 1 --verify "libgcrypt-${VERSION}.tar.bz2.sig" "libgcrypt-${VERSION}.tar.bz2" 2>/dev/null) &&
+    echo "$out" | grep -qs "^\[GNUPG:\] VALIDSIG"; then
+        echo "$out" | egrep "GOODSIG|VALIDSIG"
+        echo "Verified GPG signature for source..."
+    else
+        echo "$out" >&2
+        echo "COULD NOT VERIFY PACKAGE SIGNATURE..."
+        exit 1
+    fi
+fi
+
 tar zxf libgcrypt-${VERSION}.tar.bz2 -C $SRCDIR
 cd "${SRCDIR}/libgcrypt-${VERSION}"
 
@@ -90,24 +110,24 @@ do
     if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ] ; then
         PLATFORM="iPhoneSimulator"
         EXTRA_CONFIG="--host ${ARCH}-apple-darwin"
-        EXTRA_CFLAGS="-g -arch ${ARCH} -DNO_ASM -fPIE -miphoneos-version-min=6.0"
-        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+        EXTRA_CFLAGS="-arch ${ARCH}"
+        EXTRA_LDFLAGS="-arch ${ARCH}"
     else
         PLATFORM="iPhoneOS"
         EXTRA_CONFIG="--host arm-apple-darwin"
-        EXTRA_CFLAGS="-g -arch ${ARCH} -DNO_ASM -fPIE -miphoneos-version-min=6.0"
-        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+        EXTRA_CFLAGS="-arch ${ARCH}"
+        EXTRA_LDFLAGS="-arch ${ARCH}"
     fi
 
 	mkdir -p "${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 
-	./configure --disable-asm --disable-aesni-support --disable-padlock-support \
-    --disable-shared --enable-static --with-pic --with-gpg-error-prefix=${OUTPUTDIR} ${EXTRA_CONFIG} \
+	./configure --enable-threads=posix --disable-asm --disable-shared --enable-static --disable-neon-support \
+    --disable-aesni-support --disable-padlock-support \
+    --with-pic --with-gpg-error-prefix=${OUTPUTDIR} ${EXTRA_CONFIG} \
     --prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
     --with-sysroot=${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk \
-    CC="${CCACHE}${DEVELOPER}/usr/bin/gcc" \
-    LDFLAGS="$LDFLAGS ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
-    CFLAGS="$CFLAGS ${EXTRA_CFLAGS} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
+    LDFLAGS="$LDFLAGS -flto -fPIE ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
+    CFLAGS="$CFLAGS -g -DNO_ASM -Ofast -flto ${EXTRA_CFLAGS} -fPIE -miphoneos-version-min=${MINIOSVERSION} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
     # Build the application and install it to the fake SDK intermediary dir
     # we have set up. Make sure to clean up afterward because we will re-use
     # this source tree to cross-compile other targets.

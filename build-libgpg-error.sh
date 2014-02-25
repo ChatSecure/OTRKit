@@ -24,6 +24,8 @@
 #
 VERSION="1.12"
 SDKVERSION="7.0"
+MINIOSVERSION="6.0"
+VERIFYGPG=true
 #
 #
 ###########################################################################
@@ -71,6 +73,24 @@ else
 	echo "Using libgpg-error-${VERSION}.tar.bz2"
 fi
 
+# see https://www.openssl.org/about/,
+# up to you to set up `gpg` and add keys to your keychain
+if $VERIFYGPG; then
+    if [ ! -e "${SRCDIR}/libgpg-error-${VERSION}.tar.bz2.sig" ]; then
+        curl -O ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-${VERSION}.tar.bz2.sig
+    fi
+    echo "Using libgpg-error-${VERSION}.tar.bz2.sig"
+    if out=$(gpg --status-fd 1 --verify "libgpg-error-${VERSION}.tar.bz2.sig" "libgpg-error-${VERSION}.tar.bz2" 2>/dev/null) &&
+    echo "$out" | grep -qs "^\[GNUPG:\] VALIDSIG"; then
+        echo "$out" | egrep "GOODSIG|VALIDSIG"
+        echo "Verified GPG signature for source..."
+    else
+        echo "$out" >&2
+        echo "COULD NOT VERIFY PACKAGE SIGNATURE..."
+        exit 1
+    fi
+fi
+
 tar zxf libgpg-error-${VERSION}.tar.bz2 -C $SRCDIR
 cd "${SRCDIR}/libgpg-error-${VERSION}"
 
@@ -90,13 +110,13 @@ do
 	if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ] ; then
 		PLATFORM="iPhoneSimulator"
         EXTRA_CONFIG="--host ${ARCH}-apple-darwin"
-        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
-        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
+        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
 	else
 		PLATFORM="iPhoneOS"
         EXTRA_CONFIG="--host arm-apple-darwin"
-        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
-        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=6.0"
+        EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
+        EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
 	fi
 
 	mkdir -p "${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
@@ -104,9 +124,8 @@ do
 	./configure --disable-shared --enable-static --with-pic ${EXTRA_CONFIG} \
     --prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
     --with-sysroot=${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk \
-    CC="${CCACHE}${DEVELOPER}/usr/bin/gcc" \
-    LDFLAGS="$LDFLAGS ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
-    CFLAGS="$CFLAGS ${EXTRA_CFLAGS} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
+    LDFLAGS="$LDFLAGS -flto ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
+    CFLAGS="$CFLAGS -Ofast -flto ${EXTRA_CFLAGS} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
 
     # Build the application and install it to the fake SDK intermediary dir
     # we have set up. Make sure to clean up afterward because we will re-use
