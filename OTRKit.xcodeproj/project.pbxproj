@@ -42,6 +42,35 @@
 		D905CFB6155B060200654181 /* OTRKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKit.m; sourceTree = "<group>"; };
 		D905CFCB155B2B0000654181 /* libOTRKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOTRKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D9DB96F518BD5CAA0035D807 /* auth.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = auth.c; sourceTree = "<group>"; };
+		D9DB96F618BD5CAA0035D807 /* auth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = auth.h; sourceTree = "<group>"; };
+		D9DB96F718BD5CAA0035D807 /* b64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = b64.c; sourceTree = "<group>"; };
+		D9DB96F818BD5CAA0035D807 /* b64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = b64.h; sourceTree = "<group>"; };
+		D9DB96F918BD5CAA0035D807 /* context.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = context.c; sourceTree = "<group>"; };
+		D9DB96FA18BD5CAA0035D807 /* context.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = context.h; sourceTree = "<group>"; };
+		D9DB96FB18BD5CAA0035D807 /* context_priv.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = context_priv.c; sourceTree = "<group>"; };
+		D9DB96FC18BD5CAA0035D807 /* context_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = context_priv.h; sourceTree = "<group>"; };
+		D9DB96FD18BD5CAA0035D807 /* dh.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dh.c; sourceTree = "<group>"; };
+		D9DB96FE18BD5CAA0035D807 /* dh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dh.h; sourceTree = "<group>"; };
+		D9DB96FF18BD5CAA0035D807 /* instag.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = instag.c; sourceTree = "<group>"; };
+		D9DB970018BD5CAA0035D807 /* instag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = instag.h; sourceTree = "<group>"; };
+		D9DB970318BD5CAA0035D807 /* mem.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mem.c; sourceTree = "<group>"; };
+		D9DB970418BD5CAA0035D807 /* mem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mem.h; sourceTree = "<group>"; };
+		D9DB970518BD5CAA0035D807 /* message.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = message.c; sourceTree = "<group>"; };
+		D9DB970618BD5CAA0035D807 /* message.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = message.h; sourceTree = "<group>"; };
+		D9DB970718BD5CAA0035D807 /* privkey-t.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "privkey-t.h"; sourceTree = "<group>"; };
+		D9DB970818BD5CAA0035D807 /* privkey.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = privkey.c; sourceTree = "<group>"; };
+		D9DB970918BD5CAA0035D807 /* privkey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = privkey.h; sourceTree = "<group>"; };
+		D9DB970A18BD5CAA0035D807 /* proto.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = proto.c; sourceTree = "<group>"; };
+		D9DB970B18BD5CAA0035D807 /* proto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = proto.h; sourceTree = "<group>"; };
+		D9DB970C18BD5CAA0035D807 /* serial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = serial.h; sourceTree = "<group>"; };
+		D9DB970D18BD5CAA0035D807 /* sm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sm.c; sourceTree = "<group>"; };
+		D9DB970E18BD5CAA0035D807 /* sm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sm.h; sourceTree = "<group>"; };
+		D9DB970F18BD5CAA0035D807 /* tlv.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tlv.c; sourceTree = "<group>"; };
+		D9DB971018BD5CAA0035D807 /* tlv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tlv.h; sourceTree = "<group>"; };
+		D9DB971118BD5CAA0035D807 /* userstate.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = userstate.c; sourceTree = "<group>"; };
+		D9DB971218BD5CAA0035D807 /* userstate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = userstate.h; sourceTree = "<group>"; };
+		D9DB971318BD5CAA0035D807 /* version.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +91,7 @@
 		D905CF58155B010A00654181 = {
 			isa = PBXGroup;
 			children = (
+				D9DB96F418BD5CAA0035D807 /* libotr */,
 				D905CF69155B010B00654181 /* OTRKit */,
 				D905CF7B155B04AD00654181 /* Dependencies */,
 				D905CFCC155B2B0000654181 /* Frameworks */,
@@ -163,6 +193,43 @@
 				D905CFCD155B2B0000654181 /* Foundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D9DB96F418BD5CAA0035D807 /* libotr */ = {
+			isa = PBXGroup;
+			children = (
+				D9DB96F518BD5CAA0035D807 /* auth.c */,
+				D9DB96F618BD5CAA0035D807 /* auth.h */,
+				D9DB96F718BD5CAA0035D807 /* b64.c */,
+				D9DB96F818BD5CAA0035D807 /* b64.h */,
+				D9DB96F918BD5CAA0035D807 /* context.c */,
+				D9DB96FA18BD5CAA0035D807 /* context.h */,
+				D9DB96FB18BD5CAA0035D807 /* context_priv.c */,
+				D9DB96FC18BD5CAA0035D807 /* context_priv.h */,
+				D9DB96FD18BD5CAA0035D807 /* dh.c */,
+				D9DB96FE18BD5CAA0035D807 /* dh.h */,
+				D9DB96FF18BD5CAA0035D807 /* instag.c */,
+				D9DB970018BD5CAA0035D807 /* instag.h */,
+				D9DB970318BD5CAA0035D807 /* mem.c */,
+				D9DB970418BD5CAA0035D807 /* mem.h */,
+				D9DB970518BD5CAA0035D807 /* message.c */,
+				D9DB970618BD5CAA0035D807 /* message.h */,
+				D9DB970718BD5CAA0035D807 /* privkey-t.h */,
+				D9DB970818BD5CAA0035D807 /* privkey.c */,
+				D9DB970918BD5CAA0035D807 /* privkey.h */,
+				D9DB970A18BD5CAA0035D807 /* proto.c */,
+				D9DB970B18BD5CAA0035D807 /* proto.h */,
+				D9DB970C18BD5CAA0035D807 /* serial.h */,
+				D9DB970D18BD5CAA0035D807 /* sm.c */,
+				D9DB970E18BD5CAA0035D807 /* sm.h */,
+				D9DB970F18BD5CAA0035D807 /* tlv.c */,
+				D9DB971018BD5CAA0035D807 /* tlv.h */,
+				D9DB971118BD5CAA0035D807 /* userstate.c */,
+				D9DB971218BD5CAA0035D807 /* userstate.h */,
+				D9DB971318BD5CAA0035D807 /* version.h */,
+			);
+			name = libotr;
+			path = "build/src/libotr-4.0.0/src";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

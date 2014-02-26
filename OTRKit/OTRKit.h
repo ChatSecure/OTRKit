@@ -36,10 +36,12 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(int16_t, OTRKitMessageState) {
-    kOTRKitMessageStatePlaintext = 0, // OTRL_MSGSTATE_PLAINTEXT
-    kOTRKitMessageStateEncrypted = 1, // OTRL_MSGSTATE_ENCRYPTED
-    kOTRKitMessageStateFinished  = 2  // OTRL_MSGSTATE_FINISHED
+@class OTRKit;
+
+typedef NS_ENUM(NSUInteger, OTRKitMessageState) {
+    OTRKitMessageStatePlaintext = 0, // OTRL_MSGSTATE_PLAINTEXT
+    OTRKitMessageStateEncrypted = 1, // OTRL_MSGSTATE_ENCRYPTED
+    OTRKitMessageStateFinished  = 2  // OTRL_MSGSTATE_FINISHED
 };
 
 typedef NS_ENUM(NSUInteger, OTRKitPolicy) {
@@ -52,75 +54,60 @@ typedef NS_ENUM(NSUInteger, OTRKitPolicy) {
 
 typedef void (^OTRKitMessageCompletionBlock)(NSString *message);
 
-extern NSString*const OTRUsernameKey;
-extern NSString*const OTRAccountNameKey;
-extern NSString*const OTRFingerprintKey;
-extern NSString*const OTRProtocolKey;
-extern NSString*const OTRTrustKey;
-
+extern NSString const *kOTRKitUsernameKey;
+extern NSString const *kOTRKitAccountNameKey;
+extern NSString const *kOTRKitFingerprintKey;
+extern NSString const *kOTRKitProtocolKey;
+extern NSString const *kOTRKitTrustKey;
 
 @protocol OTRKitDelegate <NSObject>
 @required
 // Implement this delegate method to forward the injected message to the appropriate protocol
-- (void)injectMessage:(NSString*)message
-            recipient:(NSString*)recipient
+- (void) otrKit:(OTRKit*)otrkit
+  injectMessage:(NSString*)message
+      recipient:(NSString*)recipient
+    accountName:(NSString*)accountName
+       protocol:(NSString*)protocol;
+
+- (void)    otrKit:(OTRKit*)otrkit
+updateMessageState:(OTRKitMessageState)messageState
+          username:(NSString*)username
+       accountName:(NSString*)accountName
+          protocol:(NSString*)protocol;
+
+- (BOOL)       otrKit:(OTRKit*)otrKit
+  isRecipientLoggedIn:(NSString*)recipient
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol;
 
-- (void)updateMessageStateForUsername:(NSString*)username
-                          accountName:(NSString*)accountName
-                             protocol:(NSString*)protocol
-                         messageState:(OTRKitMessageState)messageState;
-
 @optional
-// If you don't implement these methods there are some defaults in place that you might want to check out in OTRCodec.m
 
-// You will probably want to show a dialog for fingerprint confirmation though
-- (void)showFingerprintConfirmationForAccountName:(NSString*)accountName
-                                         protocol:(NSString*)protocol
-                                         userName:(NSString*)userName
-                                        theirHash:(NSString*)theirHash
-                                          ourHash:(NSString*)ourHash;
+- (int)            otrKit:(OTRKit*)otrKit
+maxMessageSizeForProtocol:(NSString*)protocol;
 
-- (void)createPrivateKeyForAccountName:(NSString*)accountName
-                              protocol:(NSString*)protocol;
+- (void)                           otrKit:(OTRKit*)otrKit
+showFingerprintConfirmationForAccountName:(NSString*)accountName
+                                 protocol:(NSString*)protocol
+                                 userName:(NSString*)userName
+                                theirHash:(NSString*)theirHash
+                                  ourHash:(NSString*)ourHash;
 
-- (BOOL)recipientIsLoggedIn:(NSString*)recipient
-                accountName:(NSString*)accountName
-                   protocol:(NSString*)protocol;
-
-- (void)writeFingerprints;
-
-- (int)maxMessageSizeForProtocol:(NSString*)protocol;
-
-- (void)updateContextList;
-
-- (void)logMessage:(NSString*)message;
-
-- (void)showNotificationForAccountName:(NSString*)accountName
-                              protocol:(NSString*)protocol
-                              userName:(NSString*)userName
-                                 title:(NSString*)title
-                               primary:(NSString*)primary
-                             secondary:(NSString*)secondary
-                                 level:(int)level;
-
-- (void)showMessageDialogForAccountName:(NSString*)accountName
-                               protocol:(NSString*)protocol
-                               userName:(NSString*)userName
-                                message:(NSString*)message;
 @end
 
 @interface OTRKit : NSObject
 
-@property (nonatomic, assign) id<OTRKitDelegate> delegate;
-@property (nonatomic, strong) NSTimer *pollTimer;
-@property (nonatomic, assign) dispatch_queue_t isolationQueue;
-//@property (nonatomic, strong) NSString * queryMessage;
-
+@property (nonatomic, weak) id<OTRKitDelegate> delegate;
+@property (nonatomic) dispatch_queue_t isolationQueue;
 /** If none it uses `OTRL_POLICY_DEFAULT`
  */
 @property (nonatomic) OTRKitPolicy otrPolicy;
+@property (nonatomic, strong) NSString* dataPath;
+
+/**
+ * @param dataPath This is a path to a folder where private keys, fingerprints, and instance tags will be stored.
+ *
+ */
+- (id) initWithDataPath:(NSString*)dataPath;
 
 - (NSString*)privateKeyPath;
 - (NSString*)fingerprintsPath;
@@ -197,8 +184,5 @@ extern NSString*const OTRTrustKey;
                  username:(NSString *)username
               accountName:(NSString *)accountName
                  protocol:(NSString *)protocol;
-
-+ (OTRKit*)sharedInstance; // Singleton method
-
 
 @end
