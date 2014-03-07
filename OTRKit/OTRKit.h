@@ -63,13 +63,13 @@ extern NSString const *kOTRKitTrustKey;
 @protocol OTRKitDelegate <NSObject>
 @required
 // Implement this delegate method to forward the injected message to the appropriate protocol
-- (void) otrKit:(OTRKit*)otrkit
+- (void) otrKit:(OTRKit*)otrKit
   injectMessage:(NSString*)message
       recipient:(NSString*)recipient
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol;
 
-- (void)    otrKit:(OTRKit*)otrkit
+- (void)    otrKit:(OTRKit*)otrKit
 updateMessageState:(OTRKitMessageState)messageState
           username:(NSString*)username
        accountName:(NSString*)accountName
@@ -98,7 +98,7 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
 
 @property (nonatomic, weak) id<OTRKitDelegate> delegate;
 @property (nonatomic) dispatch_queue_t isolationQueue;
-/** If none it uses `OTRL_POLICY_DEFAULT`
+/** If none it uses `OTRKitPolicyDefault`
  */
 @property (nonatomic) OTRKitPolicy otrPolicy;
 @property (nonatomic, strong) NSString* dataPath;
@@ -113,18 +113,6 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
 - (NSString*)fingerprintsPath;
 - (NSString*)instanceTagsPath;
 
-- (void)generatePrivateKeyForAccountName:(NSString *)accountName
-                                protocol:(NSString *)protocol
-                          completionBock:(void(^)(BOOL didGenerateKey))completionBlock;
-
-- (void)hasPrivateKeyForAccountName:(NSString *)accountName
-                           protocol:(NSString *)protocol
-                     completionBock:(void(^)(BOOL hasPrivateKey))completionBlock;
-
-- (void)checkIfGeneratingKeyForAccountName:(NSString *)accountName
-                                  protocol:(NSString *)protocol
-                                completion:(void (^)(BOOL isGeneratingKey))completion;
-
 - (void)encodeMessage:(NSString *)message
             recipient:(NSString*)recipient
           accountName:(NSString*)accountName
@@ -132,7 +120,7 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
       completionBlock:(OTRKitMessageCompletionBlock)completionBlock;
 
 - (void)decodeMessage:(NSString *)message
-            recipient:(NSString*)recipient
+               sender:(NSString*)sender
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol
       completionBlock:(OTRKitMessageCompletionBlock)completionBlock;    

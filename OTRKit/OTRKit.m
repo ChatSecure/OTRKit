@@ -58,6 +58,13 @@ NSString const *kOTRKitTrustKey       = @"kOTRKitTrustKey";
 
 @implementation OTRKit
 
++ (void) initialize {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        OTRL_INIT;
+    });
+}
+
 - (void) dealloc {
     [self.pollTimer invalidate];
     otrl_userstate_free(self.userState);
@@ -604,7 +611,9 @@ static OtrlMessageAppOps ui_ops = {
 - (id) initWithDataPath:(NSString *)dataPath {
     if (self = [super init]) {
         if (!dataPath) {
-            dataPath = [self documentsDirectory];
+            self.dataPath = [self documentsDirectory];
+        } else {
+            self.dataPath = dataPath;
         }
        self.protocolMaxSize = @{@"prpl-msn":   @(1409),
                                 @"prpl-icq":   @(2346),
@@ -615,7 +624,6 @@ static OtrlMessageAppOps ui_ops = {
                                 @"prpl-oscar": @(2343)};
         self.isolationQueue = dispatch_queue_create("OTRKit Processing Queue", DISPATCH_QUEUE_SERIAL);
         // initialize OTR
-        OTRL_INIT;
         self.userState = otrl_userstate_create();
         
         FILE *privf;
@@ -671,10 +679,10 @@ static OtrlMessageAppOps ui_ops = {
     }
 }
 
-- (void)decodeMessage:(NSString *)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol completionBlock:(OTRKitMessageCompletionBlock)completionBlock {
+- (void)decodeMessage:(NSString *)message sender:(NSString*)sender accountName:(NSString*)accountName protocol:(NSString*)protocol completionBlock:(OTRKitMessageCompletionBlock)completionBlock {
     
     dispatch_async(self.isolationQueue, ^{
-        __block NSString * decodedMessage = [self decodeMessage:message recipient:recipient accountName:accountName protocol:protocol];
+        __block NSString * decodedMessage = [self decodeMessage:message sender:sender accountName:accountName protocol:protocol];
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock(decodedMessage);
@@ -684,21 +692,21 @@ static OtrlMessageAppOps ui_ops = {
     
 }
 
-- (NSString*) decodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol 
+- (NSString*) decodeMessage:(NSString*)message sender:(NSString*)sender accountName:(NSString*)accountName protocol:(NSString*)protocol
 {
-    if (![message length] || ![recipient length] || ![accountName length] || ![protocol length]) {
+    if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
         return nil;
     }
     int ignore_message;
     char *newmessage = NULL;
-    ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
+    ConnContext *context = [self contextForUsername:sender accountName:accountName protocol:protocol];
     
-    ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void *)(self),[accountName UTF8String], [protocol UTF8String], [recipient UTF8String], [message UTF8String], &newmessage, NULL, &context, NULL, NULL);
+    ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void *)(self),[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, NULL, &context, NULL, NULL);
     NSString *newMessage = nil;
     
     if (context) {
         if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
-            [self disableEncryptionForUsername:recipient accountName:accountName protocol:protocol];
+            [self disableEncryptionForUsername:sender accountName:accountName protocol:protocol];
         }
     }
     
