@@ -52,8 +52,6 @@ typedef NS_ENUM(NSUInteger, OTRKitPolicy) {
     OTRKitPolicyDefault = 4
 };
 
-typedef void (^OTRKitMessageCompletionBlock)(NSString *message);
-
 extern NSString const *kOTRKitUsernameKey;
 extern NSString const *kOTRKitAccountNameKey;
 extern NSString const *kOTRKitFingerprintKey;
@@ -82,6 +80,15 @@ updateMessageState:(OTRKitMessageState)messageState
 
 @optional
 
+- (void) otrKit:(OTRKit *)otrKit
+willStartGeneratingPrivateKeyForAccountName:(NSString*)accountName
+protocol:(NSString*)protocol;
+
+- (void) otrKit:(OTRKit *)otrKit
+didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
+       protocol:(NSString*)protocol
+          error:(NSError*)error;
+
 - (int)            otrKit:(OTRKit*)otrKit
 maxMessageSizeForProtocol:(NSString*)protocol;
 
@@ -107,33 +114,43 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
  * @param dataPath This is a path to a folder where private keys, fingerprints, and instance tags will be stored.
  *
  */
-- (id) initWithDataPath:(NSString*)dataPath;
+- (instancetype) initWithDataPath:(NSString*)dataPath;
 
 - (NSString*)privateKeyPath;
 - (NSString*)fingerprintsPath;
 - (NSString*)instanceTagsPath;
 
-- (void)encodeMessage:(NSString *)message
+- (void)encodeMessage:(NSString*)message
             recipient:(NSString*)recipient
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol
-      completionBlock:(OTRKitMessageCompletionBlock)completionBlock;
+      completionBlock:(void(^)(NSString *encodedMessage, NSError *error))completionBlock;
 
-- (void)decodeMessage:(NSString *)message
+- (void)decodeMessage:(NSString*)message
                sender:(NSString*)sender
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol
-      completionBlock:(OTRKitMessageCompletionBlock)completionBlock;    
+      completionBlock:(void(^)(NSString *decodedMessage, NSError *error))completionBlock;
 
-- (void)generateInitiateOrRefreshMessageToRecipient:(NSString*)recipient
-                                       accountName:(NSString*)accountName
-                                           protocol:(NSString*)protocol
-                                    completionBlock:(OTRKitMessageCompletionBlock)completionBlock;
+- (void)hasPrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(void (^)(BOOL hasPrivateKey))completionBlock;
+
+- (void) generatePrivateKeyIfNeededForAccountName:(NSString*)accountName
+                                         protocol:(NSString*)protocol
+                                  completionBlock:(void(^)(BOOL success, NSError *error))completionBlock;
+
+
+- (void)inititateEncryptionWithRecipient:(NSString*)recipient
+                             accountName:(NSString*)accountName
+                                protocol:(NSString*)protocol;
+
+- (void)disableEncryptionWithRecipient:(NSString*)recipient
+                           accountName:(NSString*)accountName
+                              protocol:(NSString*)protocol;
 
 - (NSString *)fingerprintForAccountName:(NSString*)accountName
-                              protocol:(NSString*)protocol; // Returns your fingerprint
+                               protocol:(NSString*)protocol; // Returns your fingerprint
 
-- (NSString *)fingerprintForUsername:(NSString*)username
+- (NSString *)activeFingerprintForUsername:(NSString*)username
                          accountName:(NSString*)accountName
                             protocol:(NSString*)protocol; // Returns buddy's fingerprint
 
@@ -141,22 +158,15 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
                              accountName:(NSString*)accountName
                                 protocol:(NSString*)protocol;
 
+- (void)setActiveFingerprintVerificationForUsername:(NSString*)username
+                                        accountName:(NSString*)accountName
+                                           protocol:(NSString*)protocol
+                                           verified:(BOOL)verified;
+
 - (BOOL)hasVerifiedFingerprintsForUsername:(NSString *)username
                                accountName:(NSString*)accountName
                                   protocol:(NSString *)protocol;
 
-- (void)changeVerifyFingerprintForUsername:(NSString*)username
-                               accountName:(NSString*)accountName
-                                  protocol:(NSString*)protocol
-                                 verrified:(BOOL)trusted;
-
-- (BOOL)isConversationEncryptedForUsername:(NSString *)username
-                               accountName:(NSString *)accountName
-                                  protocol:(NSString *)protocol;
-
-- (void)disableEncryptionForUsername:(NSString*)username
-                          accountName:(NSString*)accountName
-                             protocol:(NSString*)protocol;
 
 
 - (OTRKitMessageState)messageStateForUsername:(NSString*)username

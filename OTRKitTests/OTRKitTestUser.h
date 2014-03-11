@@ -15,9 +15,7 @@
 @property (nonatomic, strong) NSString *protocol;
 @property (nonatomic, strong) OTRKit *otr;
 
-- (void) sendMessage:(NSString*)message recipient:(OTRKitTestUser*)recipient;
-- (void) receiveMessage:(NSString*)message sender:(OTRKitTestUser*)sender;
-
-
+- (void) sendMessage:(NSString*)message toRecipient:(OTRKitTestUser*)recipient;
+- (void) receiveMessage:(NSString*)message fromSender:(OTRKitTestUser*)sender;
 
 @end

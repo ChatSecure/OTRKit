@@ -43,12 +43,14 @@
 static NSString * const kOTRKitPrivateKeyFileName = @"otr.private_key";
 static NSString * const kOTRKitFingerprintsFileName = @"otr.fingerprints";
 static NSString * const kOTRKitInstanceTagsFileName =  @"otr.instance_tags";
+static NSString * const kOTRKitErrorDomain       = @"org.chatsecure.OTRKit";
 
 NSString const *kOTRKitUsernameKey    = @"kOTRKitUsernameKey";
 NSString const *kOTRKitAccountNameKey = @"kOTRKitAccountNameKey";
 NSString const *kOTRKitFingerprintKey = @"kOTRKitFingerprintKey";
 NSString const *kOTRKitProtocolKey    = @"kOTRKitProtocolKey";
 NSString const *kOTRKitTrustKey       = @"kOTRKitTrustKey";
+
 
 @interface OTRKit()
 @property (nonatomic, strong) NSTimer *pollTimer;
@@ -81,13 +83,24 @@ static void create_privkey_cb(void *opdata, const char *accountname,
                               const char *protocol)
 {
     OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    NSString *accountNameString = [NSString stringWithUTF8String:accountname];
+    NSString *protocolString = [NSString stringWithUTF8String:protocol];
+    if (otrKit.delegate) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [otrKit.delegate otrKit:otrKit willStartGeneratingPrivateKeyForAccountName:accountNameString   protocol:protocolString];
+        });
+    }
     FILE *privf;
     NSString *path = [otrKit privateKeyPath];
     privf = fopen([path UTF8String], "w+b");
-    
     // Generate Key
     otrl_privkey_generate_FILEp(otrKit.userState, privf, accountname, protocol);
     fclose(privf);
+    if (otrKit.delegate) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:nil];
+        });
+    }
 }
 
 - (void)checkIfGeneratingKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void (^)(BOOL isGeneratingKey))completion
@@ -112,7 +125,23 @@ static void create_privkey_cb(void *opdata, const char *accountname,
     });
 }
 
-- (void)hasPrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBock:(void (^)(BOOL))completionBlock {
+- (void) generatePrivateKeyIfNeededForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(void (^)(BOOL success, NSError *error))completionBlock {
+    [self hasPrivateKeyForAccountName:accountName protocol:protocol completionBlock:^(BOOL hasPrivateKey) {
+        if (hasPrivateKey) {
+            completionBlock(YES, nil);
+        } else {
+            [self checkIfGeneratingKeyForAccountName:accountName protocol:protocol completion:^(BOOL isGeneratingKey) {
+                if (isGeneratingKey) {
+                    completionBlock(NO, [NSError errorWithDomain:kOTRKitErrorDomain code:100 userInfo:@{NSLocalizedDescriptionKey: @"Currently generating private key, please try again later."}]);
+                } else {
+                    [self generatePrivateKeyForAccountName:accountName protocol:protocol completionBlock:completionBlock];
+                }
+            }];
+        }
+    }];
+}
+
+- (void)hasPrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(void (^)(BOOL hasPrivateKey))completionBlock {
     if (!accountName.length || !protocol.length) {
         if (completionBlock) {
             completionBlock(NO);
@@ -128,68 +157,77 @@ static void create_privkey_cb(void *opdata, const char *accountname,
             if (privateKey) {
                 result = YES;
             }
-            
             completionBlock(result);
         }
     });
-    
-}
--(void)generatePrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol startGenerating:(void(^)(void))startGeneratingBlock completion:(void(^)(BOOL didGenerateKey))completionBlock
-{
-    if (!accountName.length || !protocol.length) {
-        if (completionBlock) {
-            completionBlock(NO);
-        }
-        return;
-    }
-    [self hasPrivateKeyForAccountName:accountName protocol:protocol completionBock:^(BOOL hasPrivateKey) {
-        if (!hasPrivateKey) {
-            if (startGeneratingBlock) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    startGeneratingBlock();
-                });
-            }
-            [self generatePrivateKeyForAccountName:accountName protocol:protocol completionBock:completionBlock];
-        }
-        else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(NO);
-            });
-        }
-    }];
 }
 
--(void)generatePrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBock:(void (^)(BOOL))completionBlock {
+-(void)generatePrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(void (^)(BOOL success, NSError *error))completionBlock {
     if (!accountName.length || !protocol.length) {
         if (completionBlock) {
-            completionBlock(NO);
+            completionBlock(NO, [NSError errorWithDomain:kOTRKitErrorDomain code:101 userInfo:@{NSLocalizedDescriptionKey: @"accountName and protocol must have non-zero length."}]);
         }
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        __block void *newkeyp;
-        __block gcry_error_t generateError;
+        void *newkeyp;
+        gcry_error_t generateError;
+        if (self.delegate) {
+            [self.delegate otrKit:self willStartGeneratingPrivateKeyForAccountName:accountName protocol:protocol];
+        }
+        
         generateError = otrl_privkey_generate_start(_userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
         FILE *privf;
         NSString *path = [self privateKeyPath];
         privf = fopen([path UTF8String], "w+b");
-        if (generateError != gcry_error(GPG_ERR_EEXIST)) {
+        if (generateError == gcry_error(GPG_ERR_NO_ERROR)) {
             dispatch_async(self.isolationQueue, ^{
                 otrl_privkey_generate_calculate(newkeyp);
                 dispatch_async(dispatch_get_main_queue(), ^{
                     otrl_privkey_generate_finish_FILEp(_userState,newkeyp,privf);
                     fclose(privf);
                     if (completionBlock) {
-                        completionBlock(YES);
+                        completionBlock(YES, nil);
+                    }
+                    if (self.delegate) {
+                        [self.delegate otrKit:self didFinishGeneratingPrivateKeyForAccountName:accountName protocol:protocol error:nil];
                     }
                 });
             });
         } else {
+            NSError *error = [self errorForGPGError:generateError];
             if (completionBlock) {
-                completionBlock(NO);
+                completionBlock(NO, error);
+            }
+            if (self.delegate) {
+                [self.delegate otrKit:self didFinishGeneratingPrivateKeyForAccountName:accountName protocol:protocol error:error];
             }
         }
     });
+}
+
+- (NSError*) errorForGPGError:(gcry_error_t)gpg_error {
+    const char *gpg_error_string = gcry_strerror(gpg_error);
+    const char *gpg_error_source = gcry_strsource(gpg_error);
+    gpg_err_code_t gpg_error_code = gcry_err_code(gpg_error);
+    int errorCode = gcry_err_code_to_errno(gpg_error_code);
+    NSString *errorString = nil;
+    NSString *errorSource = nil;
+    if (gpg_error_string) {
+        errorString = [NSString stringWithUTF8String:gpg_error_string];
+    }
+    if (gpg_error_source) {
+        errorSource = [NSString stringWithUTF8String:gpg_error_source];
+    }
+    NSMutableString *errorDescription = [NSMutableString string];
+    if (errorString) {
+        [errorDescription appendString:errorString];
+    }
+    if (errorSource) {
+        [errorDescription appendString:errorSource];
+    }
+    NSError *error = [NSError errorWithDomain:kOTRKitErrorDomain code:errorCode userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+    return error;
 }
 
 static int is_logged_in_cb(void *opdata, const char *accountname,
@@ -225,7 +263,7 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
 {
     OTRKit *otrKit = (__bridge OTRKit*)opdata;
 
-    char our_hash[45], their_hash[45];
+    char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN], their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
     
     ConnContext *context = otrl_context_find(otrKit.userState, username,accountname, protocol,OTRL_INSTAG_BEST, NO,NULL,NULL, NULL);
     if (!context) {
@@ -679,139 +717,116 @@ static OtrlMessageAppOps ui_ops = {
     }
 }
 
-- (void)decodeMessage:(NSString *)message sender:(NSString*)sender accountName:(NSString*)accountName protocol:(NSString*)protocol completionBlock:(OTRKitMessageCompletionBlock)completionBlock {
+- (void)decodeMessage:(NSString *)message sender:(NSString*)sender accountName:(NSString*)accountName protocol:(NSString*)protocol completionBlock:(void (^)(NSString *, NSError *))completionBlock {
     
     dispatch_async(self.isolationQueue, ^{
-        __block NSString * decodedMessage = [self decodeMessage:message sender:sender accountName:accountName protocol:protocol];
-        if (completionBlock) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(decodedMessage);
-            });
+        if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
+            return;
         }
-    });
-    
-}
-
-- (NSString*) decodeMessage:(NSString*)message sender:(NSString*)sender accountName:(NSString*)accountName protocol:(NSString*)protocol
-{
-    if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
-        return nil;
-    }
-    int ignore_message;
-    char *newmessage = NULL;
-    ConnContext *context = [self contextForUsername:sender accountName:accountName protocol:protocol];
-    
-    ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void *)(self),[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, NULL, &context, NULL, NULL);
-    NSString *newMessage = nil;
-    
-    if (context) {
-        if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
-            [self disableEncryptionForUsername:sender accountName:accountName protocol:protocol];
-        }
-    }
-    
-    
-    if(ignore_message == 0)
-    {
-        if(newmessage)
-        {
-            newMessage = [NSString stringWithUTF8String:newmessage];
-        }
-        else
-            newMessage = message;
-    }
-    else
-    {
-        otrl_message_free(newmessage);
-        return nil;
-    }
-    
-    otrl_message_free(newmessage);
-    
-    return newMessage;
-}
-
-- (void)encodeMessage:(NSString *)message recipient:(NSString *)recipient accountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(OTRKitMessageCompletionBlock)completionBlock {
-    
-    dispatch_async(self.isolationQueue, ^{
-        NSString * encodedMessage = [self encodeMessage:message recipient:recipient accountName:accountName protocol:protocol];
-        if (completionBlock) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(encodedMessage);
-            });
-        }
-    });
-}
-
-- (void) encodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol startGeneratingKeysBlock:(void (^)(void))generatingKeysBlock success:(void (^)(NSString * message))success
-{
-    __block gcry_error_t err;
-    __block char *newmessage = NULL;
-    
-    
-    __block ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
-    
-    NSString * (^encodeBlock)(void) = ^() {
-        err = otrl_message_sending(_userState, &ui_ops, (__bridge void *)(self), [accountName UTF8String], [protocol UTF8String], [recipient UTF8String], OTRL_INSTAG_BEST, [message UTF8String], NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP, &context,
-                                   NULL, NULL);
+        int ignore_message;
+        char *newmessage = NULL;
+        ConnContext *context = [self contextForUsername:sender accountName:accountName protocol:protocol];
+        
+        ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void *)(self),[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, NULL, &context, NULL, NULL);
         NSString *newMessage = nil;
-        //NSLog(@"newmessage char: %s",newmessage);
-        if(newmessage)
-            newMessage = [NSString stringWithUTF8String:newmessage];
+        
+        if (context) {
+            if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
+                [self disableEncryptionWithRecipient:sender accountName:accountName protocol:protocol];
+            }
+        }
+        
+        
+        if(ignore_message == 0)
+        {
+            if(newmessage)
+            {
+                newMessage = [NSString stringWithUTF8String:newmessage];
+            }
+            else
+                newMessage = message;
+        }
         else
-            newMessage = @"";
+        {
+            otrl_message_free(newmessage);
+            return;
+        }
         
         otrl_message_free(newmessage);
         
-        return newMessage;
-    };
-    
-    __block NSString * finalMessage = nil;
-    //need to check/create keys
-    [self generatePrivateKeyForAccountName:accountName protocol:protocol startGenerating:generatingKeysBlock completion:^(BOOL didGenerateKey) {
-        finalMessage = encodeBlock();
-        if (success) {
-            success(finalMessage);
+        if (completionBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(newMessage, nil);
+            });
+        }
+    });
+}
+
+- (void)encodeMessage:(NSString *)message recipient:(NSString *)recipient accountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(void (^)(NSString *encodedMessage, NSError *error))completionBlock {
+    if (!completionBlock) {
+        return;
+    }
+    [self generatePrivateKeyIfNeededForAccountName:accountName protocol:protocol completionBlock:^(BOOL success, NSError *error) {
+        if (!success) {
+            completionBlock(nil, error);
+        }
+        dispatch_async(self.isolationQueue, ^{
+            gcry_error_t err;
+            char *newmessage = NULL;
+            
+            ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
+            
+            err = otrl_message_sending(_userState, &ui_ops, (__bridge void *)(self),
+                                       [accountName UTF8String], [protocol UTF8String], [recipient UTF8String], OTRL_INSTAG_BEST, [message UTF8String], NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP, &context,
+                                       NULL, NULL);
+            
+            if (err != gcry_err_code(GPG_ERR_NO_ERROR)) {
+                NSError *error = [self errorForGPGError:err];
+                completionBlock(nil, error);
+                return;
+            }
+            
+            NSString *encodedMessage = nil;
+            if(newmessage) {
+                encodedMessage = [NSString stringWithUTF8String:newmessage];
+                otrl_message_free(newmessage);
+            }
+            
+            if (encodedMessage) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionBlock(encodedMessage, nil);
+                });
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionBlock(nil, [NSError errorWithDomain:kOTRKitErrorDomain code:102 userInfo:@{NSLocalizedDescriptionKey: @"Message failed to be encoded."}]);
+                });
+            }
+        });
+        
+    }];
+}
+
+- (void)inititateEncryptionWithRecipient:(NSString*)recipient
+                             accountName:(NSString*)accountName
+                                protocol:(NSString*)protocol
+{
+    [self encodeMessage:@"?OTR?" recipient:recipient accountName:accountName protocol:protocol completionBlock:^(NSString *encodedMessage, NSError *error) {
+        if (encodedMessage && self.delegate) {
+            [self.delegate otrKit:self injectMessage:encodedMessage recipient:recipient accountName:accountName protocol:protocol];
         }
     }];
 }
 
-- (void)generateInitiateOrRefreshMessageToRecipient:(NSString *)recipient accountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(OTRKitMessageCompletionBlock)completionBlock
-{
-    [self encodeMessage:@"?OTR?" recipient:recipient accountName:accountName protocol:protocol completionBlock:completionBlock];
-}
-
-- (NSString*) encodeMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol
-{
-    gcry_error_t err;
-    char *newmessage = NULL;
-
-    
-    ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
-    
-    err = otrl_message_sending(_userState, &ui_ops, (__bridge void *)(self),
-                               [accountName UTF8String], [protocol UTF8String], [recipient UTF8String], OTRL_INSTAG_BEST, [message UTF8String], NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP, &context,
-                               NULL, NULL);
-    NSString *newMessage = nil;
-    //NSLog(@"newmessage char: %s",newmessage);
-    if(newmessage)
-        newMessage = [NSString stringWithUTF8String:newmessage];
-    else
-        newMessage = @"";
-    
-    otrl_message_free(newmessage);
-    
-    return newMessage;
-}
-
-- (void) disableEncryptionForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
-  otrl_message_disconnect_all_instances(_userState, &ui_ops, (__bridge void *)(self), [accountName UTF8String], [protocol UTF8String], [username UTF8String]);
-  [self updateEncryptionStatusWithContext:[self contextForUsername:username accountName:accountName protocol:protocol]];
+- (void)disableEncryptionWithRecipient:(NSString*)recipient
+                           accountName:(NSString*)accountName
+                              protocol:(NSString*)protocol {
+  otrl_message_disconnect_all_instances(_userState, &ui_ops, (__bridge void *)(self), [accountName UTF8String], [protocol UTF8String], [recipient UTF8String]);
+  [self updateEncryptionStatusWithContext:[self contextForUsername:recipient accountName:accountName protocol:protocol]];
 }
 
 - (NSString*) fingerprintForAccountName:(NSString*)accountName protocol:(NSString*) protocol {
     NSString *fingerprintString = nil;
-    char our_hash[45];
+    char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
     otrl_privkey_fingerprint(_userState, our_hash, [accountName UTF8String], [protocol UTF8String]);
     fingerprintString = [NSString stringWithUTF8String:our_hash];
     return fingerprintString;
@@ -822,7 +837,7 @@ static OtrlMessageAppOps ui_ops = {
     return context;
 }
 
-- (Fingerprint *)activeFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
+- (Fingerprint *)internalActiveFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
     Fingerprint * fingerprint = nil;
     ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
     if(context)
@@ -833,12 +848,11 @@ static OtrlMessageAppOps ui_ops = {
     
 }
 
-
-- (NSString *)fingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
+- (NSString *)activeFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
     
     NSString *fingerprintString = nil;
-    char their_hash[45];
-    Fingerprint * fingerprint = [self activeFingerprintForUsername:username accountName:accountName protocol:protocol];
+    char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
+    Fingerprint * fingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
     if(fingerprint && fingerprint->fingerprint) {
         otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
         fingerprintString = [NSString stringWithUTF8String:their_hash];
@@ -873,7 +887,7 @@ static OtrlMessageAppOps ui_ops = {
 - (BOOL) activeFingerprintIsVerifiedForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol
 {
     BOOL verified = NO;
-    Fingerprint * fingerprint = [self activeFingerprintForUsername:username accountName:accountName protocol:protocol];
+    Fingerprint * fingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
     
     if( fingerprint && fingerprint->trust)
     {
@@ -887,47 +901,22 @@ static OtrlMessageAppOps ui_ops = {
     return verified;
 }
 
-- (void) changeVerifyFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol verrified:(BOOL)trusted
+- (void)setActiveFingerprintVerificationForUsername:(NSString*)username
+                                        accountName:(NSString*)accountName
+                                           protocol:(NSString*)protocol
+                                           verified:(BOOL)verified
 {
-    Fingerprint * fingerprint = [self activeFingerprintForUsername:username accountName:accountName protocol:protocol];
+    Fingerprint * fingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
     const char * newTrust = nil;
-    if(trusted)
+    if(verified) {
         newTrust = [@"verified" UTF8String];
-    
+    }
+        
     if(fingerprint)
     {
         otrl_context_set_trust(fingerprint, newTrust);
         [self writeFingerprints];
     }
-    
-}
-
-- (BOOL)isConversationEncryptedForUsername:(NSString *)username
-                               accountName:(NSString *)accountName
-                                  protocol:(NSString *)protocol
-{
-    ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
-    if (!context){
-        return NO;
-    }
-    
-    BOOL isEncrypted = NO;
-    switch (context->msgstate) {
-        case OTRL_MSGSTATE_ENCRYPTED:
-            isEncrypted = YES;
-            break;
-        case OTRL_MSGSTATE_FINISHED:
-            isEncrypted = NO;
-            break;
-        case OTRL_MSGSTATE_PLAINTEXT:
-            isEncrypted = NO;
-            break;
-        default:
-            isEncrypted = NO;
-            break;
-    }
-    
-    return isEncrypted;
 }
 
 -(void)writeFingerprints
@@ -999,7 +988,7 @@ static OtrlMessageAppOps ui_ops = {
     while (context) {
         Fingerprint * fingerprint = context->fingerprint_root.next;
         while (fingerprint) {
-            char their_hash[45];
+            char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
             otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
             NSString * fingerprintString = [NSString stringWithUTF8String:their_hash];
             NSString * username = [NSString stringWithUTF8String:fingerprint->context->username];
@@ -1033,7 +1022,7 @@ static OtrlMessageAppOps ui_ops = {
     Fingerprint * fingerprint = nil;
     Fingerprint * currentFingerprint = context->fingerprint_root.next;
     while (currentFingerprint && !stop) {
-        char their_hash[45];
+        char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
         otrl_privkey_hash_to_human(their_hash, currentFingerprint->fingerprint);
         NSString * currentFingerprintString = [NSString stringWithUTF8String:their_hash];
         if ([currentFingerprintString isEqualToString:fingerprintString]) {
@@ -1045,7 +1034,7 @@ static OtrlMessageAppOps ui_ops = {
         }
     }
     
-    if (fingerprint != [self activeFingerprintForUsername:username accountName:accountName protocol:protocol]) {
+    if (fingerprint != [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol]) {
         //will not delete if it is the active fingerprint;
         otrl_context_forget_fingerprint(fingerprint, 0);
         [self writeFingerprints];
