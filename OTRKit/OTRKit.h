@@ -67,6 +67,13 @@ extern NSString const *kOTRKitTrustKey;
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol;
 
+- (void) otrKit:(OTRKit*)otrKit
+ decodedMessage:(NSString*)message
+           tlvs:(NSArray*)tlvs
+         sender:(NSString*)recipient
+    accountName:(NSString*)accountName
+       protocol:(NSString*)protocol;
+
 - (void)    otrKit:(OTRKit*)otrKit
 updateMessageState:(OTRKitMessageState)messageState
           username:(NSString*)username
@@ -120,19 +127,32 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
 - (NSString*)fingerprintsPath;
 - (NSString*)instanceTagsPath;
 
+
+/**
+ * Encodes a message and optional array of OTRTLVs, splits it into fragments,
+ * then injects the encoded data via the injectMessage: delegate method.
+ * @param message The message to be encoded
+ * @param tlvs Array of OTRTLVs, the data length of each TLV must be smaller than UINT16_MAX or it will be ignored.
+ * @param recipient The intended recipient of the message
+ * @param accountName Your account name
+ * @param protocol the protocol of accountName, such as @"xmpp"
+ * @param completionBlock if there is an error it will be returned in this block
+ */
 - (void)encodeMessage:(NSString*)message
+                 tlvs:(NSArray*)tlvs
             recipient:(NSString*)recipient
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol
-      completionBlock:(void(^)(NSString *encodedMessage, NSError *error))completionBlock;
+      completionBlock:(void(^)(BOOL success, NSError *error))completionBlock;
 
 - (void)decodeMessage:(NSString*)message
                sender:(NSString*)sender
           accountName:(NSString*)accountName
-             protocol:(NSString*)protocol
-      completionBlock:(void(^)(NSString *decodedMessage, NSError *error))completionBlock;
+             protocol:(NSString*)protocol;
 
 - (void)hasPrivateKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(void (^)(BOOL hasPrivateKey))completionBlock;
+
+- (void)checkIfGeneratingKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void (^)(BOOL isGeneratingKey))completion;
 
 - (void) generatePrivateKeyIfNeededForAccountName:(NSString*)accountName
                                          protocol:(NSString*)protocol

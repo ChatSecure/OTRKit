@@ -12,6 +12,8 @@
 		D905CFD9155B2B2D00654181 /* libgpg-error.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D905CF97155B04AD00654181 /* libgpg-error.a */; };
 		D905CFDA155B2B2F00654181 /* libotr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D905CF98155B04AD00654181 /* libotr.a */; };
 		D905D086155B3D8200654181 /* OTRKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D905CFB6155B060200654181 /* OTRKit.m */; };
+		D9780AA018DA3BEA00525C28 /* OTRTLV.h in Headers */ = {isa = PBXBuildFile; fileRef = D9780A9E18DA3BEA00525C28 /* OTRTLV.h */; };
+		D9780AA118DA3BEA00525C28 /* OTRTLV.m in Sources */ = {isa = PBXBuildFile; fileRef = D9780A9F18DA3BEA00525C28 /* OTRTLV.m */; };
 		D98B9D3118C93739008C8D1C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98B9D3018C93739008C8D1C /* XCTest.framework */; };
 		D98B9D3218C93739008C8D1C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D905CFCD155B2B0000654181 /* Foundation.framework */; };
 		D98B9D3418C93739008C8D1C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98B9D3318C93739008C8D1C /* UIKit.framework */; };
@@ -59,6 +61,8 @@
 		D905CFB6155B060200654181 /* OTRKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKit.m; sourceTree = "<group>"; };
 		D905CFCB155B2B0000654181 /* libOTRKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOTRKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D9780A9E18DA3BEA00525C28 /* OTRTLV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRTLV.h; sourceTree = "<group>"; };
+		D9780A9F18DA3BEA00525C28 /* OTRTLV.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRTLV.m; sourceTree = "<group>"; };
 		D98B9D2F18C93739008C8D1C /* OTRKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OTRKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D98B9D3018C93739008C8D1C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		D98B9D3318C93739008C8D1C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -220,6 +224,8 @@
 		D905CFB2155B05C300654181 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				D9780A9E18DA3BEA00525C28 /* OTRTLV.h */,
+				D9780A9F18DA3BEA00525C28 /* OTRTLV.m */,
 				D905CFB5155B060200654181 /* OTRKit.h */,
 				D905CFB6155B060200654181 /* OTRKit.m */,
 			);
@@ -301,6 +307,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9780AA018DA3BEA00525C28 /* OTRTLV.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,6 +419,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9780AA118DA3BEA00525C28 /* OTRTLV.m in Sources */,
 				D905D086155B3D8200654181 /* OTRKit.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -638,6 +646,7 @@
 				D98B9D4118C93739008C8D1C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

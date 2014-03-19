@@ -35,6 +35,7 @@
  */
 
 #import "OTRKit.h"
+#import "OTRTLV.h"
 #import "proto.h"
 #import "message.h"
 #import "privkey.h"
@@ -717,8 +718,7 @@ static OtrlMessageAppOps ui_ops = {
     }
 }
 
-- (void)decodeMessage:(NSString *)message sender:(NSString*)sender accountName:(NSString*)accountName protocol:(NSString*)protocol completionBlock:(void (^)(NSString *, NSError *))completionBlock {
-    
+- (void)decodeMessage:(NSString *)message sender:(NSString*)sender accountName:(NSString*)accountName protocol:(NSString*)protocol {
     dispatch_async(self.isolationQueue, ^{
         if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
             return;
@@ -727,8 +727,14 @@ static OtrlMessageAppOps ui_ops = {
         char *newmessage = NULL;
         ConnContext *context = [self contextForUsername:sender accountName:accountName protocol:protocol];
         
-        ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void *)(self),[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, NULL, &context, NULL, NULL);
-        NSString *newMessage = nil;
+        OtrlTLV *otr_tlvs = NULL;
+        ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void *)(self),[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
+        NSString *decodedMessage = nil;
+        
+        NSArray *tlvs = nil;
+        if (otr_tlvs) {
+            tlvs = [self tlvArrayForTLVChain:otr_tlvs];
+        }
         
         if (context) {
             if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
@@ -739,36 +745,70 @@ static OtrlMessageAppOps ui_ops = {
         
         if(ignore_message == 0)
         {
-            if(newmessage)
-            {
-                newMessage = [NSString stringWithUTF8String:newmessage];
+            if(newmessage) {
+                decodedMessage = [NSString stringWithUTF8String:newmessage];
+            } else {
+                decodedMessage = message;
             }
-            else
-                newMessage = message;
+            if (self.delegate) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate otrKit:self decodedMessage:decodedMessage tlvs:tlvs sender:sender accountName:accountName protocol:protocol];
+                });
+            }
         }
-        else
-        {
+        
+        if (newmessage) {
             otrl_message_free(newmessage);
-            return;
         }
-        
-        otrl_message_free(newmessage);
-        
-        if (completionBlock) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(newMessage, nil);
-            });
+        if (otr_tlvs) {
+            otrl_tlv_free(otr_tlvs);
         }
     });
 }
 
-- (void)encodeMessage:(NSString *)message recipient:(NSString *)recipient accountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(void (^)(NSString *encodedMessage, NSError *error))completionBlock {
-    if (!completionBlock) {
-        return;
+- (OtrlTLV*)tlvChainForTLVs:(NSArray*)tlvs {
+    if (!tlvs || !tlvs.count) {
+        return NULL;
     }
+    OtrlTLV *root_tlv = NULL;
+    OtrlTLV *current_tlv = NULL;
+    NSUInteger validTLVCount = 0;
+    for (OTRTLV *tlv in tlvs) {
+        if (!tlv.isValidLength) {
+            continue;
+        }
+        OtrlTLV *new_tlv = otrl_tlv_new(tlv.type, tlv.data.length, tlv.data.bytes);
+        if (validTLVCount == 0) {
+            root_tlv = new_tlv;
+        } else {
+            current_tlv->next = new_tlv;
+        }
+        current_tlv = new_tlv;
+        validTLVCount++;
+    }
+    return root_tlv;
+}
+
+- (NSArray*)tlvArrayForTLVChain:(OtrlTLV*)tlv_chain {
+    if (!tlv_chain) {
+        return nil;
+    }
+    NSMutableArray *tlvArray = [NSMutableArray array];
+    OtrlTLV *current_tlv = tlv_chain;
+    while (current_tlv) {
+        NSData *tlvData = [NSData dataWithBytes:current_tlv->data length:current_tlv->len];
+        OTRTLVType type = current_tlv->type;
+        OTRTLV *tlv = [[OTRTLV alloc] initWithType:type data:tlvData];
+        [tlvArray addObject:tlv];
+        current_tlv = current_tlv->next;
+    }
+    return tlvArray;
+}
+
+- (void)encodeMessage:(NSString *)message tlvs:(NSArray*)tlvs recipient:(NSString *)recipient accountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(void (^)(BOOL success, NSError *error))completionBlock {
     [self generatePrivateKeyIfNeededForAccountName:accountName protocol:protocol completionBlock:^(BOOL success, NSError *error) {
         if (!success) {
-            completionBlock(nil, error);
+            completionBlock(NO, error);
         }
         dispatch_async(self.isolationQueue, ^{
             gcry_error_t err;
@@ -776,29 +816,35 @@ static OtrlMessageAppOps ui_ops = {
             
             ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
             
+            OtrlTLV *otr_tlvs = [self tlvChainForTLVs:tlvs];
+            
             err = otrl_message_sending(_userState, &ui_ops, (__bridge void *)(self),
-                                       [accountName UTF8String], [protocol UTF8String], [recipient UTF8String], OTRL_INSTAG_BEST, [message UTF8String], NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP, &context,
+                                       [accountName UTF8String], [protocol UTF8String], [recipient UTF8String], OTRL_INSTAG_BEST, [message UTF8String], otr_tlvs, &newmessage, OTRL_FRAGMENT_SEND_ALL, &context,
                                        NULL, NULL);
+            
+            if (otr_tlvs) {
+                otrl_tlv_free(otr_tlvs);
+            }
             
             if (err != gcry_err_code(GPG_ERR_NO_ERROR)) {
                 NSError *error = [self errorForGPGError:err];
-                completionBlock(nil, error);
+                completionBlock(NO, error);
                 return;
             }
             
             NSString *encodedMessage = nil;
-            if(newmessage) {
+            if (newmessage) {
                 encodedMessage = [NSString stringWithUTF8String:newmessage];
                 otrl_message_free(newmessage);
             }
             
             if (encodedMessage) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    completionBlock(encodedMessage, nil);
+                    completionBlock(YES, nil);
                 });
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    completionBlock(nil, [NSError errorWithDomain:kOTRKitErrorDomain code:102 userInfo:@{NSLocalizedDescriptionKey: @"Message failed to be encoded."}]);
+                    completionBlock(NO, [NSError errorWithDomain:kOTRKitErrorDomain code:102 userInfo:@{NSLocalizedDescriptionKey: @"Message failed to be encoded."}]);
                 });
             }
         });
@@ -810,11 +856,7 @@ static OtrlMessageAppOps ui_ops = {
                              accountName:(NSString*)accountName
                                 protocol:(NSString*)protocol
 {
-    [self encodeMessage:@"?OTR?" recipient:recipient accountName:accountName protocol:protocol completionBlock:^(NSString *encodedMessage, NSError *error) {
-        if (encodedMessage && self.delegate) {
-            [self.delegate otrKit:self injectMessage:encodedMessage recipient:recipient accountName:accountName protocol:protocol];
-        }
-    }];
+    [self encodeMessage:@"?OTR?" tlvs:nil recipient:recipient accountName:accountName protocol:protocol completionBlock:nil];
 }
 
 - (void)disableEncryptionWithRecipient:(NSString*)recipient
