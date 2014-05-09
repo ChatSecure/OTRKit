@@ -76,14 +76,14 @@ NSString const *kOTRKitTrustKey       = @"kOTRKitTrustKey";
 
 static OtrlPolicy policy_cb(void *opdata, ConnContext *context)
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     return [otrKit otrlPolicy];
 }
 
 static void create_privkey_cb(void *opdata, const char *accountname,
                               const char *protocol)
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     NSString *accountNameString = [NSString stringWithUTF8String:accountname];
     NSString *protocolString = [NSString stringWithUTF8String:protocol];
     if (otrKit.delegate) {
@@ -234,7 +234,7 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 static int is_logged_in_cb(void *opdata, const char *accountname,
                            const char *protocol, const char *recipient)
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     if (!otrKit.delegate) {
         return -1;
     }
@@ -247,7 +247,7 @@ static int is_logged_in_cb(void *opdata, const char *accountname,
 static void inject_message_cb(void *opdata, const char *accountname,
                               const char *protocol, const char *recipient, const char *message)
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     if (!otrKit.delegate) {
         return;
     }
@@ -262,7 +262,7 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
                                    const char *accountname, const char *protocol, const char *username,
                                    unsigned char fingerprint[20])
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
 
     char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN], their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
     
@@ -282,7 +282,7 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
 
 static void write_fingerprints_cb(void *opdata)
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     FILE *storef;
     NSString *path = [otrKit fingerprintsPath];
     storef = fopen([path UTF8String], "wb");
@@ -294,13 +294,13 @@ static void write_fingerprints_cb(void *opdata)
 
 static void gone_secure_cb(void *opdata, ConnContext *context)
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     [otrKit updateEncryptionStatusWithContext:context];
 }
 
 static void gone_insecure_cb(void *opdata, ConnContext *context) // this method is never called
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     [otrKit updateEncryptionStatusWithContext:context];
 }
 
@@ -315,7 +315,7 @@ static void gone_insecure_cb(void *opdata, ConnContext *context) // this method 
 
 static void still_secure_cb(void *opdata, ConnContext *context, int is_reply)
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     [otrKit updateEncryptionStatusWithContext:context];
 }
 
@@ -327,7 +327,7 @@ static int max_message_size_cb(void *opdata, ConnContext *context)
         return 0;
     }
     
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     if (otrKit.delegate && [otrKit.delegate respondsToSelector:@selector(otrKit:maxMessageSizeForProtocol:)]) {
         return [otrKit.delegate otrKit:otrKit maxMessageSizeForProtocol:[NSString stringWithUTF8String:context->protocol]];
     }
@@ -587,7 +587,7 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
 static void create_instag_cb(void *opdata, const char *accountname,
                              const char *protocol)
 {
-    OTRKit *otrKit = (__bridge OTRKit*)opdata;
+    OTRKit *otrKit = [OTRKit sharedInstance];
     FILE *instagf;
     NSString *path = [otrKit instanceTagsPath];
     instagf = fopen([path UTF8String], "w+b");
@@ -599,7 +599,7 @@ static void create_instag_cb(void *opdata, const char *accountname,
 static void timer_control_cb(void *opdata, unsigned int interval)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        OTRKit *otrKit = (__bridge OTRKit*)opdata;
+        OTRKit *otrKit = [OTRKit sharedInstance];
         if (otrKit.pollTimer) {
             [otrKit.pollTimer invalidate];
             otrKit.pollTimer = nil;
@@ -641,55 +641,54 @@ static OtrlMessageAppOps ui_ops = {
     timer_control_cb
 };
 
-- (id) init {
-    if (self = [self initWithDataPath:nil]) {
-    }
-    return self;
++ (instancetype) sharedInstance {
+    static OTRKit *_sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedInstance = [[OTRKit alloc] init];
+    });
+    return _sharedInstance;
 }
 
-- (id) initWithDataPath:(NSString *)dataPath {
-    if (self = [super init]) {
-        if (!dataPath) {
-            self.dataPath = [self documentsDirectory];
-        } else {
-            self.dataPath = dataPath;
-        }
-       self.protocolMaxSize = @{@"prpl-msn":   @(1409),
-                                @"prpl-icq":   @(2346),
-                                @"prpl-aim":   @(2343),
-                                @"prpl-yahoo": @(832),
-                                @"prpl-gg":    @(1999),
-                                @"prpl-irc":   @(417),
-                                @"prpl-oscar": @(2343)};
-        self.isolationQueue = dispatch_queue_create("OTRKit Processing Queue", DISPATCH_QUEUE_SERIAL);
-        // initialize OTR
-        self.userState = otrl_userstate_create();
-        
-        FILE *privf;
-        NSString *path = [self privateKeyPath];
-        privf = fopen([path UTF8String], "rb");
-        
-        if(privf)
-            otrl_privkey_read_FILEp(_userState, privf);
-        fclose(privf);
-        
-        FILE *storef;
-        path = [self fingerprintsPath];
-        storef = fopen([path UTF8String], "rb");
-        
-        if (storef)
-            otrl_privkey_read_fingerprints_FILEp(_userState, storef, NULL, NULL);
-        fclose(storef);
-        
-        FILE *tagf;
-        path = [self instanceTagsPath];
-        tagf = fopen([path UTF8String], "rb");
-        if (tagf)
-            otrl_instag_read_FILEp(_userState, tagf);
-        fclose(tagf);
+- (void) setupWithDataPath:(NSString *)dataPath {
+    if (!dataPath) {
+        self.dataPath = [self documentsDirectory];
+    } else {
+        self.dataPath = dataPath;
     }
+   self.protocolMaxSize = @{@"prpl-msn":   @(1409),
+                            @"prpl-icq":   @(2346),
+                            @"prpl-aim":   @(2343),
+                            @"prpl-yahoo": @(832),
+                            @"prpl-gg":    @(1999),
+                            @"prpl-irc":   @(417),
+                            @"prpl-oscar": @(2343)};
+    self.isolationQueue = dispatch_queue_create("OTRKit Processing Queue", DISPATCH_QUEUE_SERIAL);
+    // initialize OTR
+    self.userState = otrl_userstate_create();
     
-    return self;
+    FILE *privf;
+    NSString *path = [self privateKeyPath];
+    privf = fopen([path UTF8String], "rb");
+    
+    if(privf)
+        otrl_privkey_read_FILEp(_userState, privf);
+    fclose(privf);
+    
+    FILE *storef;
+    path = [self fingerprintsPath];
+    storef = fopen([path UTF8String], "rb");
+    
+    if (storef)
+        otrl_privkey_read_fingerprints_FILEp(_userState, storef, NULL, NULL);
+    fclose(storef);
+    
+    FILE *tagf;
+    path = [self instanceTagsPath];
+    tagf = fopen([path UTF8String], "rb");
+    if (tagf)
+        otrl_instag_read_FILEp(_userState, tagf);
+    fclose(tagf);
 }
 
 - (NSString*) documentsDirectory {
@@ -1085,20 +1084,5 @@ static OtrlMessageAppOps ui_ops = {
     
     return NO;
 }
-
-#pragma mark -
-#pragma mark Singleton Object Methods
-
-/*
-+ (OTRKit *) sharedInstance {
-  static dispatch_once_t pred;
-  static OTRKit *shared = nil;
-  
-  dispatch_once(&pred, ^{
-    shared = [[OTRKit alloc] init];
-  });
-  return shared;
-}
- */
 
 @end

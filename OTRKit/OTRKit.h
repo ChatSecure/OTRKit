@@ -35,6 +35,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "OTRTLV.h"
 
 @class OTRKit;
 
@@ -70,7 +71,7 @@ extern NSString const *kOTRKitTrustKey;
 - (void) otrKit:(OTRKit*)otrKit
  decodedMessage:(NSString*)message
            tlvs:(NSArray*)tlvs
-         sender:(NSString*)recipient
+         sender:(NSString*)sender
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol;
 
@@ -118,10 +119,17 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
 @property (nonatomic, strong) NSString* dataPath;
 
 /**
- * @param dataPath This is a path to a folder where private keys, fingerprints, and instance tags will be stored.
+ *  Always use the sharedInstance.
  *
+ *  @return singleton instance
  */
-- (instancetype) initWithDataPath:(NSString*)dataPath;
++ (instancetype) sharedInstance;
+
+/**
+ * You must call this method before any others.
+ * @param dataPath This is a path to a folder where private keys, fingerprints, and instance tags will be stored. If this is nil a default path will be chosen for you.
+ */
+- (void) setupWithDataPath:(NSString*)dataPath;
 
 - (NSString*)privateKeyPath;
 - (NSString*)fingerprintsPath;
