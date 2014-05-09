@@ -87,7 +87,7 @@ static void create_privkey_cb(void *opdata, const char *accountname,
     NSString *accountNameString = [NSString stringWithUTF8String:accountname];
     NSString *protocolString = [NSString stringWithUTF8String:protocol];
     if (otrKit.delegate) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(otrKit.callbackQueue, ^{
             [otrKit.delegate otrKit:otrKit willStartGeneratingPrivateKeyForAccountName:accountNameString   protocol:protocolString];
         });
     }
@@ -98,7 +98,7 @@ static void create_privkey_cb(void *opdata, const char *accountname,
     otrl_privkey_generate_FILEp(otrKit.userState, privf, accountname, protocol);
     fclose(privf);
     if (otrKit.delegate) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(otrKit.callbackQueue, ^{
             [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:nil];
         });
     }
@@ -275,9 +275,7 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
     
     otrl_privkey_hash_to_human(their_hash, fingerprint);
     
-    if (otrKit.delegate && [otrKit.delegate respondsToSelector:@selector(otrKit:showFingerprintConfirmationForAccountName:protocol:userName:theirHash:ourHash:)]) {
-        [otrKit.delegate otrKit:otrKit showFingerprintConfirmationForAccountName:[NSString stringWithUTF8String:accountname] protocol:[NSString stringWithUTF8String:protocol] userName:[NSString stringWithUTF8String:username] theirHash:[NSString stringWithUTF8String:their_hash] ourHash:[NSString stringWithUTF8String:our_hash]];
-    }
+    [otrKit.delegate otrKit:otrKit showFingerprintConfirmationForAccountName:[NSString stringWithUTF8String:accountname] protocol:[NSString stringWithUTF8String:protocol] userName:[NSString stringWithUTF8String:username] theirHash:[NSString stringWithUTF8String:their_hash] ourHash:[NSString stringWithUTF8String:our_hash]];
 }
 
 static void write_fingerprints_cb(void *opdata)
@@ -384,204 +382,115 @@ static void handle_smp_event_cb(void *opdata, OtrlSMPEvent smp_event,
                                 ConnContext *context, unsigned short progress_percent,
                                 char *question)
 {
-    /*
+    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTRKitSMPEvent event = OTRKitSMPEventNone;
+    double progress = (double)progress_percent/100.0;
     if (!context) return;
     switch (smp_event)
     {
         case OTRL_SMPEVENT_NONE :
+            event = OTRKitSMPEventNone;
             break;
-        case OTRL_SMPEVENT_ASK_FOR_SECRET :
-            otrg_dialog_socialist_millionaires(context);
+        case OTRL_SMPEVENT_ASK_FOR_SECRET:
+            event = OTRKitSMPEventAskForSecret;
             break;
-        case OTRL_SMPEVENT_ASK_FOR_ANSWER :
-            otrg_dialog_socialist_millionaires_q(context, question);
+        case OTRL_SMPEVENT_ASK_FOR_ANSWER:
+            event = OTRKitSMPEventAskForAnswer;
             break;
         case OTRL_SMPEVENT_CHEATED :
-            otrg_plugin_abort_smp(context);
-            // FALLTHROUGH 
+            event = OTRKitSMPEventCheated;
+            otrl_message_abort_smp(otrKit.userState, &ui_ops, opdata, context);
+            break;
+            // FALLTHROUGH
         case OTRL_SMPEVENT_IN_PROGRESS :
+            event = OTRKitSMPEventInProgress;
+            break;
         case OTRL_SMPEVENT_SUCCESS :
+            event = OTRKitSMPEventSuccess;
+            break;
         case OTRL_SMPEVENT_FAILURE :
-        case OTRL_SMPEVENT_ABORT :
-            otrg_dialog_update_smp(context,
-                                   smp_event, ((gdouble)progress_percent)/100.0);
+            event = OTRKitSMPEventFailure;
+            break;
+        case OTRL_SMPEVENT_ABORT:
+            event = OTRKitSMPEventAbort;
             break;
         case OTRL_SMPEVENT_ERROR :
-            otrg_plugin_abort_smp(context);
+            event = OTRKitSMPEventError;
+            otrl_message_abort_smp(otrKit.userState, &ui_ops, opdata, context);
             break;
     }
-     */
+    NSString *questionString = [[NSString alloc] initWithCString:question encoding:NSUTF8StringEncoding];
+    dispatch_async(otrKit.callbackQueue, ^{
+        [otrKit.delegate otrKit:otrKit handleSMPEvent:event progress:progress question:questionString];
+    });
 }
 
 static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
                                 ConnContext *context, const char* message, gcry_error_t err)
 {
-    /*
-    PurpleConversation *conv = NULL;
-    gchar *buf;
-    OtrlMessageEvent * last_msg_event;
-    
-    if (!context) return;
-    
-    conv = otrg_plugin_context_to_conv(context, 1);
-    last_msg_event = g_hash_table_lookup(conv->data, "otr-last_msg_event");
-    
-    switch (msg_event)
-    {
+    if (!context) {
+        return;
+    }
+    OTRKit *otrKit = [OTRKit sharedInstance];
+    NSString *messageString = [[NSString alloc] initWithCString:message encoding:NSUTF8StringEncoding];
+    NSError *error = [otrKit errorForGPGError:err];
+    OTRKitMessageEvent event = OTRKitMessageEventNone;
+    switch (msg_event) {
         case OTRL_MSGEVENT_NONE:
+            event = OTRKitMessageEventNone;
             break;
         case OTRL_MSGEVENT_ENCRYPTION_REQUIRED:
-            buf = g_strdup_printf(_("You attempted to send an "
-                                    "unencrypted message to %s"), context->username);
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, _("Attempting to"
-                                                                                  " start a private conversation..."), 1, OTRL_NOTIFY_WARNING,
-                                          _("OTR Policy Violation"), buf,
-                                          _("Unencrypted messages to this recipient are "
-                                            "not allowed.  Attempting to start a private "
-                                            "conversation.\n\nYour message will be "
-                                            "retransmitted when the private conversation "
-                                            "starts."));
-            g_free(buf);
+            event = OTRKitMessageEventEncryptionRequired;
             break;
         case OTRL_MSGEVENT_ENCRYPTION_ERROR:
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, _("An error occurred "
-                                                                                  "when encrypting your message.  The message was not sent."),
-                                          1, OTRL_NOTIFY_ERROR, _("Error encrypting message"),
-                                          _("An error occurred when encrypting your message"),
-                                          _("The message was not sent."));
+            event = OTRKitMessageEventEncryptionError;
             break;
         case OTRL_MSGEVENT_CONNECTION_ENDED:
-            buf = g_strdup_printf(_("%s has already closed his/her private "
-                                    "connection to you"), context->username);
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, _("Your message "
-                                                                                  "was not sent.  Either end your private conversation, "
-                                                                                  "or restart it."), 1, OTRL_NOTIFY_ERROR,
-                                          _("Private connection closed"), buf,
-                                          _("Your message was not sent.  Either close your "
-                                            "private connection to him, or refresh it."));
-            g_free(buf);
+            event = OTRKitMessageEventConnectionEnded;
             break;
         case OTRL_MSGEVENT_SETUP_ERROR:
-            if (!err) {
-                err = GPG_ERR_INV_VALUE;
-            }
-            switch(gcry_err_code(err)) {
-                case GPG_ERR_INV_VALUE:
-                    buf = g_strdup(_("Error setting up private "
-                                     "conversation: Malformed message received"));
-                    break;
-                default:
-                    buf = g_strdup_printf(_("Error setting up private "
-                                            "conversation: %s"), gcry_strerror(err));
-                    break;
-            }
-            
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, buf, 1,
-                                          OTRL_NOTIFY_ERROR, _("OTR Error"), buf, NULL);
-            g_free(buf);
+            event = OTRKitMessageEventSetupError;
             break;
         case OTRL_MSGEVENT_MSG_REFLECTED:
-            display_otr_message_or_notify(opdata,
-                                          context->accountname, context->protocol,
-                                          context->username,
-                                          _("We are receiving our own OTR messages.  "
-                                            "You are either trying to talk to yourself, "
-                                            "or someone is reflecting your messages back "
-                                            "at you."), 1, OTRL_NOTIFY_ERROR,
-                                          _("OTR Error"), _("We are receiving our own OTR messages."),
-                                          _("You are either trying to talk to yourself, "
-                                            "or someone is reflecting your messages back "
-                                            "at you."));
+            event = OTRKitMessageEventMessageReflected;
             break;
         case OTRL_MSGEVENT_MSG_RESENT:
-            buf = g_strdup_printf(_("<b>The last message to %s was resent."
-                                    "</b>"), context->username);
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, buf, 1,
-                                          OTRL_NOTIFY_INFO, _("Message resent"), buf, NULL);
-            g_free(buf);
+            event = OTRKitMessageEventMessageResent;
             break;
         case OTRL_MSGEVENT_RCVDMSG_NOT_IN_PRIVATE:
-            buf = g_strdup_printf(_("<b>The encrypted message received from "
-                                    "%s is unreadable, as you are not currently communicating "
-                                    "privately.</b>"), context->username);
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, buf, 1,
-                                          OTRL_NOTIFY_INFO, _("Unreadable message"), buf, NULL);
-            g_free(buf);
+            event = OTRKitMessageEventReceivedMessageNotInPrivate;
             break;
         case OTRL_MSGEVENT_RCVDMSG_UNREADABLE:
-            buf = g_strdup_printf(_("We received an unreadable "
-                                    "encrypted message from %s."), context->username);
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, buf, 1,
-                                          OTRL_NOTIFY_ERROR, _("OTR Error"), buf, NULL);
-            g_free(buf);
+            event = OTRKitMessageEventReceivedMessageUnreadable;
             break;
         case OTRL_MSGEVENT_RCVDMSG_MALFORMED:
-            buf = g_strdup_printf(_("We received a malformed data "
-                                    "message from %s."), context->username);
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, buf, 1,
-                                          OTRL_NOTIFY_ERROR, _("OTR Error"), buf, NULL);
-            g_free(buf);
+            event = OTRKitMessageEventReceivedMessageMalformed;
             break;
         case OTRL_MSGEVENT_LOG_HEARTBEAT_RCVD:
-            buf = g_strdup_printf(_("Heartbeat received from %s.\n"),
-                                  context->username);
-            log_message(opdata, buf);
-            g_free(buf);
+            event = OTRKitMessageEventLogHeartbeatReceived;
             break;
         case OTRL_MSGEVENT_LOG_HEARTBEAT_SENT:
-            buf = g_strdup_printf(_("Heartbeat sent to %s.\n"),
-                                  context->username);
-            log_message(opdata, buf);
-            g_free(buf);
+            event = OTRKitMessageEventLogHeartbeatSent;
             break;
         case OTRL_MSGEVENT_RCVDMSG_GENERAL_ERR:
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, message, 1,
-                                          OTRL_NOTIFY_ERROR, _("OTR Error"), message, NULL);
+            event = OTRKitMessageEventReceivedMessageGeneralError;
             break;
         case OTRL_MSGEVENT_RCVDMSG_UNENCRYPTED:
-            buf = g_strdup_printf(_("<b>The following message received "
-                                    "from %s was <i>not</i> encrypted: [</b>%s<b>]</b>"),
-                                  context->username, message);
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, buf, 1,
-                                          OTRL_NOTIFY_INFO, _("Received unencrypted message"),
-                                          buf, NULL);
-            emit_msg_received(context, buf);
-            g_free(buf);
+            event = OTRKitMessageEventReceivedMessageUnencrypted;
             break;
         case OTRL_MSGEVENT_RCVDMSG_UNRECOGNIZED:
-            buf = g_strdup_printf(_("Unrecognized OTR message received "
-                                    "from %s.\n"), context->username);
-            log_message(opdata, buf);
-            g_free(buf);
+            event = OTRKitMessageEventReceivedMessageUnrecognized;
             break;
         case OTRL_MSGEVENT_RCVDMSG_FOR_OTHER_INSTANCE:
-            if (*last_msg_event == msg_event) {
-                break;
-            }
-            buf = g_strdup_printf(_("%s has sent a message intended for a "
-                                    "different session. If you are logged in multiple times, "
-                                    "another session may have received the message."),
-                                  context->username);
-            display_otr_message_or_notify(opdata, context->accountname,
-                                          context->protocol, context->username, buf, 1,
-                                          OTRL_NOTIFY_INFO, _("Received message for a different "
-                                                              "session"), buf, NULL);
-            g_free(buf);
+            event = OTRKitMessageEventReceivedMessageForOtherInstance;
+            break;
+        default:
             break;
     }
     
-    *last_msg_event = msg_event;
-     */
+    dispatch_async(otrKit.callbackQueue, ^{
+        [otrKit.delegate otrKit:otrKit handleMessageEvent:event message:messageString error:error];
+    });
 }
 
 static void create_instag_cb(void *opdata, const char *accountname,
@@ -607,6 +516,18 @@ static void timer_control_cb(void *opdata, unsigned int interval)
         if (interval > 0) {
             otrKit.pollTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:otrKit selector:@selector(messagePoll:) userInfo:nil repeats:YES];
         }
+    });
+}
+
+static void received_symkey_cb(void *opdata, ConnContext *context,
+                               unsigned int use, const unsigned char *usedata,
+                               size_t usedatalen, const unsigned char *symkey) {
+    OTRKit *otrKit = [OTRKit sharedInstance];
+    NSData *symmetricKey = [[NSData alloc] initWithBytes:symkey length:OTRL_EXTRAKEY_BYTES];
+    NSData *useDescriptionData = [[NSData alloc] initWithBytes:usedata length:usedatalen];
+    
+    dispatch_async(otrKit.callbackQueue, ^{
+        [otrKit.delegate otrKit:otrKit receivedSymmetricKey:symmetricKey forUse:use useData:useDescriptionData];
     });
 }
 
@@ -664,6 +585,7 @@ static OtrlMessageAppOps ui_ops = {
                             @"prpl-irc":   @(417),
                             @"prpl-oscar": @(2343)};
     self.isolationQueue = dispatch_queue_create("OTRKit Processing Queue", DISPATCH_QUEUE_SERIAL);
+    self.callbackQueue = dispatch_get_main_queue();
     // initialize OTR
     self.userState = otrl_userstate_create();
     
@@ -1083,6 +1005,57 @@ static OtrlMessageAppOps ui_ops = {
     }
     
     return NO;
+}
+
+- (NSData*) requestSymmetricKeyForUsername:(NSString *)username accountName:(NSString *)accountName protocol:(NSString *)protocol forUse:(NSUInteger)use useData:(NSData *)useData error:(NSError **)error {
+    ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
+    if (!context) {
+        *error = [NSError errorWithDomain:kOTRKitErrorDomain code:102 userInfo:@{NSLocalizedDescriptionKey: @"Could not obtain context"}];
+        return nil;
+    }
+    
+    uint8_t *symKey = malloc(OTRL_EXTRAKEY_BYTES * sizeof(uint8_t));
+    gcry_error_t err = otrl_message_symkey(self.userState, &ui_ops, NULL, context, use, useData.bytes, useData.length, symKey);
+    if (err != gcry_err_code(GPG_ERR_NO_ERROR)) {
+        *error = [self errorForGPGError:err];
+        return nil;
+    }
+    NSData *keyData = [[NSData alloc] initWithBytes:symKey length:OTRL_EXTRAKEY_BYTES];
+    return keyData;
+}
+
+- (void) initiateSMPForUsername:(NSString*)username
+                    accountName:(NSString*)accountName
+                       protocol:(NSString*)protocol
+                         secret:(NSString*)secret {
+    ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
+    if (!context) {
+        return;
+    }
+    otrl_message_initiate_smp(self.userState, &ui_ops, NULL, context, (const unsigned char*)[secret UTF8String], [secret lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
+}
+
+- (void) initiateSMPForUsername:(NSString*)username
+                    accountName:(NSString*)accountName
+                       protocol:(NSString*)protocol
+                       question:(NSString*)question
+                         secret:(NSString*)secret {
+    ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
+    if (!context) {
+        return;
+    }
+    otrl_message_initiate_smp_q(self.userState, &ui_ops, NULL, context, [question UTF8String], (const unsigned char*)[secret UTF8String], [secret lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
+}
+
+- (void) respondToSMPForUsername:(NSString*)username
+                     accountName:(NSString*)accountName
+                        protocol:(NSString*)protocol
+                          secret:(NSString*)secret {
+    ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
+    if (!context) {
+        return;
+    }
+    otrl_message_respond_smp(self.userState, &ui_ops, NULL, context, (const unsigned char*)[secret UTF8String], [secret lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
 }
 
 @end

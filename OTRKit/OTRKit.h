@@ -40,17 +40,48 @@
 @class OTRKit;
 
 typedef NS_ENUM(NSUInteger, OTRKitMessageState) {
-    OTRKitMessageStatePlaintext = 0, // OTRL_MSGSTATE_PLAINTEXT
-    OTRKitMessageStateEncrypted = 1, // OTRL_MSGSTATE_ENCRYPTED
-    OTRKitMessageStateFinished  = 2  // OTRL_MSGSTATE_FINISHED
+    OTRKitMessageStatePlaintext,
+    OTRKitMessageStateEncrypted,
+    OTRKitMessageStateFinished
 };
 
 typedef NS_ENUM(NSUInteger, OTRKitPolicy) {
-    OTRKitPolicyNever = 0,
-    OTRKitPolicyOpportunistic = 1,
-    OTRKitPolicyManual = 2,
-    OTRKitPolicyAlways = 3,
-    OTRKitPolicyDefault = 4
+    OTRKitPolicyNever,
+    OTRKitPolicyOpportunistic,
+    OTRKitPolicyManual,
+    OTRKitPolicyAlways,
+    OTRKitPolicyDefault
+};
+
+typedef NS_ENUM(NSUInteger, OTRKitSMPEvent) {
+    OTRKitSMPEventNone,
+    OTRKitSMPEventAskForSecret,
+    OTRKitSMPEventAskForAnswer,
+    OTRKitSMPEventCheated,
+    OTRKitSMPEventInProgress,
+    OTRKitSMPEventSuccess,
+    OTRKitSMPEventFailure,
+    OTRKitSMPEventAbort,
+    OTRKitSMPEventError
+};
+
+typedef NS_ENUM(NSUInteger, OTRKitMessageEvent) {
+    OTRKitMessageEventNone,
+    OTRKitMessageEventEncryptionRequired,
+    OTRKitMessageEventEncryptionError,
+    OTRKitMessageEventConnectionEnded,
+    OTRKitMessageEventSetupError,
+    OTRKitMessageEventMessageReflected,
+    OTRKitMessageEventMessageResent,
+    OTRKitMessageEventReceivedMessageNotInPrivate,
+    OTRKitMessageEventReceivedMessageUnreadable,
+    OTRKitMessageEventReceivedMessageMalformed,
+    OTRKitMessageEventLogHeartbeatReceived,
+    OTRKitMessageEventLogHeartbeatSent,
+    OTRKitMessageEventReceivedMessageGeneralError,
+    OTRKitMessageEventReceivedMessageUnencrypted,
+    OTRKitMessageEventReceivedMessageUnrecognized,
+    OTRKitMessageEventReceivedMessageForOtherInstance
 };
 
 extern NSString const *kOTRKitUsernameKey;
@@ -86,6 +117,28 @@ updateMessageState:(OTRKitMessageState)messageState
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol;
 
+- (void)                           otrKit:(OTRKit*)otrKit
+showFingerprintConfirmationForAccountName:(NSString*)accountName
+                                 protocol:(NSString*)protocol
+                                 userName:(NSString*)userName
+                                theirHash:(NSString*)theirHash
+                                  ourHash:(NSString*)ourHash;
+
+- (void) otrKit:(OTRKit*)otrKit
+ handleSMPEvent:(OTRKitSMPEvent)event
+       progress:(double)progress
+       question:(NSString*)question;
+
+- (void)    otrKit:(OTRKit*)otrKit
+handleMessageEvent:(OTRKitMessageEvent)event
+           message:(NSString*)message
+             error:(NSError*)error;
+
+- (void)        otrKit:(OTRKit*)otrKit
+  receivedSymmetricKey:(NSData*)symmetricKey
+                forUse:(NSUInteger)use
+               useData:(NSData*)useData;
+
 @optional
 
 - (void) otrKit:(OTRKit *)otrKit
@@ -100,19 +153,13 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 - (int)            otrKit:(OTRKit*)otrKit
 maxMessageSizeForProtocol:(NSString*)protocol;
 
-- (void)                           otrKit:(OTRKit*)otrKit
-showFingerprintConfirmationForAccountName:(NSString*)accountName
-                                 protocol:(NSString*)protocol
-                                 userName:(NSString*)userName
-                                theirHash:(NSString*)theirHash
-                                  ourHash:(NSString*)ourHash;
-
 @end
 
 @interface OTRKit : NSObject
 
 @property (nonatomic, weak) id<OTRKitDelegate> delegate;
 @property (nonatomic) dispatch_queue_t isolationQueue;
+@property (nonatomic) dispatch_queue_t callbackQueue;
 /** If none it uses `OTRKitPolicyDefault`
  */
 @property (nonatomic) OTRKitPolicy otrPolicy;
@@ -200,6 +247,30 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
 - (OTRKitMessageState)messageStateForUsername:(NSString*)username
                                   accountName:(NSString*)accountName
                                      protocol:(NSString*)protocol;
+
+- (void) initiateSMPForUsername:(NSString*)username
+                    accountName:(NSString*)accountName
+                       protocol:(NSString*)protocol
+                         secret:(NSString*)secret;
+
+- (void) initiateSMPForUsername:(NSString*)username
+                    accountName:(NSString*)accountName
+                       protocol:(NSString*)protocol
+                       question:(NSString*)question
+                         secret:(NSString*)secret;
+
+- (void) respondToSMPForUsername:(NSString*)username
+                     accountName:(NSString*)accountName
+                        protocol:(NSString*)protocol
+                          secret:(NSString*)secret;
+
+- (NSData*) requestSymmetricKeyForUsername:(NSString*)username
+                               accountName:(NSString*)accountName
+                                  protocol:(NSString*)protocol
+                                    forUse:(NSUInteger)use
+                                   useData:(NSData*)useData
+                                     error:(NSError**)error;
+
 /***
  Returns an array of dictionaries using OTRAccountNameKey, OTRUsernameKey, OTRFingerprintKey, OTRProtocolKey, OTRFingerprintKey to
  store the relevant information
