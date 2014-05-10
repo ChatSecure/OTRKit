@@ -57,6 +57,7 @@ NSString const *kOTRKitTrustKey       = @"kOTRKitTrustKey";
 @property (nonatomic, strong) NSTimer *pollTimer;
 @property (nonatomic) OtrlUserState userState;
 @property (nonatomic, strong) NSDictionary *protocolMaxSize;
+@property (nonatomic, strong, readwrite) NSString *dataPath;
 @end
 
 @implementation OTRKit
@@ -83,32 +84,51 @@ static OtrlPolicy policy_cb(void *opdata, ConnContext *context)
 static void create_privkey_cb(void *opdata, const char *accountname,
                               const char *protocol)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
-    NSString *accountNameString = [NSString stringWithUTF8String:accountname];
-    NSString *protocolString = [NSString stringWithUTF8String:protocol];
-    if (otrKit.delegate) {
-        dispatch_async(otrKit.callbackQueue, ^{
-            [otrKit.delegate otrKit:otrKit willStartGeneratingPrivateKeyForAccountName:accountNameString   protocol:protocolString];
-        });
-    }
-    FILE *privf;
-    NSString *path = [otrKit privateKeyPath];
-    privf = fopen([path UTF8String], "w+b");
-    // Generate Key
-    otrl_privkey_generate_FILEp(otrKit.userState, privf, accountname, protocol);
-    fclose(privf);
-    if (otrKit.delegate) {
-        dispatch_async(otrKit.callbackQueue, ^{
-            [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:nil];
-        });
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        OTRKit *otrKit = [OTRKit sharedInstance];
+        NSString *accountNameString = [NSString stringWithUTF8String:accountname];
+        NSString *protocolString = [NSString stringWithUTF8String:protocol];
+        if (otrKit.delegate) {
+            dispatch_async(otrKit.callbackQueue, ^{
+                [otrKit.delegate otrKit:otrKit willStartGeneratingPrivateKeyForAccountName:accountNameString   protocol:protocolString];
+            });
+        }
+        void *newkeyp;
+        gcry_error_t generateError = otrl_privkey_generate_start(otrKit.userState, accountname, protocol, &newkeyp);
+        FILE *privf;
+        NSString *path = [otrKit privateKeyPath];
+        privf = fopen([path UTF8String], "w+b");
+        if (generateError == gcry_error(GPG_ERR_NO_ERROR)) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                otrl_privkey_generate_calculate(newkeyp);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    otrl_privkey_generate_finish_FILEp(otrKit.userState, newkeyp, privf);
+                    fclose(privf);
+                    if (otrKit.delegate) {
+                        dispatch_async(otrKit.callbackQueue, ^{
+                            [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:nil];
+                        });
+                    }
+                });
+            });
+        } else {
+            NSError *error = [otrKit errorForGPGError:generateError];
+            if (otrKit.delegate) {
+                dispatch_async(otrKit.callbackQueue, ^{
+                    [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:error];
+                });
+            }
+        }
+    });
 }
 
 - (void)checkIfGeneratingKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void (^)(BOOL isGeneratingKey))completion
 {
     if (!accountName.length || !protocol.length) {
         if (completion) {
-            completion(NO);
+            dispatch_async(self.callbackQueue, ^{
+                completion(NO);
+            });
         }
         return;
     }
@@ -119,9 +139,11 @@ static void create_privkey_cb(void *opdata, const char *accountname,
         if (!generateError) {
             otrl_privkey_generate_cancelled(_userState, newkeyp);
         }
-        
+        BOOL keyExists = generateError == gcry_error(GPG_ERR_EEXIST);
         if (completion) {
-            completion (generateError == gcry_error(GPG_ERR_EEXIST));
+            dispatch_async(self.callbackQueue, ^{
+                completion(keyExists);
+            });
         }
     });
 }
@@ -171,39 +193,7 @@ static void create_privkey_cb(void *opdata, const char *accountname,
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        void *newkeyp;
-        gcry_error_t generateError;
-        if (self.delegate) {
-            [self.delegate otrKit:self willStartGeneratingPrivateKeyForAccountName:accountName protocol:protocol];
-        }
         
-        generateError = otrl_privkey_generate_start(_userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
-        FILE *privf;
-        NSString *path = [self privateKeyPath];
-        privf = fopen([path UTF8String], "w+b");
-        if (generateError == gcry_error(GPG_ERR_NO_ERROR)) {
-            dispatch_async(self.isolationQueue, ^{
-                otrl_privkey_generate_calculate(newkeyp);
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    otrl_privkey_generate_finish_FILEp(_userState,newkeyp,privf);
-                    fclose(privf);
-                    if (completionBlock) {
-                        completionBlock(YES, nil);
-                    }
-                    if (self.delegate) {
-                        [self.delegate otrKit:self didFinishGeneratingPrivateKeyForAccountName:accountName protocol:protocol error:nil];
-                    }
-                });
-            });
-        } else {
-            NSError *error = [self errorForGPGError:generateError];
-            if (completionBlock) {
-                completionBlock(NO, error);
-            }
-            if (self.delegate) {
-                [self.delegate otrKit:self didFinishGeneratingPrivateKeyForAccountName:accountName protocol:protocol error:error];
-            }
-        }
     });
 }
 
@@ -432,7 +422,11 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
         return;
     }
     OTRKit *otrKit = [OTRKit sharedInstance];
-    NSString *messageString = [[NSString alloc] initWithCString:message encoding:NSUTF8StringEncoding];
+    
+    NSString *messageString = nil;
+    if (message) {
+        messageString = [[NSString alloc] initWithCString:message encoding:NSUTF8StringEncoding];
+    }
     NSError *error = [otrKit errorForGPGError:err];
     OTRKitMessageEvent event = OTRKitMessageEventNone;
     switch (msg_event) {
@@ -584,7 +578,6 @@ static OtrlMessageAppOps ui_ops = {
                             @"prpl-gg":    @(1999),
                             @"prpl-irc":   @(417),
                             @"prpl-oscar": @(2343)};
-    self.isolationQueue = dispatch_queue_create("OTRKit Processing Queue", DISPATCH_QUEUE_SERIAL);
     self.callbackQueue = dispatch_get_main_queue();
     // initialize OTR
     self.userState = otrl_userstate_create();
@@ -640,51 +633,49 @@ static OtrlMessageAppOps ui_ops = {
 }
 
 - (void)decodeMessage:(NSString *)message sender:(NSString*)sender accountName:(NSString*)accountName protocol:(NSString*)protocol {
-    dispatch_async(self.isolationQueue, ^{
-        if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
-            return;
+    if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
+        return;
+    }
+    int ignore_message;
+    char *newmessage = NULL;
+    ConnContext *context = [self contextForUsername:sender accountName:accountName protocol:protocol];
+    
+    OtrlTLV *otr_tlvs = NULL;
+    ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void *)(self),[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
+    NSString *decodedMessage = nil;
+    
+    NSArray *tlvs = nil;
+    if (otr_tlvs) {
+        tlvs = [self tlvArrayForTLVChain:otr_tlvs];
+    }
+    
+    if (context) {
+        if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
+            [self disableEncryptionWithRecipient:sender accountName:accountName protocol:protocol];
         }
-        int ignore_message;
-        char *newmessage = NULL;
-        ConnContext *context = [self contextForUsername:sender accountName:accountName protocol:protocol];
-        
-        OtrlTLV *otr_tlvs = NULL;
-        ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void *)(self),[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
-        NSString *decodedMessage = nil;
-        
-        NSArray *tlvs = nil;
-        if (otr_tlvs) {
-            tlvs = [self tlvArrayForTLVChain:otr_tlvs];
+    }
+    
+    
+    if(ignore_message == 0)
+    {
+        if(newmessage) {
+            decodedMessage = [NSString stringWithUTF8String:newmessage];
+        } else {
+            decodedMessage = message;
         }
-        
-        if (context) {
-            if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
-                [self disableEncryptionWithRecipient:sender accountName:accountName protocol:protocol];
-            }
+        if (self.delegate) {
+            dispatch_async(self.callbackQueue, ^{
+                [self.delegate otrKit:self decodedMessage:decodedMessage tlvs:tlvs sender:sender accountName:accountName protocol:protocol];
+            });
         }
-        
-        
-        if(ignore_message == 0)
-        {
-            if(newmessage) {
-                decodedMessage = [NSString stringWithUTF8String:newmessage];
-            } else {
-                decodedMessage = message;
-            }
-            if (self.delegate) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate otrKit:self decodedMessage:decodedMessage tlvs:tlvs sender:sender accountName:accountName protocol:protocol];
-                });
-            }
-        }
-        
-        if (newmessage) {
-            otrl_message_free(newmessage);
-        }
-        if (otr_tlvs) {
-            otrl_tlv_free(otr_tlvs);
-        }
-    });
+    }
+    
+    if (newmessage) {
+        otrl_message_free(newmessage);
+    }
+    if (otr_tlvs) {
+        otrl_tlv_free(otr_tlvs);
+    }
 }
 
 - (OtrlTLV*)tlvChainForTLVs:(NSArray*)tlvs {
@@ -726,58 +717,34 @@ static OtrlMessageAppOps ui_ops = {
     return tlvArray;
 }
 
-- (void)encodeMessage:(NSString *)message tlvs:(NSArray*)tlvs recipient:(NSString *)recipient accountName:(NSString *)accountName protocol:(NSString *)protocol completionBlock:(void (^)(BOOL success, NSError *error))completionBlock {
-    [self generatePrivateKeyIfNeededForAccountName:accountName protocol:protocol completionBlock:^(BOOL success, NSError *error) {
-        if (!success) {
-            completionBlock(NO, error);
-        }
-        dispatch_async(self.isolationQueue, ^{
-            gcry_error_t err;
-            char *newmessage = NULL;
-            
-            ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
-            
-            OtrlTLV *otr_tlvs = [self tlvChainForTLVs:tlvs];
-            
-            err = otrl_message_sending(_userState, &ui_ops, (__bridge void *)(self),
-                                       [accountName UTF8String], [protocol UTF8String], [recipient UTF8String], OTRL_INSTAG_BEST, [message UTF8String], otr_tlvs, &newmessage, OTRL_FRAGMENT_SEND_ALL, &context,
-                                       NULL, NULL);
-            
-            if (otr_tlvs) {
-                otrl_tlv_free(otr_tlvs);
-            }
-            
-            if (err != gcry_err_code(GPG_ERR_NO_ERROR)) {
-                NSError *error = [self errorForGPGError:err];
-                completionBlock(NO, error);
-                return;
-            }
-            
-            NSString *encodedMessage = nil;
-            if (newmessage) {
-                encodedMessage = [NSString stringWithUTF8String:newmessage];
-                otrl_message_free(newmessage);
-            }
-            
-            if (encodedMessage) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completionBlock(YES, nil);
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completionBlock(NO, [NSError errorWithDomain:kOTRKitErrorDomain code:102 userInfo:@{NSLocalizedDescriptionKey: @"Message failed to be encoded."}]);
-                });
-            }
-        });
-        
-    }];
+- (void)encodeMessage:(NSString *)message tlvs:(NSArray*)tlvs recipient:(NSString *)recipient accountName:(NSString *)accountName protocol:(NSString *)protocol {
+    gcry_error_t err;
+    char *newmessage = NULL;
+    
+    ConnContext *context = [self contextForUsername:recipient accountName:accountName protocol:protocol];
+    
+    OtrlTLV *otr_tlvs = [self tlvChainForTLVs:tlvs];
+    
+    err = otrl_message_sending(_userState, &ui_ops, (__bridge void *)(self),
+                               [accountName UTF8String], [protocol UTF8String], [recipient UTF8String], OTRL_INSTAG_BEST, [message UTF8String], otr_tlvs, &newmessage, OTRL_FRAGMENT_SEND_ALL, &context,
+                               NULL, NULL);
+    
+    if (otr_tlvs) {
+        otrl_tlv_free(otr_tlvs);
+    }
+    
+    NSString *encodedMessage = nil;
+    if (newmessage) {
+        encodedMessage = [NSString stringWithUTF8String:newmessage];
+        otrl_message_free(newmessage);
+    }
 }
 
 - (void)inititateEncryptionWithRecipient:(NSString*)recipient
                              accountName:(NSString*)accountName
                                 protocol:(NSString*)protocol
 {
-    [self encodeMessage:@"?OTR?" tlvs:nil recipient:recipient accountName:accountName protocol:protocol completionBlock:nil];
+    [self encodeMessage:@"?OTR?" tlvs:nil recipient:recipient accountName:accountName protocol:protocol];
 }
 
 - (void)disableEncryptionWithRecipient:(NSString*)recipient
@@ -1015,7 +982,7 @@ static OtrlMessageAppOps ui_ops = {
     }
     
     uint8_t *symKey = malloc(OTRL_EXTRAKEY_BYTES * sizeof(uint8_t));
-    gcry_error_t err = otrl_message_symkey(self.userState, &ui_ops, NULL, context, use, useData.bytes, useData.length, symKey);
+    gcry_error_t err = otrl_message_symkey(self.userState, &ui_ops, NULL, context, (unsigned int)use, useData.bytes, useData.length, symKey);
     if (err != gcry_err_code(GPG_ERR_NO_ERROR)) {
         *error = [self errorForGPGError:err];
         return nil;
