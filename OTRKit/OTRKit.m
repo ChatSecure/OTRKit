@@ -265,7 +265,7 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
     
     otrl_privkey_hash_to_human(their_hash, fingerprint);
     
-    [otrKit.delegate otrKit:otrKit showFingerprintConfirmationForAccountName:[NSString stringWithUTF8String:accountname] protocol:[NSString stringWithUTF8String:protocol] userName:[NSString stringWithUTF8String:username] theirHash:[NSString stringWithUTF8String:their_hash] ourHash:[NSString stringWithUTF8String:our_hash]];
+    [otrKit.delegate otrKit:otrKit showFingerprintConfirmationForAccountName:[NSString stringWithUTF8String:accountname] protocol:[NSString stringWithUTF8String:protocol] username:[NSString stringWithUTF8String:username] theirHash:[NSString stringWithUTF8String:their_hash] ourHash:[NSString stringWithUTF8String:our_hash]];
 }
 
 static void write_fingerprints_cb(void *opdata)

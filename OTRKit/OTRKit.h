@@ -92,13 +92,35 @@ extern NSString const *kOTRKitTrustKey;
 
 @protocol OTRKitDelegate <NSObject>
 @required
-// Implement this delegate method to forward the injected message to the appropriate protocol
+
+/**
+ *  This method **MUST** be implemented or OTR will not work. All outgoing messages
+ *  should be sent first through OTRKit encodeMessage and then passed from this delegate
+ *  to the appropriate chat protocol manager to send the actual message.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param message     message to be sent over the network. may contain ciphertext.
+ *  @param recipient   intended recipient of the message
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ */
 - (void) otrKit:(OTRKit*)otrKit
   injectMessage:(NSString*)message
       recipient:(NSString*)recipient
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol;
 
+/**
+ *  All incoming messages should be sent to the OTRKit decodeMessage method before being
+ *  processed by your application. You should only display the messages coming from this delegate method.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param message     plaintext message
+ *  @param tlvs        OTRTLV values that may be present.
+ *  @param sender      buddy who sent the message
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ */
 - (void) otrKit:(OTRKit*)otrKit
  decodedMessage:(NSString*)message
            tlvs:(NSArray*)tlvs
@@ -106,34 +128,87 @@ extern NSString const *kOTRKitTrustKey;
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol;
 
+/**
+ *  When the encryption status changes this method is called
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param messageState plaintext, encrypted or finished
+ *  @param username     buddy whose state has changed
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ */
 - (void)    otrKit:(OTRKit*)otrKit
 updateMessageState:(OTRKitMessageState)messageState
           username:(NSString*)username
        accountName:(NSString*)accountName
           protocol:(NSString*)protocol;
 
+/**
+ *  libotr likes to know if buddies are still "online".
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param recipient   intended recipient of the message
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ *
+ *  @return online status of recipient
+ */
 - (BOOL)       otrKit:(OTRKit*)otrKit
   isRecipientLoggedIn:(NSString*)recipient
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol;
 
+/**
+ *  Show a dialog here so the user can confirm when a user's fingerprint changes.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ *  @param username    buddy whose fingerprint has changed
+ *  @param theirHash   buddy's fingerprint
+ *  @param ourHash     our fingerprint
+ */
 - (void)                           otrKit:(OTRKit*)otrKit
 showFingerprintConfirmationForAccountName:(NSString*)accountName
                                  protocol:(NSString*)protocol
-                                 userName:(NSString*)userName
+                                 username:(NSString*)username
                                 theirHash:(NSString*)theirHash
                                   ourHash:(NSString*)ourHash;
 
+/**
+ *  Implement this if you plan to handle SMP.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param event    SMP event
+ *  @param progress percent progress of SMP negotiation
+ *  @param question question that should be displayed to user
+ */
 - (void) otrKit:(OTRKit*)otrKit
  handleSMPEvent:(OTRKitSMPEvent)event
        progress:(double)progress
        question:(NSString*)question;
 
+/**
+ *  Implement this delegate method to handle message events.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param event   message event
+ *  @param message offending message
+ *  @param error   error describing the problem
+ */
 - (void)    otrKit:(OTRKit*)otrKit
 handleMessageEvent:(OTRKitMessageEvent)event
            message:(NSString*)message
              error:(NSError*)error;
 
+/**
+ *  When another buddy requests a shared symmetric key this will be called.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param symmetricKey key data
+ *  @param use          integer tag for identifying the use for the key
+ *  @param useData      any extra data to attach
+ */
 - (void)        otrKit:(OTRKit*)otrKit
   receivedSymmetricKey:(NSData*)symmetricKey
                 forUse:(NSUInteger)use
@@ -141,15 +216,38 @@ handleMessageEvent:(OTRKitMessageEvent)event
 
 @optional
 
+/**
+ *  Called when starting to generate a private key, may take a while.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ */
 - (void) otrKit:(OTRKit *)otrKit
 willStartGeneratingPrivateKeyForAccountName:(NSString*)accountName
 protocol:(NSString*)protocol;
 
+/**
+ *  Called when key generation has finished, canceled, or there was an error.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @param error       any error that may have occurred
+ */
 - (void) otrKit:(OTRKit *)otrKit
 didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
        protocol:(NSString*)protocol
           error:(NSError*)error;
 
+/**
+ *  Implement this if you have a custom maximum message size for your protocol.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param protocol    the protocol such as @"xmpp"
+ *
+ *  @return max message size in bytes
+ */
 - (int)            otrKit:(OTRKit*)otrKit
 maxMessageSizeForProtocol:(NSString*)protocol;
 
@@ -283,33 +381,58 @@ maxMessageSizeForProtocol:(NSString*)protocol;
 /// @name Socialist's Millionaire Protocol
 //////////////////////////////////////////////////////////////////////
 
+/**
+ *  Initiate's SMP with shared secret to verify buddy identity.
+ *
+ *  @param username    username of remote buddy
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @param secret      the secret must match exactly between buddies
+ */
 - (void) initiateSMPForUsername:(NSString*)username
                     accountName:(NSString*)accountName
                        protocol:(NSString*)protocol
                          secret:(NSString*)secret;
 
+/**
+ *  Initiate's SMP with shared secret to verify buddy identity.
+ *
+ *  @param username    username of remote buddy
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @param question    a question to ask remote buddy where the expected answer is the exact secret
+ *  @param secret      the secret must match exactly between buddies
+ */
 - (void) initiateSMPForUsername:(NSString*)username
                     accountName:(NSString*)accountName
                        protocol:(NSString*)protocol
                        question:(NSString*)question
                          secret:(NSString*)secret;
 
+/**
+ *  Respond to an SMP request with the secret answer.
+ *
+ *  @param username    username of remote buddy
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @param secret      the secret must match exactly between buddies
+ */
 - (void) respondToSMPForUsername:(NSString*)username
                      accountName:(NSString*)accountName
                         protocol:(NSString*)protocol
                           secret:(NSString*)secret;
 
 /**
- *  
+ *  Requests a symmetric key for out-of-band crypto like file transfer.
  *
- *  @param username    <#username description#>
- *  @param accountName <#accountName description#>
- *  @param protocol    <#protocol description#>
- *  @param use         <#use description#>
- *  @param useData     <#useData description#>
- *  @param error       <#error description#>
+ *  @param username    username of remote buddy
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @param use         integer tag describing the use of the key
+ *  @param useData     any extra data that may be required to use the key
+ *  @param error       Any error that may be returned
  *
- *  @return <#return value description#>
+ *  @return Symmetric key ready to be used externally.
  */
 
 - (NSData*) requestSymmetricKeyForUsername:(NSString*)username
