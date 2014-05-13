@@ -26,6 +26,12 @@ VERSION="1.12"
 SDKVERSION="7.1"
 MINIOSVERSION="6.0"
 VERIFYGPG=true
+
+if $TRAVIS; then
+    echo "Travis detected, disabling GPG verification."
+    VERIFYGPG=false
+fi
+
 #
 #
 ###########################################################################
