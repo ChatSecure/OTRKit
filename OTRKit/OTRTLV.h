@@ -42,7 +42,7 @@ typedef NS_ENUM(uint16_t, OTRTLVType) {
 
 /**
  * @param type: TLV type
- * @param data: this data must be of length shorter than UINT16_MAX
+ * @param data: this data must be of length shorter than UINT16_MAX bytes
  */
 - (instancetype) initWithType:(OTRTLVType)type data:(NSData*)data;
 

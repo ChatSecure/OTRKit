@@ -14,6 +14,9 @@
     if (self = [super init]) {
         self.type = type;
         self.data = data;
+        if (![self isValidLength]) {
+            return nil;
+        }
     }
     return self;
 }
