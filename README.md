@@ -22,6 +22,9 @@ Then do these things:
 2. Make sure to add `OTRKit (OTRKit)` to your project's Targent Dependencies in the Build Phases tab of your target settings.
 3. Add `libOTRKit.a` to the Link Binary With Libraries step within the same window.
 
+*Note*: libotr build script may fail if `libgcrypt` has been installed via Homebrew because of a path conflict.
+
+
 ## Usage
 
 Check out [OTRKit.h](https://github.com/ChatSecure/OTRKit/blob/master/OTRKit/OTRKit.h) because it is the most up-to-date reference at the moment.

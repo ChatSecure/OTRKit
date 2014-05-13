@@ -23,7 +23,7 @@
 #  Choose your libgpg-error version and your currently-installed iOS SDK version:
 #
 VERSION="1.12"
-SDKVERSION="7.0"
+SDKVERSION="7.1"
 MINIOSVERSION="6.0"
 VERIFYGPG=true
 #
