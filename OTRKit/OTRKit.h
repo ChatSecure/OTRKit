@@ -106,7 +106,7 @@ extern NSString const *kOTRKitTrustKey;
  */
 - (void) otrKit:(OTRKit*)otrKit
   injectMessage:(NSString*)message
-      recipient:(NSString*)recipient
+       username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol;
 
@@ -124,7 +124,7 @@ extern NSString const *kOTRKitTrustKey;
 - (void) otrKit:(OTRKit*)otrKit
  decodedMessage:(NSString*)message
            tlvs:(NSArray*)tlvs
-         sender:(NSString*)sender
+       username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol;
 
@@ -154,7 +154,7 @@ updateMessageState:(OTRKitMessageState)messageState
  *  @return online status of recipient
  */
 - (BOOL)       otrKit:(OTRKit*)otrKit
-  isRecipientLoggedIn:(NSString*)recipient
+   isUsernameLoggedIn:(NSString*)username
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol;
 
@@ -169,11 +169,11 @@ updateMessageState:(OTRKitMessageState)messageState
  *  @param ourHash     our fingerprint
  */
 - (void)                           otrKit:(OTRKit*)otrKit
-showFingerprintConfirmationForAccountName:(NSString*)accountName
-                                 protocol:(NSString*)protocol
+  showFingerprintConfirmationForTheirHash:(NSString*)theirHash
+                                  ourHash:(NSString*)ourHash
                                  username:(NSString*)username
-                                theirHash:(NSString*)theirHash
-                                  ourHash:(NSString*)ourHash;
+                              accountName:(NSString*)accountName
+                                 protocol:(NSString*)protocol;
 
 /**
  *  Implement this if you plan to handle SMP.
@@ -186,7 +186,10 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
 - (void) otrKit:(OTRKit*)otrKit
  handleSMPEvent:(OTRKitSMPEvent)event
        progress:(double)progress
-       question:(NSString*)question;
+       question:(NSString*)question
+       username:(NSString*)username
+    accountName:(NSString*)accountName
+       protocol:(NSString*)protocol;
 
 /**
  *  Implement this delegate method to handle message events.
@@ -199,6 +202,9 @@ showFingerprintConfirmationForAccountName:(NSString*)accountName
 - (void)    otrKit:(OTRKit*)otrKit
 handleMessageEvent:(OTRKitMessageEvent)event
            message:(NSString*)message
+          username:(NSString*)username
+       accountName:(NSString*)accountName
+          protocol:(NSString*)protocol
              error:(NSError*)error;
 
 /**
@@ -212,7 +218,10 @@ handleMessageEvent:(OTRKitMessageEvent)event
 - (void)        otrKit:(OTRKit*)otrKit
   receivedSymmetricKey:(NSData*)symmetricKey
                 forUse:(NSUInteger)use
-               useData:(NSData*)useData;
+               useData:(NSData*)useData
+              username:(NSString*)username
+           accountName:(NSString*)accountName
+              protocol:(NSString*)protocol;
 
 @optional
 
@@ -223,9 +232,9 @@ handleMessageEvent:(OTRKitMessageEvent)event
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  */
-- (void) otrKit:(OTRKit *)otrKit
+- (void)                             otrKit:(OTRKit *)otrKit
 willStartGeneratingPrivateKeyForAccountName:(NSString*)accountName
-protocol:(NSString*)protocol;
+                                   protocol:(NSString*)protocol;
 
 /**
  *  Called when key generation has finished, canceled, or there was an error.
@@ -235,10 +244,10 @@ protocol:(NSString*)protocol;
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  *  @param error       any error that may have occurred
  */
-- (void) otrKit:(OTRKit *)otrKit
+- (void)                             otrKit:(OTRKit *)otrKit
 didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
-       protocol:(NSString*)protocol
-          error:(NSError*)error;
+                                   protocol:(NSString*)protocol
+                                      error:(NSError*)error;
 
 /**
  *  Implement this if you have a custom maximum message size for your protocol.
@@ -314,7 +323,7 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  */
 - (void)encodeMessage:(NSString*)message
                  tlvs:(NSArray*)tlvs
-            recipient:(NSString*)recipient
+             username:(NSString*)username
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol;
 
@@ -327,7 +336,7 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  */
 - (void)decodeMessage:(NSString*)message
-               sender:(NSString*)sender
+             username:(NSString*)username
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol;
 
@@ -339,7 +348,9 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  *  @param completion  whether or not we are currently generating a key
  */
-- (void)checkIfGeneratingKeyForAccountName:(NSString *)accountName protocol:(NSString *)protocol completion:(void (^)(BOOL isGeneratingKey))completion;
+- (void)checkIfGeneratingKeyForAccountName:(NSString *)accountName
+                                  protocol:(NSString *)protocol
+                                completion:(void (^)(BOOL isGeneratingKey))completion;
 
 /**
  *  Shortcut for injecting a "?OTR?" message.
@@ -348,9 +359,9 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  */
-- (void)inititateEncryptionWithRecipient:(NSString*)recipient
-                             accountName:(NSString*)accountName
-                                protocol:(NSString*)protocol;
+- (void)inititateEncryptionWithUsername:(NSString*)username
+                            accountName:(NSString*)accountName
+                               protocol:(NSString*)protocol;
 
 /**
  *  Disable encryption and inform buddy you no longer wish to communicate
@@ -360,9 +371,9 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  */
-- (void)disableEncryptionWithRecipient:(NSString*)recipient
-                           accountName:(NSString*)accountName
-                              protocol:(NSString*)protocol;
+- (void)disableEncryptionWithUsername:(NSString*)username
+                          accountName:(NSString*)accountName
+                             protocol:(NSString*)protocol;
 
 /**
  *  Current encryption state for buddy
