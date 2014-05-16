@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.source          = { :git => "https://github.com/ChatSecure/OTRKit.git", :branch => "otrdata"}
   s.preserve_paths  = "dependencies/libs/*","dependencies/include/*", "dependencies/include/**/*.h"
   s.prepare_command = <<-CMD
-    bash build-all.sh
+    bash build-libgpg-error.sh
   CMD
 
 #  s.header_dir   = "openssl"
