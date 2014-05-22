@@ -103,12 +103,14 @@ extern NSString const *kOTRKitTrustKey;
  *  @param recipient   intended recipient of the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
   injectMessage:(NSString*)message
        username:(NSString*)username
     accountName:(NSString*)accountName
-       protocol:(NSString*)protocol;
+       protocol:(NSString*)protocol
+            tag:(id)tag;
 
 /**
  *  All incoming messages should be sent to the OTRKit decodeMessage method before being
@@ -120,13 +122,15 @@ extern NSString const *kOTRKitTrustKey;
  *  @param sender      buddy who sent the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
  decodedMessage:(NSString*)message
            tlvs:(NSArray*)tlvs
        username:(NSString*)username
     accountName:(NSString*)accountName
-       protocol:(NSString*)protocol;
+       protocol:(NSString*)protocol
+            tag:(id)tag;
 
 /**
  *  When the encryption status changes this method is called
@@ -320,12 +324,14 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  * @param recipient The intended recipient of the message
  * @param accountName Your account name
  * @param protocol the protocol of accountName, such as @"xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void)encodeMessage:(NSString*)message
                  tlvs:(NSArray*)tlvs
              username:(NSString*)username
           accountName:(NSString*)accountName
-             protocol:(NSString*)protocol;
+             protocol:(NSString*)protocol
+                  tag:(id)tag;
 
 /**
  *  All messages should be sent through here before being processed by your program.
@@ -334,11 +340,13 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param sender      account name of buddy who sent the message
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void)decodeMessage:(NSString*)message
              username:(NSString*)username
           accountName:(NSString*)accountName
-             protocol:(NSString*)protocol;
+             protocol:(NSString*)protocol
+                  tag:(id)tag;
 
 /**
  *  You can use this method to determine whether or not OTRKit is currently generating
@@ -432,6 +440,10 @@ maxMessageSizeForProtocol:(NSString*)protocol;
                      accountName:(NSString*)accountName
                         protocol:(NSString*)protocol
                           secret:(NSString*)secret;
+
+//////////////////////////////////////////////////////////////////////
+/// @name Shared Symmetric Key
+//////////////////////////////////////////////////////////////////////
 
 /**
  *  Requests a symmetric key for out-of-band crypto like file transfer.

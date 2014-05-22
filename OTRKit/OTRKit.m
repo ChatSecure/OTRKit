@@ -198,6 +198,9 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 }
 
 - (NSError*) errorForGPGError:(gcry_error_t)gpg_error {
+    if (gpg_error == gcry_err_code(GPG_ERR_NO_ERROR)) {
+        return nil;
+    }
     const char *gpg_error_string = gcry_strerror(gpg_error);
     const char *gpg_error_source = gcry_strsource(gpg_error);
     gpg_err_code_t gpg_error_code = gcry_err_code(gpg_error);
@@ -247,7 +250,7 @@ static void inject_message_cb(void *opdata, const char *accountname,
     NSString *protocolString = [NSString stringWithUTF8String:protocol];
     
     dispatch_async(otrKit.callbackQueue, ^{
-        [otrKit.delegate otrKit:otrKit injectMessage:messageString username:usernameString accountName:accountNameString protocol:protocolString];
+        [otrKit.delegate otrKit:otrKit injectMessage:messageString username:usernameString accountName:accountNameString protocol:protocolString tag:nil];
     });
 }
 
@@ -569,11 +572,7 @@ static OtrlMessageAppOps ui_ops = {
     max_message_size_cb,
     NULL,                   /* account_name */
     NULL,                   /* account_name_free */
-#ifdef DUMP_RECEIVED_SYMKEY
     received_symkey_cb,
-#else
-    NULL,		    /* received_symkey */
-#endif
     otr_error_message_cb,
     otr_error_message_free_cb,
     resent_msg_prefix_cb,
@@ -662,7 +661,12 @@ static OtrlMessageAppOps ui_ops = {
     }
 }
 
-- (void)decodeMessage:(NSString *)message username:(NSString*)sender accountName:(NSString*)accountName protocol:(NSString*)protocol {
+- (void)decodeMessage:(NSString *)message
+             username:(NSString*)sender
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol
+                  tag:(id)tag
+{
     if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
         return;
     }
@@ -695,7 +699,13 @@ static OtrlMessageAppOps ui_ops = {
         }
         if (self.delegate) {
             dispatch_async(self.callbackQueue, ^{
-                [self.delegate otrKit:self decodedMessage:decodedMessage tlvs:tlvs username:sender accountName:accountName protocol:protocol];
+                [self.delegate otrKit:self decodedMessage:decodedMessage tlvs:tlvs username:sender accountName:accountName protocol:protocol tag:tag];
+            });
+        }
+    } else if (tlvs) {
+        if (self.delegate) {
+            dispatch_async(self.callbackQueue, ^{
+                [self.delegate otrKit:self decodedMessage:nil tlvs:tlvs username:sender accountName:accountName protocol:protocol tag:tag];
             });
         }
     }
@@ -747,16 +757,28 @@ static OtrlMessageAppOps ui_ops = {
     return tlvArray;
 }
 
-- (void)encodeMessage:(NSString *)message tlvs:(NSArray*)tlvs username:(NSString *)username accountName:(NSString *)accountName protocol:(NSString *)protocol {
+- (void)encodeMessage:(NSString *)message
+                 tlvs:(NSArray*)tlvs
+             username:(NSString *)username
+          accountName:(NSString *)accountName
+             protocol:(NSString *)protocol
+                  tag:(id)tag
+{
     gcry_error_t err;
     char *newmessage = NULL;
     
     ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
     
+    // Set nil messages to empty string if TLVs are present, otherwise libotr
+    // will silence the message, even though you may have meant to inject a TLV.
+    if (!message && tlvs.count) {
+        message = @"";
+    }
+    
     OtrlTLV *otr_tlvs = [self tlvChainForTLVs:tlvs];
     
     err = otrl_message_sending(_userState, &ui_ops, (__bridge void *)(self),
-                               [accountName UTF8String], [protocol UTF8String], [username UTF8String], OTRL_INSTAG_BEST, [message UTF8String], otr_tlvs, &newmessage, OTRL_FRAGMENT_SEND_ALL, &context,
+                               [accountName UTF8String], [protocol UTF8String], [username UTF8String], OTRL_INSTAG_BEST, [message UTF8String], otr_tlvs, &newmessage, OTRL_FRAGMENT_SEND_SKIP, &context,
                                NULL, NULL);
     
     if (otr_tlvs) {
@@ -768,13 +790,19 @@ static OtrlMessageAppOps ui_ops = {
         encodedMessage = [NSString stringWithUTF8String:newmessage];
         otrl_message_free(newmessage);
     }
+    
+    if (self.delegate) {
+        dispatch_async(self.callbackQueue, ^{
+            [self.delegate otrKit:self injectMessage:encodedMessage username:username accountName:accountName protocol:protocol tag:tag];
+        });
+    }
 }
 
 - (void)inititateEncryptionWithUsername:(NSString*)recipient
                             accountName:(NSString*)accountName
                                protocol:(NSString*)protocol
 {
-    [self encodeMessage:@"?OTR?" tlvs:nil username:recipient accountName:accountName protocol:protocol];
+    [self encodeMessage:@"?OTR?" tlvs:nil username:recipient accountName:accountName protocol:protocol tag:nil];
 }
 
 - (void)disableEncryptionWithUsername:(NSString*)recipient
