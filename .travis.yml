@@ -2,4 +2,4 @@ language: objective-c
 before_install:
     - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
     - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
-script: bash build-all.sh
+script: pod spec lint OTRKit.podspec --verbose
