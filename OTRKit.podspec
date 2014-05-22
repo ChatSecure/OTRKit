@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   CMD
 
 #  s.header_dir   = "openssl"
-  s.platform     = :ios
+  s.platform     = :ios, "6.0"
   s.source_files = "dependencies/include/**/*.h", "OTRKit/*.{h,m}"
   s.library     = 'gpg-error', 'gcrypt', 'otr'
   s.xcconfig     = {'LIBRARY_SEARCH_PATHS' => '"$(PODS_ROOT)/OTRKit/lib"'}
