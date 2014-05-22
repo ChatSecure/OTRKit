@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.source          = { :git => "https://github.com/ChatSecure/OTRKit.git", :branch => "otrdata"}
   s.preserve_paths  = "dependencies/libs/*","dependencies/include/*", "dependencies/include/**/*.h"
   s.prepare_command = <<-CMD
-    bash build-libgpg-error.sh
+    bash build-all.sh
   CMD
 
 #  s.header_dir   = "openssl"
@@ -18,5 +18,6 @@ Pod::Spec.new do |s|
   s.library     = 'gpg-error', 'gcrypt', 'otr'
   s.xcconfig     = {'LIBRARY_SEARCH_PATHS' => '"$(PODS_ROOT)/OTRKit/lib"'}
   s.requires_arc = true
+  s.dependency 'CocoaHTTPServer', '~> 2.3'
 
 end
