@@ -103,14 +103,32 @@ extern NSString const *kOTRKitTrustKey;
  *  @param recipient   intended recipient of the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
- *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
   injectMessage:(NSString*)message
        username:(NSString*)username
     accountName:(NSString*)accountName
+       protocol:(NSString*)protocol;
+
+/**
+ *  All outgoing messages should be sent to the OTRKit encodeMessage method before being
+ *  sent over the network.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param message     plaintext message
+ *  @param sender      buddy who sent the message
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
+ */
+- (void) otrKit:(OTRKit*)otrKit
+ encodedMessage:(NSString*)encodedMessage
+       username:(NSString*)username
+    accountName:(NSString*)accountName
        protocol:(NSString*)protocol
-            tag:(id)tag;
+            tag:(id)tag
+          error:(NSError*)error;
+
 
 /**
  *  All incoming messages should be sent to the OTRKit decodeMessage method before being
@@ -125,7 +143,7 @@ extern NSString const *kOTRKitTrustKey;
  *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
- decodedMessage:(NSString*)message
+ decodedMessage:(NSString*)decodedMessage
            tlvs:(NSArray*)tlvs
        username:(NSString*)username
     accountName:(NSString*)accountName
@@ -209,6 +227,7 @@ handleMessageEvent:(OTRKitMessageEvent)event
           username:(NSString*)username
        accountName:(NSString*)accountName
           protocol:(NSString*)protocol
+               tag:(id)tag
              error:(NSError*)error;
 
 /**
@@ -349,8 +368,7 @@ maxMessageSizeForProtocol:(NSString*)protocol;
                   tag:(id)tag;
 
 /**
- *  You can use this method to determine whether or not OTRKit is currently generating
- *  a private key.
+ *  You can use this method to determine whether or not OTRKit is currently generating a private key.
  *
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
@@ -384,17 +402,17 @@ maxMessageSizeForProtocol:(NSString*)protocol;
                              protocol:(NSString*)protocol;
 
 /**
- *  Current encryption state for buddy
+ *  Current encryption state for buddy.
  *
  *  @param username    username of remote buddy
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
- *
- *  @return current encryption state
+ *  @param completion current encryption state, called on callbackQueue
  */
-- (OTRKitMessageState)messageStateForUsername:(NSString*)username
-                                  accountName:(NSString*)accountName
-                                     protocol:(NSString*)protocol;
+- (void)messageStateForUsername:(NSString*)username
+                    accountName:(NSString*)accountName
+                       protocol:(NSString*)protocol
+                     completion:(void (^)(OTRKitMessageState messageState))completion;
 
 //////////////////////////////////////////////////////////////////////
 /// @name Socialist's Millionaire Protocol
@@ -453,17 +471,15 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  *  @param use         integer tag describing the use of the key
  *  @param useData     any extra data that may be required to use the key
- *  @param error       Any error that may be returned
- *
- *  @return Symmetric key ready to be used externally.
+ *  @param completion Symmetric key ready to be used externally, or error.
  */
 
-- (NSData*) requestSymmetricKeyForUsername:(NSString*)username
-                               accountName:(NSString*)accountName
-                                  protocol:(NSString*)protocol
-                                    forUse:(NSUInteger)use
-                                   useData:(NSData*)useData
-                                     error:(NSError**)error;
+- (void) requestSymmetricKeyForUsername:(NSString*)username
+                            accountName:(NSString*)accountName
+                               protocol:(NSString*)protocol
+                                 forUse:(NSUInteger)use
+                                useData:(NSData*)useData
+                             completion:(void (^)(NSData *key, NSError *error))completion;
 
 //////////////////////////////////////////////////////////////////////
 /// @name Fingerprint Verification
