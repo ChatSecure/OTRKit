@@ -103,12 +103,14 @@ extern NSString const *kOTRKitTrustKey;
  *  @param recipient   intended recipient of the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
+ *  @param tag optional tag to attached to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
   injectMessage:(NSString*)message
        username:(NSString*)username
     accountName:(NSString*)accountName
-       protocol:(NSString*)protocol;
+       protocol:(NSString*)protocol
+            tag:(id)tag;
 
 /**
  *  All outgoing messages should be sent to the OTRKit encodeMessage method before being
@@ -166,7 +168,8 @@ updateMessageState:(OTRKitMessageState)messageState
           protocol:(NSString*)protocol;
 
 /**
- *  libotr likes to know if buddies are still "online".
+ *  libotr likes to know if buddies are still "online". This method
+ *  is called synchronously on the callback queue so be careful.
  *
  *  @param otrKit      reference to shared instance
  *  @param recipient   intended recipient of the message
@@ -271,18 +274,6 @@ willStartGeneratingPrivateKeyForAccountName:(NSString*)accountName
 didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                                    protocol:(NSString*)protocol
                                       error:(NSError*)error;
-
-/**
- *  Implement this if you have a custom maximum message size for your protocol.
- *
- *  @param otrKit      reference to shared instance
- *  @param protocol    the protocol such as @"xmpp"
- *
- *  @return max message size in bytes
- */
-- (int)            otrKit:(OTRKit*)otrKit
-maxMessageSizeForProtocol:(NSString*)protocol;
-
 @end
 
 @interface OTRKit : NSObject
@@ -320,7 +311,6 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  */
 @property (nonatomic, strong, readonly) NSString* instanceTagsPath;
 
-
 /**
  *  Always use the sharedInstance. Using two OTRKits within your application
  *  may exhibit strange problems.
@@ -334,6 +324,14 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  * @param dataPath This is a path to a folder where private keys, fingerprints, and instance tags will be stored. If this is nil a default path will be chosen for you.
  */
 - (void) setupWithDataPath:(NSString*)dataPath;
+
+/**
+ *  For specifying fragmentation for a protocol.
+ *
+ *  @param maxSize  max size of protocol messages in bytes
+ *  @param protocol protocol like "xmpp"
+ */
+- (void) setMaximumProtocolSize:(int)maxSize forProtocol:(NSString*)protocol;
 
 /**
  * Encodes a message and optional array of OTRTLVs, splits it into fragments,
@@ -486,11 +484,12 @@ maxMessageSizeForProtocol:(NSString*)protocol;
 //////////////////////////////////////////////////////////////////////
 
 /**
- *  Returns an array of dictionaries using OTRAccountNameKey, OTRUsernameKey,
+ *  @param completion Returns an array of dictionaries using OTRAccountNameKey, OTRUsernameKey,
  *  OTRFingerprintKey, OTRProtocolKey, OTRFingerprintKey to store the relevant
  *  information.
  */
-@property (nonatomic, strong, readonly) NSArray *allFingerprints;
+- (void) requestAllFingerprints:(void (^)(NSArray *allFingerprints))completion;
+
 
 /**
  *  Delete a specified fingerprint.
@@ -499,24 +498,25 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param username    username of remote buddy
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
- *
- *  @return whether not the operation was successful.
+ *  @param completion whether not the operation was successful.
  */
-- (BOOL)deleteFingerprint:(NSString *)fingerprint
+- (void)deleteFingerprint:(NSString *)fingerprint
                  username:(NSString *)username
               accountName:(NSString *)accountName
-                 protocol:(NSString *)protocol;
+                 protocol:(NSString *)protocol
+               completion:(void (^)(BOOL success))completion;
+
 
 /**
  *  For determining your own fingerprint.
  *
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
- *
- *  @return Returns your private key fingerprint
+ *  @param completion Returns your private key fingerprint
  */
-- (NSString *)fingerprintForAccountName:(NSString*)accountName
-                               protocol:(NSString*)protocol;
+- (void)fingerprintForAccountName:(NSString*)accountName
+                         protocol:(NSString*)protocol
+                       completion:(void (^)(NSString *fingerprint))completion;
 
 /**
  *  For determining the fingerprint of a buddy.
@@ -524,12 +524,12 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param username    username of remote buddy
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
- *
- *  @return Returns username's private key fingerprint
+ *  @param completion Returns username's private key fingerprint
  */
-- (NSString *)activeFingerprintForUsername:(NSString*)username
-                               accountName:(NSString*)accountName
-                                  protocol:(NSString*)protocol;
+- (void)activeFingerprintForUsername:(NSString*)username
+                         accountName:(NSString*)accountName
+                            protocol:(NSString*)protocol
+                          completion:(void (^)(NSString *activeFingerprint))completion;
 
 /**
  *  Whether or not buddy's fingerprint is marked as verified.
@@ -537,12 +537,13 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param username    username of remote buddy
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
- *
- *  @return fingerprint verification state for buddy
+ *  @param completion fingerprint verification state for buddy
  */
-- (BOOL)activeFingerprintIsVerifiedForUsername:(NSString*)username
+- (void)activeFingerprintIsVerifiedForUsername:(NSString*)username
                                    accountName:(NSString*)accountName
-                                      protocol:(NSString*)protocol;
+                                      protocol:(NSString*)protocol
+                                    completion:(void (^)(BOOL verified))completion;
+
 
 /**
  *  Mark a user's active fingerprint as verified
@@ -551,11 +552,14 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  *  @param verified    whether or not to trust this fingerprint
+ *  @param completion  whether or not operation was successful
  */
 - (void)setActiveFingerprintVerificationForUsername:(NSString*)username
                                         accountName:(NSString*)accountName
                                            protocol:(NSString*)protocol
-                                           verified:(BOOL)verified;
+                                           verified:(BOOL)verified
+                                         completion:(void (^)(void))completion;
+
 /**
  *  Whether or not buddy has any previously verified fingerprints.
  *
@@ -563,10 +567,12 @@ maxMessageSizeForProtocol:(NSString*)protocol;
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  *
- *  @return Whether or not buddy has any previously verified fingerprints.
+ *  @param completoin Whether or not buddy has any previously verified fingerprints.
  */
-- (BOOL)hasVerifiedFingerprintsForUsername:(NSString *)username
+- (void)hasVerifiedFingerprintsForUsername:(NSString *)username
                                accountName:(NSString*)accountName
-                                  protocol:(NSString *)protocol;
+                                  protocol:(NSString *)protocol
+                                completion:(void (^)(BOOL verified))completion;
+
 
 @end

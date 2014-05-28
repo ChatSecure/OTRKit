@@ -60,7 +60,7 @@ NSString const *kOTRKitTrustKey       = @"kOTRKitTrustKey";
 @property (nonatomic) dispatch_queue_t internalQueue;
 @property (nonatomic, strong) NSTimer *pollTimer;
 @property (nonatomic) OtrlUserState userState;
-@property (nonatomic, strong) NSDictionary *protocolMaxSize;
+@property (nonatomic, strong) NSMutableDictionary *protocolMaxSize;
 @property (nonatomic, strong, readwrite) NSString *dataPath;
 @end
 
@@ -78,41 +78,35 @@ static void create_privkey_cb(void *opdata, const char *accountname,
                               const char *protocol)
 {
     OTRKit *otrKit = [OTRKit sharedInstance];
-    dispatch_async(otrKit.internalQueue, ^{
-        NSString *accountNameString = [NSString stringWithUTF8String:accountname];
-        NSString *protocolString = [NSString stringWithUTF8String:protocol];
-        if (otrKit.delegate) {
-            dispatch_async(otrKit.callbackQueue, ^{
-                [otrKit.delegate otrKit:otrKit willStartGeneratingPrivateKeyForAccountName:accountNameString   protocol:protocolString];
-            });
-        }
-        void *newkeyp;
-        gcry_error_t generateError = otrl_privkey_generate_start(otrKit.userState, accountname, protocol, &newkeyp);
-        FILE *privf;
-        NSString *path = [otrKit privateKeyPath];
-        privf = fopen([path UTF8String], "w+b");
-        if (generateError == gcry_error(GPG_ERR_NO_ERROR)) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                otrl_privkey_generate_calculate(newkeyp);
-                dispatch_async(otrKit.internalQueue, ^{
-                    otrl_privkey_generate_finish_FILEp(otrKit.userState, newkeyp, privf);
-                    fclose(privf);
-                    if (otrKit.delegate) {
-                        dispatch_async(otrKit.callbackQueue, ^{
-                            [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:nil];
-                        });
-                    }
-                });
-            });
-        } else {
-            NSError *error = [otrKit errorForGPGError:generateError];
+    NSString *accountNameString = [NSString stringWithUTF8String:accountname];
+    NSString *protocolString = [NSString stringWithUTF8String:protocol];
+    if (otrKit.delegate) {
+        dispatch_async(otrKit.callbackQueue, ^{
+            [otrKit.delegate otrKit:otrKit willStartGeneratingPrivateKeyForAccountName:accountNameString   protocol:protocolString];
+        });
+    }
+    void *newkeyp;
+    gcry_error_t generateError = otrl_privkey_generate_start(otrKit.userState, accountname, protocol, &newkeyp);
+    FILE *privf;
+    NSString *path = [otrKit privateKeyPath];
+    privf = fopen([path UTF8String], "w+b");
+    if (generateError == gcry_error(GPG_ERR_NO_ERROR)) {
+            otrl_privkey_generate_calculate(newkeyp);
+            otrl_privkey_generate_finish_FILEp(otrKit.userState, newkeyp, privf);
             if (otrKit.delegate) {
                 dispatch_async(otrKit.callbackQueue, ^{
-                    [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:error];
+                    [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:nil];
                 });
             }
+    } else {
+        NSError *error = [otrKit errorForGPGError:generateError];
+        if (otrKit.delegate) {
+            dispatch_async(otrKit.callbackQueue, ^{
+                [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:error];
+            });
         }
-    });
+    }
+    fclose(privf);
 }
 
 static int is_logged_in_cb(void *opdata, const char *accountname,
@@ -122,10 +116,14 @@ static int is_logged_in_cb(void *opdata, const char *accountname,
     if (!otrKit.delegate) {
         return -1;
     }
-    return [otrKit.delegate otrKit:otrKit
-               isUsernameLoggedIn:[NSString stringWithUTF8String:recipient]
-                       accountName:[NSString stringWithUTF8String:accountname]
-                          protocol:[NSString stringWithUTF8String:protocol]];
+    __block BOOL loggedIn = NO;
+    dispatch_sync(otrKit.callbackQueue, ^{
+        loggedIn = [otrKit.delegate otrKit:otrKit
+                        isUsernameLoggedIn:[NSString stringWithUTF8String:recipient]
+                               accountName:[NSString stringWithUTF8String:accountname]
+                                  protocol:[NSString stringWithUTF8String:protocol]];
+    });
+    return loggedIn;
 }
 
 static void inject_message_cb(void *opdata, const char *accountname,
@@ -140,8 +138,9 @@ static void inject_message_cb(void *opdata, const char *accountname,
     NSString *accountNameString = [NSString stringWithUTF8String:accountname];
     NSString *protocolString = [NSString stringWithUTF8String:protocol];
     
+    id tag = (__bridge id)(opdata);
     dispatch_async(otrKit.callbackQueue, ^{
-        [otrKit.delegate otrKit:otrKit injectMessage:messageString username:usernameString accountName:accountNameString protocol:protocolString];
+        [otrKit.delegate otrKit:otrKit injectMessage:messageString username:usernameString accountName:accountNameString protocol:protocolString tag:tag];
     });
 }
 
@@ -154,42 +153,37 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
                                    unsigned char fingerprint[20])
 {
     OTRKit *otrKit = [OTRKit sharedInstance];
-    dispatch_async(otrKit.internalQueue, ^{
-        char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN], their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
-        
-        ConnContext *context = otrl_context_find(otrKit.userState, username,accountname, protocol,OTRL_INSTAG_BEST, NO,NULL,NULL, NULL);
-        if (!context) {
-            return;
-        }
-        
-        otrl_privkey_fingerprint(otrKit.userState, our_hash, context->accountname, context->protocol);
-        
-        otrl_privkey_hash_to_human(their_hash, fingerprint);
-        
-        NSString *ourHash = [NSString stringWithUTF8String:our_hash];
-        NSString *theirHash = [NSString stringWithUTF8String:their_hash];
-        NSString *accountNameString = [NSString stringWithUTF8String:accountname];
-        NSString *usernameString = [NSString stringWithUTF8String:username];
-        NSString *protocolString = [NSString stringWithUTF8String:protocol];
-        dispatch_async(otrKit.callbackQueue, ^{
-            [otrKit.delegate otrKit:otrKit showFingerprintConfirmationForTheirHash:theirHash ourHash:ourHash username:usernameString accountName:accountNameString protocol:protocolString];
-        });
+    char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN], their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
+    
+    ConnContext *context = otrl_context_find(otrKit.userState, username,accountname, protocol,OTRL_INSTAG_BEST, NO,NULL,NULL, NULL);
+    if (!context) {
+        return;
+    }
+    
+    otrl_privkey_fingerprint(otrKit.userState, our_hash, context->accountname, context->protocol);
+    
+    otrl_privkey_hash_to_human(their_hash, fingerprint);
+    
+    NSString *ourHash = [NSString stringWithUTF8String:our_hash];
+    NSString *theirHash = [NSString stringWithUTF8String:their_hash];
+    NSString *accountNameString = [NSString stringWithUTF8String:accountname];
+    NSString *usernameString = [NSString stringWithUTF8String:username];
+    NSString *protocolString = [NSString stringWithUTF8String:protocol];
+    dispatch_async(otrKit.callbackQueue, ^{
+        [otrKit.delegate otrKit:otrKit showFingerprintConfirmationForTheirHash:theirHash ourHash:ourHash username:usernameString accountName:accountNameString protocol:protocolString];
     });
 }
 
 static void write_fingerprints_cb(void *opdata)
 {
     OTRKit *otrKit = [OTRKit sharedInstance];
-    dispatch_async(otrKit.internalQueue, ^{
-        FILE *storef;
-        NSString *path = [otrKit fingerprintsPath];
-        storef = fopen([path UTF8String], "wb");
-        if (!storef) return;
-        otrl_privkey_write_fingerprints_FILEp(otrKit.userState, storef);
-        fclose(storef);
-    });
+    FILE *storef;
+    NSString *path = [otrKit fingerprintsPath];
+    storef = fopen([path UTF8String], "wb");
+    if (!storef) return;
+    otrl_privkey_write_fingerprints_FILEp(otrKit.userState, storef);
+    fclose(storef);
 }
-
 
 static void gone_secure_cb(void *opdata, ConnContext *context)
 {
@@ -221,12 +215,11 @@ static int max_message_size_cb(void *opdata, ConnContext *context)
     }
     
     OTRKit *otrKit = [OTRKit sharedInstance];
-    if (otrKit.delegate && [otrKit.delegate respondsToSelector:@selector(otrKit:maxMessageSizeForProtocol:)]) {
-        return [otrKit.delegate otrKit:otrKit maxMessageSizeForProtocol:[NSString stringWithUTF8String:context->protocol]];
-    }
-    
     NSNumber *maxMessageSize = [otrKit.protocolMaxSize objectForKey:protocol];
-    return maxMessageSize.intValue;
+    if (maxMessageSize) {
+        return maxMessageSize.intValue;
+    }
+    return 0;
 }
 
 static const char* otr_error_message_cb(void *opdata, ConnContext *context,
@@ -398,8 +391,8 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
     NSString *accountName = [NSString stringWithUTF8String:context->accountname];
     NSString *protocol = [NSString stringWithUTF8String:context->protocol];
     
+    id tag = (__bridge id)(opdata);
     dispatch_async(otrKit.callbackQueue, ^{
-        id tag = (__bridge id)(opdata);
         [otrKit.delegate otrKit:otrKit handleMessageEvent:event message:messageString username:username accountName:accountName protocol:protocol tag:tag error:error];
     });
 }
@@ -492,17 +485,20 @@ static OtrlMessageAppOps ui_ops = {
 
 - (id) init {
     if (self = [super init]) {
-        OTRL_INIT;
-        self.protocolMaxSize = @{@"prpl-msn":   @(1409),
-                                 @"prpl-icq":   @(2346),
-                                 @"prpl-aim":   @(2343),
-                                 @"prpl-yahoo": @(832),
-                                 @"prpl-gg":    @(1999),
-                                 @"prpl-irc":   @(417),
-                                 @"prpl-oscar": @(2343)};
         self.callbackQueue = dispatch_get_main_queue();
         self.internalQueue = dispatch_queue_create("OTRKit Internal Queue", 0);
-        self.userState = otrl_userstate_create();
+        dispatch_async(self.internalQueue, ^{
+            OTRL_INIT;
+            NSDictionary *protocolDefaults = @{@"prpl-msn":   @(1409),
+                                               @"prpl-icq":   @(2346),
+                                               @"prpl-aim":   @(2343),
+                                               @"prpl-yahoo": @(832),
+                                               @"prpl-gg":    @(1999),
+                                               @"prpl-irc":   @(417),
+                                               @"prpl-oscar": @(2343)};
+            self.protocolMaxSize = [NSMutableDictionary dictionaryWithDictionary:protocolDefaults];
+            self.userState = otrl_userstate_create();
+        });
     }
     return self;
 }
@@ -517,31 +513,33 @@ static OtrlMessageAppOps ui_ops = {
 }
 
 - (void) readLibotrConfiguration {
-    FILE *privf;
-    NSString *path = [self privateKeyPath];
-    privf = fopen([path UTF8String], "rb");
-    
-    if(privf) {
-        otrl_privkey_read_FILEp(_userState, privf);
-    }
-    fclose(privf);
-    
-    FILE *storef;
-    path = [self fingerprintsPath];
-    storef = fopen([path UTF8String], "rb");
-    
-    if (storef) {
-        otrl_privkey_read_fingerprints_FILEp(_userState, storef, NULL, NULL);
-    }
-    fclose(storef);
-    
-    FILE *tagf;
-    path = [self instanceTagsPath];
-    tagf = fopen([path UTF8String], "rb");
-    if (tagf) {
-        otrl_instag_read_FILEp(_userState, tagf);
-    }
-    fclose(tagf);
+    dispatch_async(self.internalQueue, ^{
+        FILE *privf;
+        NSString *path = [self privateKeyPath];
+        privf = fopen([path UTF8String], "rb");
+        
+        if(privf) {
+            otrl_privkey_read_FILEp(_userState, privf);
+        }
+        fclose(privf);
+        
+        FILE *storef;
+        path = [self fingerprintsPath];
+        storef = fopen([path UTF8String], "rb");
+        
+        if (storef) {
+            otrl_privkey_read_fingerprints_FILEp(_userState, storef, NULL, NULL);
+        }
+        fclose(storef);
+        
+        FILE *tagf;
+        path = [self instanceTagsPath];
+        tagf = fopen([path UTF8String], "rb");
+        if (tagf) {
+            otrl_instag_read_FILEp(_userState, tagf);
+        }
+        fclose(tagf);
+    });
 }
 
 - (NSString*) documentsDirectory {
@@ -560,6 +558,12 @@ static OtrlMessageAppOps ui_ops = {
 
 - (NSString*) instanceTagsPath {
     return [self.dataPath stringByAppendingPathComponent:kOTRKitInstanceTagsFileName];
+}
+
+- (void) setMaximumProtocolSize:(int)maxSize forProtocol:(NSString *)protocol {
+    dispatch_async(self.internalQueue, ^{
+        [self.protocolMaxSize setObject:@(maxSize) forKey:protocol];
+    });
 }
 
 - (void) messagePoll:(NSTimer*)timer {
@@ -592,7 +596,9 @@ static OtrlMessageAppOps ui_ops = {
         ConnContext *context = [self contextForUsername:sender accountName:accountName protocol:protocol];
         
         OtrlTLV *otr_tlvs = NULL;
-        ignore_message = otrl_message_receiving(_userState, &ui_ops, (void*) CFBridgingRetain(tag),[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
+        CFTypeRef cfTag = CFBridgingRetain(tag);
+        ignore_message = otrl_message_receiving(_userState, &ui_ops, (void*) cfTag,[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
+        CFRelease(cfTag);
         NSString *decodedMessage = nil;
         
         NSArray *tlvs = nil;
@@ -730,14 +736,6 @@ static OtrlMessageAppOps ui_ops = {
     });
 }
 
-- (NSString*) fingerprintForAccountName:(NSString*)accountName protocol:(NSString*) protocol {
-    NSString *fingerprintString = nil;
-    char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
-    otrl_privkey_fingerprint(_userState, our_hash, [accountName UTF8String], [protocol UTF8String]);
-    fingerprintString = [NSString stringWithUTF8String:our_hash];
-    return fingerprintString;
-}
-
 - (void) updateEncryptionStatusWithContext:(ConnContext*)context {
     if (self.delegate) {
         NSString *username = [NSString stringWithUTF8String:context->username];
@@ -828,78 +826,123 @@ static OtrlMessageAppOps ui_ops = {
         fingerprint = context->active_fingerprint;
     }
     return fingerprint;
+}
+
+- (void)fingerprintForAccountName:(NSString*)accountName
+                         protocol:(NSString*)protocol
+                       completion:(void (^)(NSString *fingerprint))completion
+{
+    dispatch_async(self.internalQueue, ^{
+        NSString *fingerprintString = nil;
+        char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
+        otrl_privkey_fingerprint(_userState, our_hash, [accountName UTF8String], [protocol UTF8String]);
+        fingerprintString = [NSString stringWithUTF8String:our_hash];
+        if (completion) {
+            dispatch_async(self.callbackQueue, ^{
+                completion(fingerprintString);
+            });
+        }
+    });
+}
+
+- (void)activeFingerprintForUsername:(NSString*)username
+                         accountName:(NSString*)accountName
+                            protocol:(NSString*)protocol
+                          completion:(void (^)(NSString *activeFingerprint))completion
+{
+    dispatch_async(self.internalQueue, ^{
+        NSString *fingerprintString = nil;
+        char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
+        Fingerprint * fingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
+        if(fingerprint && fingerprint->fingerprint) {
+            otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
+            fingerprintString = [NSString stringWithUTF8String:their_hash];
+        }
+        if (completion) {
+            dispatch_async(self.callbackQueue, ^{
+                completion(fingerprintString);
+            });
+        }
+    });
     
 }
 
-- (NSString *)activeFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
-    
-    NSString *fingerprintString = nil;
-    char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
-    Fingerprint * fingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
-    if(fingerprint && fingerprint->fingerprint) {
-        otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
-        fingerprintString = [NSString stringWithUTF8String:their_hash];
-    }
-    return fingerprintString;
-    
-}
-
-- (BOOL)hasVerifiedFingerprintsForUsername:(NSString *)username
+- (void)hasVerifiedFingerprintsForUsername:(NSString *)username
                                accountName:(NSString*)accountName
                                   protocol:(NSString *)protocol
+                                completion:(void (^)(BOOL verified))completion
 {
-    BOOL hasVerifiedFingerprints = NO;
-    
-    ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
-    if (context) {
-        Fingerprint *currentFingerPrint = context->fingerprint_root.next;
-        while (currentFingerPrint != NULL) {
-            if (currentFingerPrint->trust) {
-                if(otrl_context_is_fingerprint_trusted(currentFingerPrint)) {
-                    hasVerifiedFingerprints = YES;
+    dispatch_async(self.internalQueue, ^{
+        BOOL hasVerifiedFingerprints = NO;
+        
+        ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
+        if (context) {
+            Fingerprint *currentFingerPrint = context->fingerprint_root.next;
+            while (currentFingerPrint != NULL) {
+                if (currentFingerPrint->trust) {
+                    if(otrl_context_is_fingerprint_trusted(currentFingerPrint)) {
+                        hasVerifiedFingerprints = YES;
+                    }
+                    
                 }
-
+                currentFingerPrint = currentFingerPrint->next;
             }
-            currentFingerPrint = currentFingerPrint->next;
         }
-    }
-    
-    return hasVerifiedFingerprints;
+        if (completion) {
+            dispatch_async(self.callbackQueue, ^{
+                completion(hasVerifiedFingerprints);
+            });
+        }
+    });
 }
 
-- (BOOL) activeFingerprintIsVerifiedForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol
+- (void)activeFingerprintIsVerifiedForUsername:(NSString*)username
+                                   accountName:(NSString*)accountName
+                                      protocol:(NSString*)protocol
+                                    completion:(void (^)(BOOL verified))completion
 {
-    BOOL verified = NO;
-    Fingerprint * fingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
-    
-    if( fingerprint && fingerprint->trust)
-    {
-        if(otrl_context_is_fingerprint_trusted(fingerprint)) {
-            verified = YES;
+    dispatch_async(self.internalQueue, ^{
+        BOOL verified = NO;
+        Fingerprint * fingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
+        
+        if( fingerprint && fingerprint->trust)
+        {
+            if(otrl_context_is_fingerprint_trusted(fingerprint)) {
+                verified = YES;
+            }
         }
-    }
-    
-    
-    
-    return verified;
+        if (completion) {
+            dispatch_async(self.callbackQueue, ^{
+                completion(verified);
+            });
+        }
+    });
 }
 
 - (void)setActiveFingerprintVerificationForUsername:(NSString*)username
                                         accountName:(NSString*)accountName
                                            protocol:(NSString*)protocol
                                            verified:(BOOL)verified
+                                         completion:(void (^)(void))completion
 {
-    Fingerprint * fingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
-    const char * newTrust = nil;
-    if(verified) {
-        newTrust = [@"verified" UTF8String];
-    }
+    dispatch_async(self.internalQueue, ^{
+        Fingerprint * fingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
+        const char * newTrust = nil;
+        if(verified) {
+            newTrust = [@"verified" UTF8String];
+        }
         
-    if(fingerprint)
-    {
-        otrl_context_set_trust(fingerprint, newTrust);
-        [self writeFingerprints];
-    }
+        if(fingerprint)
+        {
+            otrl_context_set_trust(fingerprint, newTrust);
+            [self writeFingerprints];
+        }
+        if (completion) {
+            dispatch_async(self.callbackQueue, ^{
+                completion();
+            });
+        }
+    });
 }
 
 -(void)writeFingerprints
@@ -971,67 +1014,81 @@ static OtrlMessageAppOps ui_ops = {
     }
 }
 
-- (NSArray *)allFingerprints
+- (void) requestAllFingerprints:(void (^)(NSArray *allFingerprints))completion
 {
-    NSMutableArray * fingerprintsArray = [NSMutableArray array];
-    ConnContext * context = _userState->context_root;
-    while (context) {
-        Fingerprint * fingerprint = context->fingerprint_root.next;
-        while (fingerprint) {
-            char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
-            otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
-            NSString * fingerprintString = [NSString stringWithUTF8String:their_hash];
-            NSString * username = [NSString stringWithUTF8String:fingerprint->context->username];
-            NSString * accountName = [NSString stringWithUTF8String:fingerprint->context->accountname];
-            NSString * protocol = [NSString stringWithUTF8String:fingerprint->context->protocol];
-            BOOL trusted = otrl_context_is_fingerprint_trusted(fingerprint);
-            
-            [fingerprintsArray addObject:@{kOTRKitUsernameKey:username,
-                                           kOTRKitAccountNameKey:accountName,
-                                           kOTRKitFingerprintKey:fingerprintString,
-                                           kOTRKitProtocolKey:protocol,
-                                           kOTRKitTrustKey: @(trusted)}];
-            fingerprint = fingerprint->next;
+    dispatch_async(self.internalQueue, ^{
+        NSMutableArray * fingerprintsArray = [NSMutableArray array];
+        ConnContext * context = _userState->context_root;
+        while (context) {
+            Fingerprint * fingerprint = context->fingerprint_root.next;
+            while (fingerprint) {
+                char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
+                otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
+                NSString * fingerprintString = [NSString stringWithUTF8String:their_hash];
+                NSString * username = [NSString stringWithUTF8String:fingerprint->context->username];
+                NSString * accountName = [NSString stringWithUTF8String:fingerprint->context->accountname];
+                NSString * protocol = [NSString stringWithUTF8String:fingerprint->context->protocol];
+                BOOL trusted = otrl_context_is_fingerprint_trusted(fingerprint);
+                
+                [fingerprintsArray addObject:@{kOTRKitUsernameKey:username,
+                                               kOTRKitAccountNameKey:accountName,
+                                               kOTRKitFingerprintKey:fingerprintString,
+                                               kOTRKitProtocolKey:protocol,
+                                               kOTRKitTrustKey: @(trusted)}];
+                fingerprint = fingerprint->next;
+            }
+            context = context->next;
         }
-        context = context->next;
-    }
-    
-    if ([fingerprintsArray count]) {
-        return [NSArray arrayWithArray:fingerprintsArray];
-    }
-    return nil;
+        
+        if (completion) {
+            dispatch_async(self.callbackQueue, ^{
+                completion(fingerprintsArray);
+            });
+        }
+    });
 }
 
-- (BOOL)deleteFingerprint:(NSString *)fingerprintString
+- (void)deleteFingerprint:(NSString *)fingerprintString
                  username:(NSString *)username
               accountName:(NSString *)accountName
                  protocol:(NSString *)protocol
+               completion:(void (^)(BOOL success))completion
 {
-    ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
-    BOOL stop = NO;
-    Fingerprint * fingerprint = nil;
-    Fingerprint * currentFingerprint = context->fingerprint_root.next;
-    while (currentFingerprint && !stop) {
-        char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
-        otrl_privkey_hash_to_human(their_hash, currentFingerprint->fingerprint);
-        NSString * currentFingerprintString = [NSString stringWithUTF8String:their_hash];
-        if ([currentFingerprintString isEqualToString:fingerprintString]) {
-            fingerprint = currentFingerprint;
-            stop = YES;
+    dispatch_async(self.internalQueue, ^{
+        ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
+        BOOL stop = NO;
+        Fingerprint * fingerprint = nil;
+        Fingerprint * currentFingerprint = context->fingerprint_root.next;
+        while (currentFingerprint && !stop) {
+            char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
+            otrl_privkey_hash_to_human(their_hash, currentFingerprint->fingerprint);
+            NSString * currentFingerprintString = [NSString stringWithUTF8String:their_hash];
+            if ([currentFingerprintString isEqualToString:fingerprintString]) {
+                fingerprint = currentFingerprint;
+                stop = YES;
+            }
+            else {
+                currentFingerprint = currentFingerprint->next;
+            }
         }
-        else {
-            currentFingerprint = currentFingerprint->next;
+        
+        if (fingerprint != [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol]) {
+            //will not delete if it is the active fingerprint;
+            otrl_context_forget_fingerprint(fingerprint, 0);
+            [self writeFingerprints];
+            if (completion) {
+                dispatch_async(self.callbackQueue, ^{
+                    completion(YES);
+                });
+            }
         }
-    }
-    
-    if (fingerprint != [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol]) {
-        //will not delete if it is the active fingerprint;
-        otrl_context_forget_fingerprint(fingerprint, 0);
-        [self writeFingerprints];
-        return YES;
-    }
-    
-    return NO;
+        
+        if (completion) {
+            dispatch_async(self.callbackQueue, ^{
+                completion(NO);
+            });
+        }
+    });
 }
 
 - (void) requestSymmetricKeyForUsername:(NSString*)username
