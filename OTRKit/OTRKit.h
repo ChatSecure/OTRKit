@@ -84,11 +84,11 @@ typedef NS_ENUM(NSUInteger, OTRKitMessageEvent) {
     OTRKitMessageEventReceivedMessageForOtherInstance
 };
 
-extern NSString const *kOTRKitUsernameKey;
-extern NSString const *kOTRKitAccountNameKey;
-extern NSString const *kOTRKitFingerprintKey;
-extern NSString const *kOTRKitProtocolKey;
-extern NSString const *kOTRKitTrustKey;
+extern NSString * const kOTRKitUsernameKey;
+extern NSString * const kOTRKitAccountNameKey;
+extern NSString * const kOTRKitFingerprintKey;
+extern NSString * const kOTRKitProtocolKey;
+extern NSString * const kOTRKitTrustKey;
 
 @protocol OTRKitDelegate <NSObject>
 @required
@@ -383,7 +383,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  */
-- (void)inititateEncryptionWithUsername:(NSString*)username
+- (void)initiateEncryptionWithUsername:(NSString*)username
                             accountName:(NSString*)accountName
                                protocol:(NSString*)protocol;
 

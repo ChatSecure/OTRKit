@@ -46,11 +46,11 @@ static NSString * const kOTRKitFingerprintsFileName = @"otr.fingerprints";
 static NSString * const kOTRKitInstanceTagsFileName =  @"otr.instance_tags";
 static NSString * const kOTRKitErrorDomain       = @"org.chatsecure.OTRKit";
 
-NSString const *kOTRKitUsernameKey    = @"kOTRKitUsernameKey";
-NSString const *kOTRKitAccountNameKey = @"kOTRKitAccountNameKey";
-NSString const *kOTRKitFingerprintKey = @"kOTRKitFingerprintKey";
-NSString const *kOTRKitProtocolKey    = @"kOTRKitProtocolKey";
-NSString const *kOTRKitTrustKey       = @"kOTRKitTrustKey";
+NSString * const kOTRKitUsernameKey    = @"kOTRKitUsernameKey";
+NSString * const kOTRKitAccountNameKey = @"kOTRKitAccountNameKey";
+NSString * const kOTRKitFingerprintKey = @"kOTRKitFingerprintKey";
+NSString * const kOTRKitProtocolKey    = @"kOTRKitProtocolKey";
+NSString * const kOTRKitTrustKey       = @"kOTRKitTrustKey";
 
 
 @interface OTRKit()
@@ -617,9 +617,8 @@ static OtrlMessageAppOps ui_ops = {
         {
             if(newmessage) {
                 decodedMessage = [NSString stringWithUTF8String:newmessage];
-            } else {
-                decodedMessage = message;
             }
+            
             if (self.delegate) {
                 dispatch_async(self.callbackQueue, ^{
                     [self.delegate otrKit:self decodedMessage:decodedMessage tlvs:tlvs username:sender accountName:accountName protocol:protocol tag:tag];
@@ -694,7 +693,7 @@ static OtrlMessageAppOps ui_ops = {
     });
 }
 
-- (void)inititateEncryptionWithUsername:(NSString*)recipient
+- (void)initiateEncryptionWithUsername:(NSString*)recipient
                             accountName:(NSString*)accountName
                                protocol:(NSString*)protocol
 {
