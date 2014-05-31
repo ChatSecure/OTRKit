@@ -18,12 +18,15 @@ To compile libotr and dependencies for iOS, run the included scripts in this ord
 
 Then do these things:
 
-1. Drag `OTRKit.xcodeproj` to the left-hand file pane in Xcode to add it to your project. 
-2. Make sure to add `OTRKit (OTRKit)` to your project's Targent Dependencies in the Build Phases tab of your target settings.
-3. Add `libOTRKit.a` to the Link Binary With Libraries step within the same window.
+1. Drag the contents of `./OTRKit/` directory into your Xcode project and add it to your current target.
+2. Drag the contents of `./dependencies/` directory into your Xcode project and add it to your current target.
+2. Make sure to add `$(SRCROOT)/Submodules/OTRKit/dependencies/include` to your project's Header Search Paths in the Build Settings tab of your target settings.
 
 *Note*: libotr build script may fail if `libgcrypt` has been installed via Homebrew because of a path conflict.
 
+### Cocoapods
+
+There is a work-in-progress Cocoapod that you can check out,`OTRKit.podspec`, but it hasn't been fully tested yet.
 
 ## Usage
 
@@ -34,39 +37,128 @@ Implement the required delegate methods somewhere that makes sense for your proj
 ```obj-c
 @protocol OTRKitDelegate <NSObject>
 @required
-// Implement this delegate method to forward the injected message to the appropriate protocol
-- (void) injectMessage:(NSString*)message recipient:(NSString*)recipient accountName:(NSString*)accountName protocol:(NSString*)protocol;
-- (void) updateMessageStateForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*)protocol messageState:(OTRKitMessageState)messageState; 
+/**
+ *  This method **MUST** be implemented or OTR will not work. All outgoing messages
+ *  should be sent first through OTRKit encodeMessage and then passed from this delegate
+ *  to the appropriate chat protocol manager to send the actual message.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param message     message to be sent over the network. may contain ciphertext.
+ *  @param recipient   intended recipient of the message
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ *  @param tag optional tag to attached to message. Only used locally.
+ */
+- (void) otrKit:(OTRKit*)otrKit
+  injectMessage:(NSString*)message
+       username:(NSString*)username
+    accountName:(NSString*)accountName
+       protocol:(NSString*)protocol
+            tag:(id)tag;
+
+/**
+ *  All outgoing messages should be sent to the OTRKit encodeMessage method before being
+ *  sent over the network.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param message     plaintext message
+ *  @param sender      buddy who sent the message
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
+ */
+- (void) otrKit:(OTRKit*)otrKit
+ encodedMessage:(NSString*)encodedMessage
+       username:(NSString*)username
+    accountName:(NSString*)accountName
+       protocol:(NSString*)protocol
+            tag:(id)tag
+          error:(NSError*)error;
+
+
+/**
+ *  All incoming messages should be sent to the OTRKit decodeMessage method before being
+ *  processed by your application. You should only display the messages coming from this delegate method.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param message     plaintext message
+ *  @param tlvs        OTRTLV values that may be present.
+ *  @param sender      buddy who sent the message
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
+ */
+- (void) otrKit:(OTRKit*)otrKit
+ decodedMessage:(NSString*)decodedMessage
+           tlvs:(NSArray*)tlvs
+       username:(NSString*)username
+    accountName:(NSString*)accountName
+       protocol:(NSString*)protocol
+            tag:(id)tag;
+
+/**
+ *  When the encryption status changes this method is called
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param messageState plaintext, encrypted or finished
+ *  @param username     buddy whose state has changed
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ */
+- (void)    otrKit:(OTRKit*)otrKit
+updateMessageState:(OTRKitMessageState)messageState
+          username:(NSString*)username
+       accountName:(NSString*)accountName
+          protocol:(NSString*)protocol;
+...
 ```
 
 To encode a message:
 
 ```obj-c
-NSString *message = @"Something in plain text.";
-NSString *recipientAccount = @"bob@example.com";
-NSString *sendingAccount = @"alice@example.com";
-NSString *protocol = @"xmpp"; // OTR can work over any protocol
-[[OTRKit sharedInstance] encodeMessage:message recipient:recipientAccount accountName:sendingAccount protocol:protocol success:^(NSString *encryptedMessage) {
-		// you might want to pass this along to diffie
-        NSLog(@"Encrypted ciphertext: %@", encryptedMessage);
-    }];
+/**
+ * Encodes a message and optional array of OTRTLVs, splits it into fragments,
+ * then injects the encoded data via the injectMessage: delegate method.
+ * @param message The message to be encoded
+ * @param tlvs Array of OTRTLVs, the data length of each TLV must be smaller than UINT16_MAX or it will be ignored.
+ * @param recipient The intended recipient of the message
+ * @param accountName Your account name
+ * @param protocol the protocol of accountName, such as @"xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
+ */
+- (void)encodeMessage:(NSString*)message
+                 tlvs:(NSArray*)tlvs
+             username:(NSString*)username
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol
+                  tag:(id)tag;
 ```
 
 To decode a message:
 
 ```obj-c
-[[OTRKit sharedInstance] decodeMessage:message recipient:friendAccount accountName:myAccountName protocol:protocol]
+/**
+ *  All messages should be sent through here before being processed by your program.
+ *
+ *  @param message     Encoded or plaintext incoming message
+ *  @param sender      account name of buddy who sent the message
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
+ */
+- (void)decodeMessage:(NSString*)message
+             username:(NSString*)username
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol
+                  tag:(id)tag;
 ```
 
 ## TODO
 
-* Refactor to clean up the code a bit
 * Documentation!
 * Add Mac OS X support
-* Change project to use git submodules for the dependencies.
-* Figure out how to make `libgcrypt`, `libgpg-error`, and `libotr` build within Xcode to assist in debugging.
-* Preserve the debugging symbols to allow for better crash reports when used in conjuction with dSYM files.
-
+* Finish Cocoapods support.
+* Tests
 
 ## Contributing
 
@@ -75,4 +167,4 @@ Please fork the project and submit a pull request and (preferrably) squash your 
 
 ## License
 
-The code for this project is provided under the Modified BSD license. The required dependencies are under terms of a seperate license (LGPL). More information is available in the [LICENSE](https://github.com/ChatSecure/OTRKit/blob/master/LICENSE) file.
+The code for this project is dual licensed under the [LGPLv2.1+](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt) and [MPL 2.0](http://www.mozilla.org/MPL/2.0/). The required dependencies are under terms of a seperate license (LGPL). More information is available in the [LICENSE](https://github.com/ChatSecure/OTRKit/blob/master/LICENSE) file.
