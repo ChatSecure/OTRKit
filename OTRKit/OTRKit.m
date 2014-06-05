@@ -612,7 +612,6 @@ static OtrlMessageAppOps ui_ops = {
             }
         }
         
-        
         if(ignore_message == 0)
         {
             if(newmessage) {
@@ -624,7 +623,7 @@ static OtrlMessageAppOps ui_ops = {
                     [self.delegate otrKit:self decodedMessage:decodedMessage tlvs:tlvs username:sender accountName:accountName protocol:protocol tag:tag];
                 });
             }
-        } else if (tlvs) {
+        } else if (tlvs && ignore_message != 1) {
             if (self.delegate) {
                 dispatch_async(self.callbackQueue, ^{
                     [self.delegate otrKit:self decodedMessage:nil tlvs:tlvs username:sender accountName:accountName protocol:protocol tag:tag];
