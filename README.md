@@ -1,5 +1,5 @@
 # OTRKit
-
+[![Build Status](https://travis-ci.org/ChatSecure/OTRKit.svg?branch=master)](https://travis-ci.org/ChatSecure/OTRKit)
 
 [OTRKit](https://github.com/ChatSecure/OTRKit) is an Objective-C wrapper for the OTRv3 encrypted messaging protocol, using [libotr](http://www.cypherpunks.ca/otr/). This library was designed for use with the encrypted iOS messaging app [ChatSecure](https://github.com/chrisballinger/Off-the-Record-iOS), but should theoretically work for Mac OS X as well with some minor tweaking to the build scripts.
 
