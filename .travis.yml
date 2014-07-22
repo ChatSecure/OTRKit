@@ -1,5 +1,4 @@
 language: objective-c
-before_install:
-    - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
-    - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
-script: pod spec lint OTRKit.podspec --verbose
+
+script:
+  - xctool -workspace OTRKit.xcworkspace -scheme OTRKitTestsiOS -sdk iphonesimulator7.1 ONLY_ACTIVE_ARCH=NO test

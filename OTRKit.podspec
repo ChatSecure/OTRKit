@@ -5,19 +5,16 @@ Pod::Spec.new do |s|
   s.author          = "Chris Ballinger <chris@chatsecure.org>"
 
   s.homepage        = "https://chatsecure.org"
-  s.license         = 'LGPLv2+'
-  s.source          = { :git => "https://github.com/ChatSecure/OTRKit.git", :branch => "otrdata"}
-  s.preserve_paths  = "dependencies/libs/*","dependencies/include/*", "dependencies/include/**/*.h"
+  s.license         = 'LGPLv2.1+ & MPL 2.0'
+  s.source          = { :git => "https://github.com/ChatSecure/OTRKit.git", :branch => "master"}
   s.prepare_command = <<-CMD
     bash build-all.sh
   CMD
 
-#  s.header_dir   = "openssl"
   s.platform     = :ios, "6.0"
-  s.source_files = "dependencies/include/**/*.h", "OTRKit/*.{h,m}"
+  s.source_files = "OTRKit/*.{h,m}", "dependencies/include/**/*.h"
+  s.preserve_paths  = "dependencies/libs/*", "dependencies/include/**/*.h"
+  s.vendored_libraries  = "dependencies/lib/*.a"
   s.library     = 'gpg-error', 'gcrypt', 'otr'
-  s.xcconfig     = {'LIBRARY_SEARCH_PATHS' => '"$(PODS_ROOT)/OTRKit/lib"'}
   s.requires_arc = true
-  s.dependency 'CocoaHTTPServer', '~> 2.3'
-
 end
