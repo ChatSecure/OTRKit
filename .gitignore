@@ -16,3 +16,5 @@ profile
 .DS_Store
 *.orig
 /dependencies/
+
+/Pods/
