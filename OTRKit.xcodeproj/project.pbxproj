@@ -26,7 +26,6 @@
 		D9A9404E197E423300EEADD4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D9A94052197E423300EEADD4 /* OTRKitTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OTRKitTests-Prefix.pch"; sourceTree = "<group>"; };
 		D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKitTests.m; sourceTree = "<group>"; };
-		DE1D9F8B9B274EE394C57F8E /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,7 +49,6 @@
 				D9A9404A197E423200EEADD4 /* OTRKitTests */,
 				D905CFCC155B2B0000654181 /* Frameworks */,
 				D905CF68155B010B00654181 /* Products */,
-				DE1D9F8B9B274EE394C57F8E /* Pods.xcconfig */,
 				0A7D3972442149348752A1A9 /* Pods-OTRKitTestsiOS.xcconfig */,
 			);
 			sourceTree = "<group>";
@@ -215,7 +213,7 @@
 /* Begin XCBuildConfiguration section */
 		D905CF70155B010B00654181 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE1D9F8B9B274EE394C57F8E /* Pods.xcconfig */;
+			baseConfigurationReference = 0A7D3972442149348752A1A9 /* Pods-OTRKitTestsiOS.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -252,7 +250,7 @@
 		};
 		D905CF71155B010B00654181 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE1D9F8B9B274EE394C57F8E /* Pods.xcconfig */;
+			baseConfigurationReference = 0A7D3972442149348752A1A9 /* Pods-OTRKitTestsiOS.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;

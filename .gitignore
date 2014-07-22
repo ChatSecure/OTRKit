@@ -1,5 +1,6 @@
-# Xcode
-build/*
+ Xcode
+.DS_Store
+*/build/*
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -8,13 +9,16 @@ build/*
 !default.mode2v3
 *.perspectivev3
 !default.perspectivev3
-*.xcworkspace
-!default.xcworkspace
 xcuserdata
 profile
 *.moved-aside
-.DS_Store
-*.orig
-/dependencies/
+DerivedData
+.idea/
+*.hmap
+*.xccheckout
 
-/Pods/
+#CocoaPods
+Pods
+
+build/
+dependencies/

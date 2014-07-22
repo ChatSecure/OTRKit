@@ -22,16 +22,6 @@
                ReferencedContainer = "container:OTRKit.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D9A94059197E425E00EEADD4"
-               BuildableName = "OTRKitTestsMac.xctest"
-               BlueprintName = "OTRKitTestsMac"
-               ReferencedContainer = "container:OTRKit.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
