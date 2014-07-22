@@ -27,11 +27,6 @@ SDKVERSION="7.1"
 MINIOSVERSION="6.0"
 VERIFYGPG=true
 
-if $TRAVIS; then
-    echo "Travis detected, disabling GPG verification."
-    VERIFYGPG=false
-fi
-
 #
 #
 ###########################################################################
@@ -43,6 +38,12 @@ fi
 # No need to change this since xcode build will only compile in the
 # necessary bits from the libraries we create
 ARCHS="i386 x86_64 armv7 armv7s arm64"
+
+if $TRAVIS; then
+    echo "[Travis Detected] GPG verification disabled - Compiling for i386 only"
+    VERIFYGPG=false
+    ARCHS="i386"
+fi
 
 DEVELOPER=`xcode-select -print-path`
 
@@ -128,8 +129,8 @@ do
 
 	./configure --disable-shared --enable-static --with-pic --with-libgcrypt-prefix=${OUTPUTDIR} ${EXTRA_CONFIG} \
     --prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
-    LDFLAGS="$LDFLAGS -flto ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
-    CFLAGS="$CFLAGS -Ofast -flto ${EXTRA_CFLAGS} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
+    LDFLAGS="$LDFLAGS ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
+    CFLAGS="$CFLAGS ${EXTRA_CFLAGS} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
 
     # Build the application and install it to the fake SDK intermediary dir
     # we have set up. Make sure to clean up afterward because we will re-use

@@ -27,11 +27,6 @@ SDKVERSION="7.1"
 MINIOSVERSION="6.0"
 VERIFYGPG=true
 
-if $TRAVIS; then
-    echo "Travis detected, disabling GPG verification."
-    VERIFYGPG=false
-fi
-
 #
 #
 ###########################################################################
@@ -43,6 +38,12 @@ fi
 # No need to change this since xcode build will only compile in the
 # necessary bits from the libraries we create
 ARCHS="i386 x86_64 armv7 armv7s arm64"
+
+if $TRAVIS; then
+    echo "[Travis Detected] GPG verification disabled - Compiling for i386 only"
+    VERIFYGPG=false
+    ARCHS="i386"
+fi
 
 DEVELOPER=`xcode-select -print-path`
 
@@ -132,8 +133,8 @@ do
     --with-pic --with-gpg-error-prefix=${OUTPUTDIR} ${EXTRA_CONFIG} \
     --prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
     --with-sysroot=${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk \
-    LDFLAGS="$LDFLAGS -flto -fPIE ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
-    CFLAGS="$CFLAGS -g -DNO_ASM -Ofast -flto ${EXTRA_CFLAGS} -fPIE -miphoneos-version-min=${MINIOSVERSION} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
+    LDFLAGS="$LDFLAGS -fPIE ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
+    CFLAGS="$CFLAGS -g -DNO_ASM ${EXTRA_CFLAGS} -fPIE -miphoneos-version-min=${MINIOSVERSION} -I${OUTPUTDIR}/include -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk" \
     # Build the application and install it to the fake SDK intermediary dir
     # we have set up. Make sure to clean up afterward because we will re-use
     # this source tree to cross-compile other targets.
