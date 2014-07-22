@@ -1,4 +1,7 @@
 language: objective-c
 
+install:
+  - ./build-all.sh
+
 script:
   - xctool -workspace OTRKit.xcworkspace -scheme OTRKitTestsiOS -sdk iphonesimulator7.1 ONLY_ACTIVE_ARCH=NO test
