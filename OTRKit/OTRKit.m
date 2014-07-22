@@ -611,22 +611,39 @@ static OtrlMessageAppOps ui_ops = {
                 [self disableEncryptionWithUsername:sender accountName:accountName protocol:protocol];
             }
         }
-        
+        BOOL wasEncrypted = [message hasPrefix:@"?OTR"];
+
         if(ignore_message == 0)
         {
             if(newmessage) {
                 decodedMessage = [NSString stringWithUTF8String:newmessage];
+            } else {
+                decodedMessage = [message copy];
             }
             
             if (self.delegate) {
                 dispatch_async(self.callbackQueue, ^{
-                    [self.delegate otrKit:self decodedMessage:decodedMessage tlvs:tlvs username:sender accountName:accountName protocol:protocol tag:tag];
+                    [self.delegate otrKit:self
+                           decodedMessage:decodedMessage
+                             wasEncrypted:wasEncrypted
+                                     tlvs:tlvs
+                                 username:sender
+                              accountName:accountName
+                                 protocol:protocol
+                                      tag:tag];
                 });
             }
-        } else if (tlvs && ignore_message != 1) {
+        } else if (tlvs) {
             if (self.delegate) {
                 dispatch_async(self.callbackQueue, ^{
-                    [self.delegate otrKit:self decodedMessage:nil tlvs:tlvs username:sender accountName:accountName protocol:protocol tag:tag];
+                    [self.delegate otrKit:self
+                           decodedMessage:nil
+                             wasEncrypted:wasEncrypted
+                                     tlvs:tlvs
+                                 username:sender
+                              accountName:accountName
+                                 protocol:protocol
+                                      tag:tag];
                 });
             }
         }

@@ -137,7 +137,8 @@ extern NSString * const kOTRKitTrustKey;
  *  processed by your application. You should only display the messages coming from this delegate method.
  *
  *  @param otrKit      reference to shared instance
- *  @param message     plaintext message
+ *  @param decodedMessage plaintext message to display to the user. May be nil if other party is sending raw TLVs without messages attached.
+ *  @param wasEncrypted whether or not the original message sent to decodeMessage: was encrypted or plaintext. This is just a check of the original message for a "?OTR" prefix.
  *  @param tlvs        OTRTLV values that may be present.
  *  @param sender      buddy who sent the message
  *  @param accountName your local account name
@@ -146,6 +147,7 @@ extern NSString * const kOTRKitTrustKey;
  */
 - (void) otrKit:(OTRKit*)otrKit
  decodedMessage:(NSString*)decodedMessage
+   wasEncrypted:(BOOL)wasEncrypted
            tlvs:(NSArray*)tlvs
        username:(NSString*)username
     accountName:(NSString*)accountName
@@ -573,6 +575,5 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                                accountName:(NSString*)accountName
                                   protocol:(NSString *)protocol
                                 completion:(void (^)(BOOL verified))completion;
-
 
 @end
