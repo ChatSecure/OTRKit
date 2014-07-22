@@ -75,7 +75,7 @@ set -e
 
 if [ ! -e "${SRCDIR}/libgpg-error-${VERSION}.tar.bz2" ]; then
 	echo "Downloading libgpg-error-${VERSION}.tar.bz2"
-    curl -LO ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-${VERSION}.tar.bz2
+    curl --retry 10 -LO ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-${VERSION}.tar.bz2
 else
 	echo "Using libgpg-error-${VERSION}.tar.bz2"
 fi

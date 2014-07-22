@@ -75,7 +75,7 @@ set -e
 
 if [ ! -e "${SRCDIR}/libgcrypt-${VERSION}.tar.bz2" ]; then
 	echo "Downloading libgcrypt-${VERSION}.tar.bz2"
-    curl -LO ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-${VERSION}.tar.bz2
+    curl --retry 10 -LO ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-${VERSION}.tar.bz2
 else
 	echo "Using libgcrypt-${VERSION}.tar.bz2"
 fi
