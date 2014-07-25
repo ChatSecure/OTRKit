@@ -611,7 +611,7 @@ static OtrlMessageAppOps ui_ops = {
                 [self disableEncryptionWithUsername:sender accountName:accountName protocol:protocol];
             }
         }
-        BOOL wasEncrypted = [message hasPrefix:@"?OTR"];
+        BOOL wasEncrypted = [OTRKit stringStartsWithOTRPrefix:message];
 
         if(ignore_message == 0)
         {
@@ -689,10 +689,13 @@ static OtrlMessageAppOps ui_ops = {
             otrl_tlv_free(otr_tlvs);
         }
         
+        BOOL wasEncrypted = NO;
+        
         NSString *encodedMessage = nil;
         if (newmessage) {
             encodedMessage = [NSString stringWithUTF8String:newmessage];
             otrl_message_free(newmessage);
+            wasEncrypted = [OTRKit stringStartsWithOTRPrefix:encodedMessage];
         }
         
         NSError *error = nil;
@@ -703,7 +706,14 @@ static OtrlMessageAppOps ui_ops = {
         
         if (self.delegate) {
             dispatch_async(self.callbackQueue, ^{
-                [self.delegate otrKit:self encodedMessage:encodedMessage username:username accountName:accountName protocol:protocol tag:tag error:error];
+                [self.delegate otrKit:self
+                       encodedMessage:encodedMessage
+                         wasEncrypted:wasEncrypted
+                             username:username
+                          accountName:accountName
+                             protocol:protocol
+                                  tag:tag
+                                error:error];
             });
         }
     });
@@ -1172,6 +1182,12 @@ static OtrlMessageAppOps ui_ops = {
         }
         otrl_message_respond_smp(self.userState, &ui_ops, NULL, context, (const unsigned char*)[secret UTF8String], [secret lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
     });
+}
+
+#pragma mark Static Methods
+
++ (BOOL) stringStartsWithOTRPrefix:(NSString*)string {
+    return [string hasPrefix:@"?OTR"];
 }
 
 @end

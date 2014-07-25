@@ -117,14 +117,16 @@ extern NSString * const kOTRKitTrustKey;
  *  sent over the network.
  *
  *  @param otrKit      reference to shared instance
- *  @param message     plaintext message
- *  @param sender      buddy who sent the message
+ *  @param encodedMessage     plaintext message
+ *  @param wasEncrypted whether or not encodedMessage message is ciphertext, or just plaintext appended with the opportunistic whitespace. This is just a check of the encodedMessage message for a "?OTR" prefix.
+ *  @param username      buddy who sent the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
  *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
  encodedMessage:(NSString*)encodedMessage
+   wasEncrypted:(BOOL)wasEncrypted
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
@@ -575,5 +577,14 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                                accountName:(NSString*)accountName
                                   protocol:(NSString *)protocol
                                 completion:(void (^)(BOOL verified))completion;
+
+/**
+ *  Test if a string starts with "?OTR".
+ *
+ *  @param string string to test
+ *
+ *  @return [string hasPrefix:@"?OTR"]
+ */
++ (BOOL) stringStartsWithOTRPrefix:(NSString*)string;
 
 @end
