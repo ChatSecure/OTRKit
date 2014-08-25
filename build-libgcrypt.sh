@@ -39,7 +39,7 @@ VERIFYGPG=true
 # necessary bits from the libraries we create
 ARCHS="i386 x86_64 armv7 armv7s arm64"
 
-if $TRAVIS; then
+if [[ $TRAVIS ]]; then
     echo "[Travis Detected] GPG verification disabled - Compiling for i386 only"
     VERIFYGPG=false
     ARCHS="i386"
