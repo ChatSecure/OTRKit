@@ -587,4 +587,15 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  */
 + (BOOL) stringStartsWithOTRPrefix:(NSString*)string;
 
+/**
+ *  Current libotr version
+ *
+ *  @return string version number ex. 4.0.0
+ */
++ (NSString *)libotrVersion;
+
++ (NSString *)libgcryptVersion;
+
++ (NSString *) libgpgErrorVersion;
+
 @end

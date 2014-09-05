@@ -1190,4 +1190,17 @@ static OtrlMessageAppOps ui_ops = {
     return [string hasPrefix:@"?OTR"];
 }
 
++ (NSString*) libotrVersion {
+    return [NSString stringWithUTF8String:otrl_version()];
+}
+
++ (NSString *) libgcryptVersion
+{
+    return [NSString stringWithUTF8String:gcry_check_version(NULL)];
+}
+
++ (NSString *) libgpgErrorVersion
+{
+    return [NSString stringWithUTF8String:gpg_error_check_version(NULL)];
+}
 @end
