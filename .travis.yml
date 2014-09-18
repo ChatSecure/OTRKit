@@ -1,7 +1,9 @@
 language: objective-c
 
 install:
-  - ./build-all.sh
+  - bash ./build-libgpg-error.sh --noverify --i386only
+  - bash ./build-libgcrypt.sh --noverify --i386only
+  - bash ./build-libotr.sh --noverify --i386only
   - pod install
 
 script:

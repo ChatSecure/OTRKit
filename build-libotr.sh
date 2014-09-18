@@ -23,8 +23,8 @@
 #  Choose your libotr version and your currently-installed iOS SDK version:
 #
 VERSION="4.0.0"
-SDKVERSION="7.1"
-MINIOSVERSION="6.0"
+SDKVERSION=`xcrun --sdk iphoneos --show-sdk-version 2> /dev/null`
+MINIOSVERSION="7.0"
 VERIFYGPG=true
 
 #
@@ -39,10 +39,11 @@ VERIFYGPG=true
 # necessary bits from the libraries we create
 ARCHS="i386 x86_64 armv7 armv7s arm64"
 
-if [[ $TRAVIS ]]; then
-    echo "[Travis Detected] GPG verification disabled - Compiling for i386 only"
-    VERIFYGPG=false
-    ARCHS="i386"
+if [ "$1" == "--noverify" ]; then
+  VERIFYGPG=false
+fi
+if [ "$2" == "--i386only" ]; then
+  ARCHS="i386"
 fi
 
 DEVELOPER=`xcode-select -print-path`

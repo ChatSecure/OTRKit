@@ -1,32 +1,27 @@
 # OTRKit
 [![Build Status](https://travis-ci.org/ChatSecure/OTRKit.svg?branch=master)](https://travis-ci.org/ChatSecure/OTRKit)
 
-[OTRKit](https://github.com/ChatSecure/OTRKit) is an Objective-C wrapper for the OTRv3 encrypted messaging protocol, using [libotr](http://www.cypherpunks.ca/otr/). This library was designed for use with the encrypted iOS messaging app [ChatSecure](https://github.com/chrisballinger/Off-the-Record-iOS), but should theoretically work for Mac OS X as well with some minor tweaking to the build scripts.
+[OTRKit](https://github.com/ChatSecure/OTRKit) is an Objective-C wrapper for the [OTRv3](http://en.wikipedia.org/wiki/Off-the-Record_Messaging) encrypted messaging protocol, using [libotr](https://otr.cypherpunks.ca). This library was designed for use with the encrypted iOS messaging app [ChatSecure](https://github.com/chrisballinger/ChatSecure-iOS), but should theoretically work for Mac OS X as well with some minor tweaking to the build scripts.
+
+### Dependency Versions
+
+* [libgpg-error](https://www.gnupg.org/(de)/related_software/libgpg-error/index.html) v1.15 - 11-Sep-2014
+* [libgcrypt](http://www.gnu.org/software/libgcrypt/) v1.5.4 - 07-Aug-2014
+* [libotr](https://otr.cypherpunks.ca) v4.0.0 - 4 Sept 2012
 
 ## Installation
 
-Install this project as a submodule in your repository (make sure to [fork](https://github.com/ChatSecure/OTRKit/fork) it first if you plan to make changes):
+To compile libotr and dependencies for iOS, run the included scripts in this order (or use `build-all.sh`). During this process we will automatically verify the integity of each package by checking its GPG signature. Install [GPGTools](https://gpgtools.org) and add the public signing keys for GnuPG, and libotr.
 
-    git submodule add https://github.com/ChatSecure/OTRKit.git Submodules/OTRKit
-
-
-To compile libotr and dependencies for iOS, run the included scripts in this order (or use `build-all.sh`):
-
-1. `build-libgpg-error.sh`
-2. `build-libgcrypt.sh`
-3. `build-libotr.sh`
-
-Then do these things:
-
-1. Drag the contents of `./OTRKit/` directory into your Xcode project and add it to your current target.
-2. Drag the contents of `./dependencies/` directory into your Xcode project and add it to your current target.
-2. Make sure to add `$(SRCROOT)/Submodules/OTRKit/dependencies/include` to your project's Header Search Paths in the Build Settings tab of your target settings.
-
-*Note*: libotr build script may fail if `libgcrypt` has been installed via Homebrew because of a path conflict.
+    $ bash build-libgpg-error.sh
+    $ bash build-libgcrypt.sh
+    $ bash build-libotr.sh
 
 ### Cocoapods
 
-There is a work-in-progress Cocoapod that you can check out,`OTRKit.podspec`, but it hasn't been fully tested yet.
+We now support Cocoapods but haven't pushed `OTRKit.podspec` to the public repository yet. Feel free to use the one in this repo in the meantime, but the public API may change slightly before release.
+
+    pod 'OTRKit', :git => 'https://github.com/ChatSecure/OTRKit.git'
 
 ## Usage
 
@@ -157,7 +152,6 @@ To decode a message:
 
 * Documentation!
 * Add Mac OS X support
-* Finish Cocoapods support.
 * Tests
 
 ## Contributing

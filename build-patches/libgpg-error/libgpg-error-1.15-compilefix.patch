@@ -1,0 +1,14 @@
+--- build/src/libgpg-error-1.15/src/gpgrt-int.h.orig
++++ build/src/libgpg-error-1.15/src/gpgrt-int.h
+@@ -105,9 +105,9 @@ void _gpgrt_clearerr_unlocked (gpgrt_stream_t stream);
+ 
+ int _gpgrt_fflush (gpgrt_stream_t stream);
+ int _gpgrt_fseek (gpgrt_stream_t stream, long int offset, int whence);
+-int _gpgrt_fseeko (gpgrt_stream_t stream, off_t offset, int whence);
++int _gpgrt_fseeko (gpgrt_stream_t stream, gpgrt_off_t offset, int whence);
+ long int _gpgrt_ftell (gpgrt_stream_t stream);
+-off_t _gpgrt_ftello (gpgrt_stream_t stream);
++gpgrt_off_t _gpgrt_ftello (gpgrt_stream_t stream);
+ void _gpgrt_rewind (gpgrt_stream_t stream);
+ 
+ int _gpgrt_fgetc (gpgrt_stream_t stream);

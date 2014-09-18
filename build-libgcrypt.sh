@@ -22,9 +22,9 @@
 ###########################################################################
 #  Choose your libgcrypt version and your currently-installed iOS SDK version:
 #
-VERSION="1.5.3"
-SDKVERSION="7.1"
-MINIOSVERSION="6.0"
+VERSION="1.5.4"
+SDKVERSION=`xcrun --sdk iphoneos --show-sdk-version 2> /dev/null`
+MINIOSVERSION="7.0"
 VERIFYGPG=true
 
 #
@@ -39,10 +39,11 @@ VERIFYGPG=true
 # necessary bits from the libraries we create
 ARCHS="i386 x86_64 armv7 armv7s arm64"
 
-if [[ $TRAVIS ]]; then
-    echo "[Travis Detected] GPG verification disabled - Compiling for i386 only"
-    VERIFYGPG=false
-    ARCHS="i386"
+if [ "$1" == "--noverify" ]; then
+  VERIFYGPG=false
+fi
+if [ "$2" == "--i386only" ]; then
+  ARCHS="i386"
 fi
 
 DEVELOPER=`xcode-select -print-path`
@@ -121,14 +122,18 @@ do
         EXTRA_LDFLAGS="-arch ${ARCH}"
     else
         PLATFORM="iPhoneOS"
-        EXTRA_CONFIG="--host arm-apple-darwin"
+        if [ "${ARCH}" == "arm64" ] ; then
+            EXTRA_CONFIG="--host aarch64-apple-darwin"
+        else
+            EXTRA_CONFIG="--host arm-apple-darwin"
+        fi
         EXTRA_CFLAGS="-arch ${ARCH}"
         EXTRA_LDFLAGS="-arch ${ARCH}"
     fi
 
 	mkdir -p "${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 
-	./configure --enable-threads=posix --disable-asm --disable-shared --enable-static --disable-neon-support \
+	./configure --disable-asm --disable-shared --enable-static \
     --disable-aesni-support --disable-padlock-support \
     --with-pic --with-gpg-error-prefix=${OUTPUTDIR} ${EXTRA_CONFIG} \
     --prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
@@ -138,7 +143,7 @@ do
     # Build the application and install it to the fake SDK intermediary dir
     # we have set up. Make sure to clean up afterward because we will re-use
     # this source tree to cross-compile other targets.
-	make -j2
+	make
 	make install
 	make clean
 done

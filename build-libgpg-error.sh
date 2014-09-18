@@ -22,9 +22,9 @@
 ###########################################################################
 #  Choose your libgpg-error version and your currently-installed iOS SDK version:
 #
-VERSION="1.12"
-SDKVERSION="7.1"
-MINIOSVERSION="6.0"
+VERSION="1.15"
+SDKVERSION=`xcrun --sdk iphoneos --show-sdk-version 2> /dev/null`
+MINIOSVERSION="7.0"
 VERIFYGPG=true
 
 #
@@ -39,10 +39,11 @@ VERIFYGPG=true
 # necessary bits from the libraries we create
 ARCHS="i386 x86_64 armv7 armv7s arm64"
 
-if [[ $TRAVIS ]]; then
-    echo "[Travis Detected] GPG verification disabled - Compiling for i386 only"
-    VERIFYGPG=false
-    ARCHS="i386"
+if [ "$1" == "--noverify" ]; then
+  VERIFYGPG=false
+fi
+if [ "$2" == "--i386only" ]; then
+  ARCHS="i386"
 fi
 
 DEVELOPER=`xcode-select -print-path`
@@ -101,6 +102,17 @@ fi
 tar zxf libgpg-error-${VERSION}.tar.bz2 -C $SRCDIR
 cd "${SRCDIR}/libgpg-error-${VERSION}"
 
+# Version 1.15 broke building on OS X.  This has been reported:
+# http://lists.gnupg.org/pipermail/gnupg-devel/2014-September/028748.html
+# and the fix in the below patch is already committed into their
+# repo for next release.
+patch -p3 < ../../../build-patches/libgpg-error/libgpg-error-1.15-compilefix.patch
+
+# Add cross-compiling headers
+cp ../../../build-patches/libgpg-error/lock-obj-pub.arm-apple-darwin.h ./src/syscfg/lock-obj-pub.arm-apple-darwin.h
+cp ../../../build-patches/libgpg-error/lock-obj-pub.aarch64-apple-darwin.h ./src/syscfg/lock-obj-pub.aarch64-apple-darwin.h
+
+
 set +e # don't bail out of bash script if ccache doesn't exist
 CCACHE=`which ccache`
 if [ $? == "0" ]; then
@@ -121,14 +133,18 @@ do
         EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
 	else
 		PLATFORM="iPhoneOS"
-        EXTRA_CONFIG="--host arm-apple-darwin"
+        if [ "${ARCH}" == "arm64" ] ; then
+            EXTRA_CONFIG="--host aarch64-apple-darwin"
+        else
+            EXTRA_CONFIG="--host arm-apple-darwin"
+        fi
         EXTRA_CFLAGS="-g -arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
         EXTRA_LDFLAGS="-arch ${ARCH} -fPIE -miphoneos-version-min=${MINIOSVERSION}"
 	fi
 
 	mkdir -p "${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 
-	./configure --disable-shared --enable-static --with-pic ${EXTRA_CONFIG} \
+	./configure --disable-shared --enable-static --with-pic --enable-threads=posix ${EXTRA_CONFIG} \
     --prefix="${INTERDIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" \
     --with-sysroot=${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk \
     LDFLAGS="$LDFLAGS ${EXTRA_LDFLAGS} -L${OUTPUTDIR}/lib" \
@@ -137,7 +153,7 @@ do
     # Build the application and install it to the fake SDK intermediary dir
     # we have set up. Make sure to clean up afterward because we will re-use
     # this source tree to cross-compile other targets.
-	make -j2
+	make
 	make install
 	make clean
 done
