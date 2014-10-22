@@ -8,13 +8,14 @@ Pod::Spec.new do |s|
   s.license         = 'LGPLv2.1+ & MPL 2.0'
   s.source          = { :git => "https://github.com/ChatSecure/OTRKit.git", :branch => "master"}
   s.prepare_command = <<-CMD
-    bash build-all.sh
+    bash ./scripts/build-all.sh
   CMD
 
-  s.platform     = :ios, "6.0"
-  s.source_files = "OTRKit/*.{h,m}", "dependencies/include/**/*.h"
-  s.preserve_paths  = "dependencies/libs/*", "dependencies/include/**/*.h"
-  s.vendored_libraries  = "dependencies/lib/*.a"
+  s.platform     = :ios, "7.0"
+  s.source_files = "OTRKit/*.{h,m}", "OTRKitDependencies/include/**/*.h"
+  s.header_mappings_dir = "OTRKitDependencies/include"
+  s.preserve_paths  = "OTRKitDependencies/libs/*", "OTRKitDependencies/include/**/*.h"
+  s.vendored_libraries  = "OTRKitDependencies/lib/*.a"
   s.library     = 'gpg-error', 'gcrypt', 'otr'
   s.requires_arc = true
 end

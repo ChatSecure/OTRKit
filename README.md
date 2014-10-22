@@ -5,17 +5,15 @@
 
 ### Dependency Versions
 
-* [libgpg-error](https://www.gnupg.org/(de)/related_software/libgpg-error/index.html) v1.15 - 11-Sep-2014
-* [libgcrypt](http://www.gnu.org/software/libgcrypt/) v1.5.4 - 07-Aug-2014
-* [libotr](https://otr.cypherpunks.ca) v4.0.0 - 4 Sept 2012
+* [libgpg-error](https://www.gnupg.org/(de)/related_software/libgpg-error/index.html) v1.17 - 2014-10-15
+* [libgcrypt](http://www.gnu.org/software/libgcrypt/) v1.6.2 - 2014-08-21
+* [libotr](https://otr.cypherpunks.ca) v4.1.0 - 21 Oct 2014
 
 ## Installation
 
-To compile libotr and dependencies for iOS, run the included scripts in this order (or use `build-all.sh`). During this process we will automatically verify the integity of each package by checking its GPG signature. Install [GPGTools](https://gpgtools.org) and add the public signing keys for GnuPG, and libotr.
+To compile libotr and dependencies for iOS, run the included script, `build-all.sh`.
 
-    $ bash build-libgpg-error.sh
-    $ bash build-libgcrypt.sh
-    $ bash build-libotr.sh
+    $ bash build-all.sh
 
 ### Cocoapods
 

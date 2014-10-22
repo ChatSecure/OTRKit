@@ -17,8 +17,7 @@ DerivedData
 *.hmap
 *.xccheckout
 
-#CocoaPods
-Pods
-
-build/
-dependencies/
+OTRKitDependencies/
+Pods/
+scripts/build/
+scripts/built/
