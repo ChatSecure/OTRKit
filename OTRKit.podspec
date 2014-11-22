@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
 
   s.homepage        = "https://chatsecure.org"
   s.license         = 'LGPLv2.1+ & MPL 2.0'
-  s.source          = { :git => "https://github.com/ChatSecure/OTRKit.git", :branch => "master"}
+  s.source          = { :git => "https://github.com/ChatSecure/OTRKit.git", :tag => s.version.to_s }
   s.prepare_command = <<-CMD
     bash ./scripts/build-all.sh
   CMD
