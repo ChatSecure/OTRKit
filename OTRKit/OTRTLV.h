@@ -37,8 +37,8 @@ typedef NS_ENUM(uint16_t, OTRTLVType) {
 
 @interface OTRTLV : NSObject
 
-@property (nonatomic, strong) NSData *data;
-@property (nonatomic) OTRTLVType type;
+@property (nonatomic, strong, readonly) NSData *data;
+@property (nonatomic, readonly) OTRTLVType type;
 
 /**
  * @param type: TLV type

@@ -12,8 +12,8 @@
 
 - (instancetype) initWithType:(OTRTLVType)type data:(NSData *)data {
     if (self = [super init]) {
-        self.type = type;
-        self.data = data;
+        _type = type;
+        _data = data;
         if (![self isValidLength]) {
             return nil;
         }

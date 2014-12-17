@@ -52,6 +52,27 @@ NSString * const kOTRKitFingerprintKey = @"kOTRKitFingerprintKey";
 NSString * const kOTRKitProtocolKey    = @"kOTRKitProtocolKey";
 NSString * const kOTRKitTrustKey       = @"kOTRKitTrustKey";
 
+/**
+ *  This structure will be passed through the opdata parameter in libotr functions
+ *  and will allow for a reference to OTRKit "self" as well as a user-defined tag supplied
+ *  to the encoding/decoding functions.
+ */
+@interface OTROpData : NSObject
+@property (nonatomic, strong, readonly) OTRKit *otrKit;
+@property (nonatomic, strong, readonly) id tag;
+- (instancetype) initWithOTRKit:(OTRKit*)otrKit tag:(id)tag;
+@end
+
+@implementation OTROpData
+- (instancetype) initWithOTRKit:(OTRKit*)otrKit tag:(id)tag {
+    if (self = [super init]) {
+        _otrKit = otrKit;
+        _tag = tag;
+    }
+    return self;
+}
+@end
+
 
 @interface OTRKit()
 /**
@@ -70,14 +91,24 @@ NSString * const kOTRKitTrustKey       = @"kOTRKitTrustKey";
 
 static OtrlPolicy policy_cb(void *opdata, ConnContext *context)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
-    return [otrKit otrlPolicy];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    OtrlPolicy policy = OTRL_POLICY_DEFAULT;
+    if (otrKit) {
+        policy = [otrKit otrlPolicy];
+    }
+    return policy;
 }
 
 static void create_privkey_cb(void *opdata, const char *accountname,
                               const char *protocol)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     NSString *accountNameString = [NSString stringWithUTF8String:accountname];
     NSString *protocolString = [NSString stringWithUTF8String:protocol];
     if (otrKit.delegate) {
@@ -112,7 +143,8 @@ static void create_privkey_cb(void *opdata, const char *accountname,
 static int is_logged_in_cb(void *opdata, const char *accountname,
                            const char *protocol, const char *recipient)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
     if (!otrKit.delegate) {
         return -1;
     }
@@ -129,7 +161,8 @@ static int is_logged_in_cb(void *opdata, const char *accountname,
 static void inject_message_cb(void *opdata, const char *accountname,
                               const char *protocol, const char *recipient, const char *message)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
     if (!otrKit.delegate) {
         return;
     }
@@ -138,7 +171,7 @@ static void inject_message_cb(void *opdata, const char *accountname,
     NSString *accountNameString = [NSString stringWithUTF8String:accountname];
     NSString *protocolString = [NSString stringWithUTF8String:protocol];
     
-    id tag = (__bridge id)(opdata);
+    id tag = data.tag;
     dispatch_async(otrKit.callbackQueue, ^{
         [otrKit.delegate otrKit:otrKit injectMessage:messageString username:usernameString accountName:accountNameString protocol:protocolString tag:tag];
     });
@@ -152,7 +185,12 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
                                    const char *accountname, const char *protocol, const char *username,
                                    unsigned char fingerprint[20])
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN], their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
     
     ConnContext *context = otrl_context_find(otrKit.userState, username,accountname, protocol,OTRL_INSTAG_BEST, NO,NULL,NULL, NULL);
@@ -176,7 +214,12 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
 
 static void write_fingerprints_cb(void *opdata)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     FILE *storef;
     NSString *path = [otrKit fingerprintsPath];
     storef = fopen([path UTF8String], "wb");
@@ -187,22 +230,34 @@ static void write_fingerprints_cb(void *opdata)
 
 static void gone_secure_cb(void *opdata, ConnContext *context)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     [otrKit updateEncryptionStatusWithContext:context];
 }
 
-/**
- *  This method is never called due to a bug in libotr 4.0.0
- */
 static void gone_insecure_cb(void *opdata, ConnContext *context)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     [otrKit updateEncryptionStatusWithContext:context];
 }
 
 static void still_secure_cb(void *opdata, ConnContext *context, int is_reply)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     [otrKit updateEncryptionStatusWithContext:context];
 }
 
@@ -214,7 +269,12 @@ static int max_message_size_cb(void *opdata, ConnContext *context)
         return 0;
     }
     
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return 0;
+    }
     NSNumber *maxMessageSize = [otrKit.protocolMaxSize objectForKey:protocol];
     if (maxMessageSize) {
         return maxMessageSize.intValue;
@@ -245,32 +305,54 @@ static const char* otr_error_message_cb(void *opdata, ConnContext *context,
             errorString = @"You transmitted a malformed data message.";
             break;
     }
-    return [errorString UTF8String];
+    if (!errorString.length) {
+        return NULL;
+    }
+    NSUInteger length = [errorString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
+    char *err_msg = malloc(length);
+    if (!err_msg) {
+        return NULL;
+    }
+    strncpy(err_msg, [errorString UTF8String], length);
+    return err_msg;
 }
 
 static void otr_error_message_free_cb(void *opdata, const char *err_msg)
 {
-    // Leak memory here instead of crashing:
-    // if (err_msg) free((char*)err_msg);
+    if (err_msg) {
+        free((void*)err_msg);
+    }
 }
 
 static const char *resent_msg_prefix_cb(void *opdata, ConnContext *context)
 {
     NSString *resentString = @"[resent]";
-	return [resentString UTF8String];
+    NSUInteger length = [resentString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
+    char *resent_msg = malloc(length);
+    if (!resent_msg) {
+        return NULL;
+    }
+    strncpy(resent_msg, [resentString UTF8String], length);
+	return resent_msg;
 }
 
 static void resent_msg_prefix_free_cb(void *opdata, const char *prefix)
 {
-    // Leak memory here instead of crashing:
-	// if (prefix) free((char*)prefix);
+    if (prefix) {
+        free((void*)prefix);
+    }
 }
 
 static void handle_smp_event_cb(void *opdata, OtrlSMPEvent smp_event,
                                 ConnContext *context, unsigned short progress_percent,
                                 char *question)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     OTRKitSMPEvent event = OTRKitSMPEventNone;
     double progress = (double)progress_percent/100.0;
     if (!context) return;
@@ -326,7 +408,12 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
     if (!context) {
         return;
     }
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     
     NSString *messageString = nil;
     if (message) {
@@ -391,7 +478,7 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
     NSString *accountName = [NSString stringWithUTF8String:context->accountname];
     NSString *protocol = [NSString stringWithUTF8String:context->protocol];
     
-    id tag = (__bridge id)(opdata);
+    id tag = data.tag;
     dispatch_async(otrKit.callbackQueue, ^{
         [otrKit.delegate otrKit:otrKit handleMessageEvent:event message:messageString username:username accountName:accountName protocol:protocol tag:tag error:error];
     });
@@ -400,7 +487,12 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
 static void create_instag_cb(void *opdata, const char *accountname,
                              const char *protocol)
 {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     FILE *instagf;
     NSString *path = [otrKit instanceTagsPath];
     instagf = fopen([path UTF8String], "w+b");
@@ -410,8 +502,13 @@ static void create_instag_cb(void *opdata, const char *accountname,
 
 static void timer_control_cb(void *opdata, unsigned int interval)
 {
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
-        OTRKit *otrKit = [OTRKit sharedInstance];
         if (otrKit.pollTimer) {
             [otrKit.pollTimer invalidate];
             otrKit.pollTimer = nil;
@@ -425,7 +522,12 @@ static void timer_control_cb(void *opdata, unsigned int interval)
 static void received_symkey_cb(void *opdata, ConnContext *context,
                                unsigned int use, const unsigned char *usedata,
                                size_t usedatalen, const unsigned char *symkey) {
-    OTRKit *otrKit = [OTRKit sharedInstance];
+    OTROpData *data = (__bridge OTROpData*)opdata;
+    OTRKit *otrKit = data.otrKit;
+    NSCParameterAssert(otrKit);
+    if (!otrKit) {
+        return;
+    }
     NSData *symmetricKey = [[NSData alloc] initWithBytes:symkey length:OTRL_EXTRAKEY_BYTES];
     NSData *useDescriptionData = [[NSData alloc] initWithBytes:usedata length:usedatalen];
     
@@ -487,18 +589,20 @@ static OtrlMessageAppOps ui_ops = {
     if (self = [super init]) {
         self.callbackQueue = dispatch_get_main_queue();
         self.internalQueue = dispatch_queue_create("OTRKit Internal Queue", 0);
-        dispatch_async(self.internalQueue, ^{
+        self.otrPolicy = OTRKitPolicyDefault;
+        NSDictionary *protocolDefaults = @{@"prpl-msn":   @(1409),
+                                           @"prpl-icq":   @(2346),
+                                           @"prpl-aim":   @(2343),
+                                           @"prpl-yahoo": @(832),
+                                           @"prpl-gg":    @(1999),
+                                           @"prpl-irc":   @(417),
+                                           @"prpl-oscar": @(2343)};
+        self.protocolMaxSize = [NSMutableDictionary dictionaryWithDictionary:protocolDefaults];
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
             OTRL_INIT;
-            NSDictionary *protocolDefaults = @{@"prpl-msn":   @(1409),
-                                               @"prpl-icq":   @(2346),
-                                               @"prpl-aim":   @(2343),
-                                               @"prpl-yahoo": @(832),
-                                               @"prpl-gg":    @(1999),
-                                               @"prpl-irc":   @(417),
-                                               @"prpl-oscar": @(2343)};
-            self.protocolMaxSize = [NSMutableDictionary dictionaryWithDictionary:protocolDefaults];
-            self.userState = otrl_userstate_create();
         });
+        self.userState = otrl_userstate_create();
     }
     return self;
 }
@@ -514,31 +618,29 @@ static OtrlMessageAppOps ui_ops = {
 
 - (void) readLibotrConfiguration {
     dispatch_async(self.internalQueue, ^{
-        FILE *privf;
+        FILE *privf = NULL;
         NSString *path = [self privateKeyPath];
         privf = fopen([path UTF8String], "rb");
-        
         if(privf) {
             otrl_privkey_read_FILEp(_userState, privf);
+            fclose(privf);
         }
-        fclose(privf);
         
-        FILE *storef;
+        FILE *storef = NULL;
         path = [self fingerprintsPath];
         storef = fopen([path UTF8String], "rb");
-        
         if (storef) {
             otrl_privkey_read_fingerprints_FILEp(_userState, storef, NULL, NULL);
+            fclose(storef);
         }
-        fclose(storef);
         
-        FILE *tagf;
+        FILE *tagf = NULL;
         path = [self instanceTagsPath];
         tagf = fopen([path UTF8String], "rb");
         if (tagf) {
             otrl_instag_read_FILEp(_userState, tagf);
+            fclose(tagf);
         }
-        fclose(tagf);
     });
 }
 
@@ -587,18 +689,22 @@ static OtrlMessageAppOps ui_ops = {
              protocol:(NSString*)protocol
                   tag:(id)tag
 {
+    NSParameterAssert(message.length);
+    NSParameterAssert(sender.length);
+    NSParameterAssert(accountName.length);
+    NSParameterAssert(protocol.length);
+    if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
+        return;
+    }
     dispatch_async(self.internalQueue, ^{
-        if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
-            return;
-        }
         int ignore_message;
         char *newmessage = NULL;
         ConnContext *context = [self contextForUsername:sender accountName:accountName protocol:protocol];
+        NSParameterAssert(context);
+        OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:tag];
         
         OtrlTLV *otr_tlvs = NULL;
-        CFTypeRef cfTag = CFBridgingRetain(tag);
-        ignore_message = otrl_message_receiving(_userState, &ui_ops, (void*) cfTag,[accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
-        CFRelease(cfTag);
+        ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void*)opdata, [accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
         NSString *decodedMessage = nil;
         
         NSArray *tlvs = nil;
@@ -665,11 +771,19 @@ static OtrlMessageAppOps ui_ops = {
              protocol:(NSString *)protocol
                   tag:(id)tag
 {
+    NSParameterAssert(messageToBeEncoded);
+    NSParameterAssert(username);
+    NSParameterAssert(accountName);
+    NSParameterAssert(protocol);
+    if (!messageToBeEncoded.length || !username.length || !accountName.length || !protocol.length) {
+        return;
+    }
     dispatch_async(self.internalQueue, ^{
         gcry_error_t err;
         char *newmessage = NULL;
         
         ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
+        NSParameterAssert(context);
         
         // Set nil messages to empty string if TLVs are present, otherwise libotr
         // will silence the message, even though you may have meant to inject a TLV.
@@ -681,7 +795,9 @@ static OtrlMessageAppOps ui_ops = {
         
         OtrlTLV *otr_tlvs = [self tlvChainForTLVs:tlvs];
         
-        err = otrl_message_sending(_userState, &ui_ops, (void*) CFBridgingRetain(tag),
+        OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:tag];
+        
+        err = otrl_message_sending(_userState, &ui_ops, (__bridge void *)(opdata),
                                    [accountName UTF8String], [protocol UTF8String], [username UTF8String], OTRL_INSTAG_BEST, [message UTF8String], otr_tlvs, &newmessage, OTRL_FRAGMENT_SEND_SKIP, &context,
                                    NULL, NULL);
         
@@ -720,8 +836,8 @@ static OtrlMessageAppOps ui_ops = {
 }
 
 - (void)initiateEncryptionWithUsername:(NSString*)recipient
-                            accountName:(NSString*)accountName
-                               protocol:(NSString*)protocol
+                           accountName:(NSString*)accountName
+                              protocol:(NSString*)protocol
 {
     [self encodeMessage:@"?OTR?" tlvs:nil username:recipient accountName:accountName protocol:protocol tag:nil];
 }
@@ -839,7 +955,14 @@ static OtrlMessageAppOps ui_ops = {
 }
 
 - (ConnContext*) contextForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
-    ConnContext *context = otrl_context_find(_userState, [username UTF8String], [accountName UTF8String], [protocol UTF8String], OTRL_INSTAG_BEST, NO,NULL,NULL, NULL);
+    NSParameterAssert(username.length);
+    NSParameterAssert(accountName.length);
+    NSParameterAssert(protocol.length);
+    if (!username.length || !accountName.length || !protocol.length) {
+        return NULL;
+    }
+    ConnContext *context = otrl_context_find(_userState, [username UTF8String], [accountName UTF8String], [protocol UTF8String], OTRL_INSTAG_BEST, YES, NULL, NULL, NULL);
+    NSParameterAssert(context);
     return context;
 }
 

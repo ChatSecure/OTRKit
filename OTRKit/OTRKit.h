@@ -315,6 +315,11 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  */
 @property (nonatomic, strong, readonly) NSString* instanceTagsPath;
 
+#pragma mark Setup
+//////////////////////////////////////////////////////////////////////
+/// @name Setup
+//////////////////////////////////////////////////////////////////////
+
 /**
  *  Always use the sharedInstance. Using two OTRKits within your application
  *  may exhibit strange problems.
@@ -336,6 +341,11 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @param protocol protocol like "xmpp"
  */
 - (void) setMaximumProtocolSize:(int)maxSize forProtocol:(NSString*)protocol;
+
+#pragma mark Messaging
+//////////////////////////////////////////////////////////////////////
+/// @name Messaging
+//////////////////////////////////////////////////////////////////////
 
 /**
  * Encodes a message and optional array of OTRTLVs, splits it into fragments,
@@ -416,6 +426,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                        protocol:(NSString*)protocol
                      completion:(void (^)(OTRKitMessageState messageState))completion;
 
+#pragma mark Socialist's Millionaire Protocol
 //////////////////////////////////////////////////////////////////////
 /// @name Socialist's Millionaire Protocol
 //////////////////////////////////////////////////////////////////////
@@ -461,6 +472,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                         protocol:(NSString*)protocol
                           secret:(NSString*)secret;
 
+#pragma mark Shared Symmetric Key
 //////////////////////////////////////////////////////////////////////
 /// @name Shared Symmetric Key
 //////////////////////////////////////////////////////////////////////
@@ -483,6 +495,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                                 useData:(NSData*)useData
                              completion:(void (^)(NSData *key, NSError *error))completion;
 
+#pragma mark Fingerprint Verification
 //////////////////////////////////////////////////////////////////////
 /// @name Fingerprint Verification
 //////////////////////////////////////////////////////////////////////
@@ -577,6 +590,11 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                                accountName:(NSString*)accountName
                                   protocol:(NSString *)protocol
                                 completion:(void (^)(BOOL verified))completion;
+
+#pragma mark Utility
+//////////////////////////////////////////////////////////////////////
+/// @name Utility
+//////////////////////////////////////////////////////////////////////
 
 /**
  *  Test if a string starts with "?OTR".

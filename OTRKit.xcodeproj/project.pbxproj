@@ -16,7 +16,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0A7D3972442149348752A1A9 /* Pods-OTRKitTestsiOS.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.xcconfig"; path = "Pods/Pods-OTRKitTestsiOS.xcconfig"; sourceTree = "<group>"; };
+		2786B05EF47E3F3E6659F982 /* Pods-OTRKitTestsiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.debug.xcconfig"; sourceTree = "<group>"; };
+		4D793CCBD3A3A0B0864D58B0 /* Pods-OTRKitTestsiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.release.xcconfig"; sourceTree = "<group>"; };
 		7005D98163CE48C6BB04C646 /* libPods-OTRKitTestsiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OTRKitTestsiOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A4AEADF47BB406994BB6B18 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -43,13 +44,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		830EC4A161AFA88054485F8C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				2786B05EF47E3F3E6659F982 /* Pods-OTRKitTestsiOS.debug.xcconfig */,
+				4D793CCBD3A3A0B0864D58B0 /* Pods-OTRKitTestsiOS.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		D905CF58155B010A00654181 = {
 			isa = PBXGroup;
 			children = (
 				D9A9404A197E423200EEADD4 /* OTRKitTests */,
 				D905CFCC155B2B0000654181 /* Frameworks */,
 				D905CF68155B010B00654181 /* Products */,
-				0A7D3972442149348752A1A9 /* Pods-OTRKitTestsiOS.xcconfig */,
+				830EC4A161AFA88054485F8C /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -119,7 +129,7 @@
 		D905CF5A155B010A00654181 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0610;
 			};
 			buildConfigurationList = D905CF5D155B010A00654181 /* Build configuration list for PBXProject "OTRKit" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -168,7 +178,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Pods-OTRKitTestsiOS-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		92284C7852D74834875C0EB7 /* Check Pods Manifest.lock */ = {
@@ -213,7 +223,6 @@
 /* Begin XCBuildConfiguration section */
 		D905CF70155B010B00654181 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0A7D3972442149348752A1A9 /* Pods-OTRKitTestsiOS.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -222,8 +231,10 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -250,7 +261,6 @@
 		};
 		D905CF71155B010B00654181 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0A7D3972442149348752A1A9 /* Pods-OTRKitTestsiOS.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -259,8 +269,10 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = _GCRYPT_IN_LIBGCRYPT;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -280,7 +292,7 @@
 		};
 		D9A94054197E423300EEADD4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0A7D3972442149348752A1A9 /* Pods-OTRKitTestsiOS.xcconfig */;
+			baseConfigurationReference = 2786B05EF47E3F3E6659F982 /* Pods-OTRKitTestsiOS.debug.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -309,7 +321,7 @@
 		};
 		D9A94055197E423300EEADD4 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0A7D3972442149348752A1A9 /* Pods-OTRKitTestsiOS.xcconfig */;
+			baseConfigurationReference = 4D793CCBD3A3A0B0864D58B0 /* Pods-OTRKitTestsiOS.release.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
