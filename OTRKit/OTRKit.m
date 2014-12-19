@@ -40,6 +40,7 @@
 #import "message.h"
 #import "privkey.h"
 #import "proto.h"
+#import "OTRDataHandler.h"
 
 static NSString * const kOTRKitPrivateKeyFileName = @"otr.private_key";
 static NSString * const kOTRKitFingerprintsFileName = @"otr.fingerprints";
@@ -74,7 +75,7 @@ NSString * const kOTRKitTrustKey       = @"kOTRKitTrustKey";
 @end
 
 
-@interface OTRKit()
+@interface OTRKit() <OTRDataHandlerDelegate>
 /**
  *  Defaults to main queue. All delegate and block callbacks will be done on this queue.
  */
@@ -83,6 +84,7 @@ NSString * const kOTRKitTrustKey       = @"kOTRKitTrustKey";
 @property (nonatomic) OtrlUserState userState;
 @property (nonatomic, strong) NSMutableDictionary *protocolMaxSize;
 @property (nonatomic, strong, readwrite) NSString *dataPath;
+@property (nonatomic, strong, readonly) OTRDataHandler *dataHandler;
 @end
 
 @implementation OTRKit
@@ -590,6 +592,7 @@ static OtrlMessageAppOps ui_ops = {
         self.callbackQueue = dispatch_get_main_queue();
         self.internalQueue = dispatch_queue_create("OTRKit Internal Queue", 0);
         self.otrPolicy = OTRKitPolicyDefault;
+        _dataHandler = [[OTRDataHandler alloc] initWithDelegate:self];
         NSDictionary *protocolDefaults = @{@"prpl-msn":   @(1409),
                                            @"prpl-icq":   @(2346),
                                            @"prpl-aim":   @(2343),
@@ -710,6 +713,9 @@ static OtrlMessageAppOps ui_ops = {
         NSArray *tlvs = nil;
         if (otr_tlvs) {
             tlvs = [self tlvArrayForTLVChain:otr_tlvs];
+        }
+        if (tlvs) {
+            [self.dataHandler receiveTLVs:tlvs username:sender accountName:accountName protocol:protocol tag:tag];
         }
         
         if (context) {
@@ -1305,6 +1311,24 @@ static OtrlMessageAppOps ui_ops = {
         }
         otrl_message_respond_smp(self.userState, &ui_ops, NULL, context, (const unsigned char*)[secret UTF8String], [secret lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
     });
+}
+
+#pragma mark OTRDATA
+
+- (void) sendFileData:(NSData*)fileData
+             username:(NSString*)username
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol
+                  tag:(id)tag {
+    
+}
+
+- (void)sendTLVs:(NSArray*)tlvs
+        username:(NSString*)username
+     accountName:(NSString*)accountName
+        protocol:(NSString*)protocol
+             tag:(id)tag {
+    [self encodeMessage:nil tlvs:tlvs username:username accountName:accountName protocol:protocol tag:tag];
 }
 
 #pragma mark Static Methods

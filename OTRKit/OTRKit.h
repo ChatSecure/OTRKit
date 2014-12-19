@@ -591,6 +591,17 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                                   protocol:(NSString *)protocol
                                 completion:(void (^)(BOOL verified))completion;
 
+#pragma mark OTRDATA
+//////////////////////////////////////////////////////////////////////
+/// @name OTRDATA
+//////////////////////////////////////////////////////////////////////
+
+- (void) sendFileData:(NSData*)fileData
+             username:(NSString*)username
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol
+                  tag:(id)tag;
+
 #pragma mark Utility
 //////////////////////////////////////////////////////////////////////
 /// @name Utility

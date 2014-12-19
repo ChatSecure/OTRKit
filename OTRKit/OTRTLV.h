@@ -31,8 +31,8 @@ typedef NS_ENUM(uint16_t, OTRTLVType) {
     OTRTLVTypeSymmetricKey =  0x0008,
     /* For OTRDATA, see
      https://dev.guardianproject.info/projects/gibberbot/wiki/OTRDATA_Specifications */
-    OTRTLVTypeDataRequest = 0x100,
-    OTRTLVTypeDataResponse = 0x101
+    OTRTLVTypeDataRequest = 0x0100,
+    OTRTLVTypeDataResponse = 0x0101
 };
 
 @interface OTRTLV : NSObject

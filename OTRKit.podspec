@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   CMD
 
   s.platform     = :ios, "7.0"
-  s.source_files = "OTRKit/*.{h,m}", "OTRKitDependencies/include/**/*.h"
+  s.source_files = "OTRKit/**/*.{h,m}", "OTRKitDependencies/include/**/*.h"
   s.header_mappings_dir = "OTRKitDependencies/include"
   s.preserve_paths  = "OTRKitDependencies/libs/*", "OTRKitDependencies/include/**/*.h"
   s.vendored_libraries  = "OTRKitDependencies/lib/*.a"
