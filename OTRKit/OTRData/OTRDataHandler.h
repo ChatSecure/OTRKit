@@ -7,6 +7,9 @@
 
 #import <Foundation/Foundation.h>
 #import "OTRDataTransfer.h"
+#import "OTRDataOutgoingTransfer.h"
+#import "OTRDataIncomingTransfer.h"
+#import "OTRTLVHandler.h"
 
 @class OTRKit;
 @class OTRDataHandler;
@@ -14,37 +17,46 @@
 @protocol OTRDataHandlerDelegate <NSObject>
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
-           sendTLVs:(NSArray*)tlvs
-           username:(NSString*)username
-        accountName:(NSString*)accountName
-           protocol:(NSString*)protocol
-                tag:(id)tag;
+           transfer:(OTRDataOutgoingTransfer*)transfer
+              error:(NSError*)error;
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
-   errorSendingFile:(NSURL*)fileURL
-              error:(NSError*)error
-                tag:(id)tag;
-
-- (void)dataHandler:(OTRDataHandler*)dataHandler
-    offeredTransfer:(OTRDataTransfer*)transfer
-                tag:(id)tag;
+    offeredTransfer:(OTRDataIncomingTransfer*)transfer;
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
            transfer:(OTRDataTransfer*)transfer
-           progress:(float)progress
-                tag:(id)tag;
+           progress:(float)progress;
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
-   transferComplete:(OTRDataTransfer*)transfer
-                tag:(id)tag;
+   transferComplete:(OTRDataTransfer*)transfer;
 
 @end
 
-@interface OTRDataHandler : NSObject
+@interface OTRDataHandler : NSObject <OTRTLVHandler>
 
-@property (nonatomic, weak, readonly) id<OTRDataHandlerDelegate> delegate;
+/**
+ *  This reference is needed to inject messages over the network.
+ *  @see registerTLVHandler:
+ */
+@property (nonatomic, weak, readwrite) OTRKit *otrKit;
 
-- (instancetype) initWithDelegate:(id<OTRDataHandlerDelegate>)delegate;
+/**
+ *  All OTRDataHandlerDelegate callbacks will be done on this queue.
+ *  Defaults to main queue.
+ */
+@property (nonatomic, strong, readwrite) dispatch_queue_t callbackQueue;
+
+/**
+ *  Implement a delegate listener to handle file events.
+ */
+@property (nonatomic, weak, readwrite) id<OTRDataHandlerDelegate> delegate;
+
+/**
+ *  This method will automatically register itself with OTRKit via registerTLVHandler:
+ */
+- (instancetype) initWithOTRKit:(OTRKit*)otrKit delegate:(id<OTRDataHandlerDelegate>)delegate;
+
+#pragma mark Sending Data
 
 /** For now, this won't work for large files because of RAM limitations */
 - (void) sendFileWithURL:(NSURL*)fileURL
@@ -61,10 +73,8 @@
                  protocol:(NSString*)protocol
                       tag:(id)tag;
 
-- (void)receiveTLVs:(NSArray*)tlvs
-           username:(NSString*)username
-        accountName:(NSString*)accountName
-           protocol:(NSString*)protocol
-                tag:(id)tag;
+#pragma mark Receiving Data
+
+- (void) startIncomingTransfer:(OTRDataIncomingTransfer*)transfer;
 
 @end

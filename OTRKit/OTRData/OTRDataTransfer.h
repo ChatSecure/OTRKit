@@ -10,29 +10,26 @@
 
 @interface OTRDataTransfer : NSObject
 
-@property (nonatomic, strong, readonly) NSURL *url;
-@property (nonatomic, strong, readonly) NSString *mimeType;
-@property (nonatomic, strong, readonly) NSString *fileHash;
-
+@property (nonatomic, strong, readonly) NSString *requestID;
 @property (nonatomic, strong, readonly) NSString *username;
 @property (nonatomic, strong, readonly) NSString *accountName;
 @property (nonatomic, strong, readonly) NSString *protocol;
+@property (nonatomic, strong, readonly) id tag;
 
-@property (nonatomic, strong) NSData *fileData;
 @property (nonatomic, strong) NSString *fileName;
+@property (nonatomic, strong) NSData *fileData;
+@property (nonatomic, strong) NSString *mimeType;
 
-@property (nonatomic, readonly) NSUInteger totalChunks;
+/**
+ *  Total file length in bytes
+ */
+@property (nonatomic, readonly) NSUInteger fileLength;
 
-@property (nonatomic) NSUInteger chunksReceived;
-@property (nonatomic) NSUInteger totalLength;
-@property (nonatomic) NSUInteger currentChunk;
-
-- (instancetype) initWithURL:(NSURL*)url
-                    mimeType:(NSString*)mimeType
-                 totalLength:(NSUInteger)totalLength
-                    fileHash:(NSString*)fileHash
-                    username:(NSString*)username
-                 accountName:(NSString*)accountName
-                    protocol:(NSString*)protocol;
+- (instancetype) initWithRequestID:(NSString*)requestID
+                       fileLength:(NSUInteger)fileLength
+                          username:(NSString*)username
+                       accountName:(NSString*)accountName
+                          protocol:(NSString*)protocol
+                               tag:(id)tag;
 
 @end

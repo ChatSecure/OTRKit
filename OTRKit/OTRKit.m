@@ -75,16 +75,17 @@ NSString * const kOTRKitTrustKey       = @"kOTRKitTrustKey";
 @end
 
 
-@interface OTRKit() <OTRDataHandlerDelegate>
-/**
- *  Defaults to main queue. All delegate and block callbacks will be done on this queue.
- */
+@interface OTRKit()
 @property (nonatomic) dispatch_queue_t internalQueue;
 @property (nonatomic, strong) NSTimer *pollTimer;
 @property (nonatomic) OtrlUserState userState;
 @property (nonatomic, strong) NSMutableDictionary *protocolMaxSize;
 @property (nonatomic, strong, readwrite) NSString *dataPath;
-@property (nonatomic, strong, readonly) OTRDataHandler *dataHandler;
+
+/**
+ *  OTRTLVHandler keyed to boxed NSNumber of OTRTLVType
+ */
+@property (nonatomic, strong, readonly) NSMutableDictionary *tlvHandlers;
 @end
 
 @implementation OTRKit
@@ -592,7 +593,7 @@ static OtrlMessageAppOps ui_ops = {
         self.callbackQueue = dispatch_get_main_queue();
         self.internalQueue = dispatch_queue_create("OTRKit Internal Queue", 0);
         self.otrPolicy = OTRKitPolicyDefault;
-        _dataHandler = [[OTRDataHandler alloc] initWithDelegate:self];
+        _tlvHandlers = [NSMutableDictionary dictionary];
         NSDictionary *protocolDefaults = @{@"prpl-msn":   @(1409),
                                            @"prpl-icq":   @(2346),
                                            @"prpl-aim":   @(2343),
@@ -674,7 +675,8 @@ static OtrlMessageAppOps ui_ops = {
 - (void) messagePoll:(NSTimer*)timer {
     dispatch_async(self.internalQueue, ^{
         if (self.userState) {
-            otrl_message_poll(_userState, &ui_ops, NULL);
+            OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:nil];
+            otrl_message_poll(_userState, &ui_ops, (__bridge void *)(opdata));
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [timer invalidate];
@@ -687,27 +689,27 @@ static OtrlMessageAppOps ui_ops = {
 
 
 - (void)decodeMessage:(NSString*)message
-             username:(NSString*)sender
+             username:(NSString*)username
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol
                   tag:(id)tag
 {
     NSParameterAssert(message.length);
-    NSParameterAssert(sender.length);
+    NSParameterAssert(username.length);
     NSParameterAssert(accountName.length);
     NSParameterAssert(protocol.length);
-    if (![message length] || ![sender length] || ![accountName length] || ![protocol length]) {
+    if (![message length] || ![username length] || ![accountName length] || ![protocol length]) {
         return;
     }
     dispatch_async(self.internalQueue, ^{
         int ignore_message;
         char *newmessage = NULL;
-        ConnContext *context = [self contextForUsername:sender accountName:accountName protocol:protocol];
+        ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
         NSParameterAssert(context);
         OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:tag];
         
         OtrlTLV *otr_tlvs = NULL;
-        ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void*)opdata, [accountName UTF8String], [protocol UTF8String], [sender UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
+        ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void*)opdata, [accountName UTF8String], [protocol UTF8String], [username UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
         NSString *decodedMessage = nil;
         
         NSArray *tlvs = nil;
@@ -715,12 +717,18 @@ static OtrlMessageAppOps ui_ops = {
             tlvs = [self tlvArrayForTLVChain:otr_tlvs];
         }
         if (tlvs) {
-            [self.dataHandler receiveTLVs:tlvs username:sender accountName:accountName protocol:protocol tag:tag];
+            [tlvs enumerateObjectsUsingBlock:^(OTRTLV *tlv, NSUInteger idx, BOOL *stop) {
+                OTRTLVType tlvType = tlv.type;
+                id<OTRTLVHandler> handler = [self.tlvHandlers objectForKey:@(tlvType)];
+                if (handler) {
+                    [handler receiveTLV:tlv username:username accountName:accountName protocol:protocol tag:tag];
+                }
+            }];
         }
         
         if (context) {
             if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
-                [self disableEncryptionWithUsername:sender accountName:accountName protocol:protocol];
+                [self disableEncryptionWithUsername:username accountName:accountName protocol:protocol];
             }
         }
         BOOL wasEncrypted = [OTRKit stringStartsWithOTRPrefix:message];
@@ -739,7 +747,7 @@ static OtrlMessageAppOps ui_ops = {
                            decodedMessage:decodedMessage
                              wasEncrypted:wasEncrypted
                                      tlvs:tlvs
-                                 username:sender
+                                 username:username
                               accountName:accountName
                                  protocol:protocol
                                       tag:tag];
@@ -752,7 +760,7 @@ static OtrlMessageAppOps ui_ops = {
                            decodedMessage:nil
                              wasEncrypted:wasEncrypted
                                      tlvs:tlvs
-                                 username:sender
+                                 username:username
                               accountName:accountName
                                  protocol:protocol
                                       tag:tag];
@@ -777,11 +785,10 @@ static OtrlMessageAppOps ui_ops = {
              protocol:(NSString *)protocol
                   tag:(id)tag
 {
-    NSParameterAssert(messageToBeEncoded);
     NSParameterAssert(username);
     NSParameterAssert(accountName);
     NSParameterAssert(protocol);
-    if (!messageToBeEncoded.length || !username.length || !accountName.length || !protocol.length) {
+    if (!username.length || !accountName.length || !protocol.length) {
         return;
     }
     dispatch_async(self.internalQueue, ^{
@@ -1313,22 +1320,17 @@ static OtrlMessageAppOps ui_ops = {
     });
 }
 
-#pragma mark OTRDATA
-
-- (void) sendFileData:(NSData*)fileData
-             username:(NSString*)username
-          accountName:(NSString*)accountName
-             protocol:(NSString*)protocol
-                  tag:(id)tag {
-    
-}
-
-- (void)sendTLVs:(NSArray*)tlvs
-        username:(NSString*)username
-     accountName:(NSString*)accountName
-        protocol:(NSString*)protocol
-             tag:(id)tag {
-    [self encodeMessage:nil tlvs:tlvs username:username accountName:accountName protocol:protocol tag:tag];
+- (void) registerTLVHandler:(id<OTRTLVHandler>)handler {
+    NSParameterAssert(handler != nil);
+    if (!handler) {
+        return;
+    }
+    dispatch_async(self.internalQueue, ^{
+        NSArray *handledTypes = [handler handledTLVTypes];
+        [handledTypes enumerateObjectsUsingBlock:^(NSNumber *type, NSUInteger idx, BOOL *stop) {
+            [self.tlvHandlers setObject:handler forKey:type];
+        }];
+    });
 }
 
 #pragma mark Static Methods

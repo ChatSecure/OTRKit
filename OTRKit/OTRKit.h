@@ -36,6 +36,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OTRTLV.h"
+#import "OTRTLVHandler.h"
 
 @class OTRKit;
 
@@ -352,10 +353,10 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  * then injects the encoded data via the injectMessage: delegate method.
  * @param message The message to be encoded
  * @param tlvs Array of OTRTLVs, the data length of each TLV must be smaller than UINT16_MAX or it will be ignored.
- * @param recipient The intended recipient of the message
+ * @param username The intended recipient of the message
  * @param accountName Your account name
  * @param protocol the protocol of accountName, such as @"xmpp"
- *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
+ * @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void)encodeMessage:(NSString*)message
                  tlvs:(NSArray*)tlvs
@@ -593,14 +594,14 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 
 #pragma mark OTRDATA
 //////////////////////////////////////////////////////////////////////
-/// @name OTRDATA
+/// @name TLV Handlers
 //////////////////////////////////////////////////////////////////////
 
-- (void) sendFileData:(NSData*)fileData
-             username:(NSString*)username
-          accountName:(NSString*)accountName
-             protocol:(NSString*)protocol
-                  tag:(id)tag;
+/**
+ *  You can register custom handlers for TLV types. For instance OTRDataHandler
+ *  can handle OTRDATA TLVs (0x0100, 0x0101)
+ */
+- (void) registerTLVHandler:(id<OTRTLVHandler>)handler;
 
 #pragma mark Utility
 //////////////////////////////////////////////////////////////////////

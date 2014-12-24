@@ -10,21 +10,19 @@
 
 @implementation OTRDataTransfer
 
-- (instancetype) initWithURL:(NSURL*)url
-                    mimeType:(NSString*)mimeType
-                 totalLength:(NSUInteger)totalLength
-                    fileHash:(NSString*)fileHash
-                    username:(NSString*)username
-                 accountName:(NSString*)accountName
-                    protocol:(NSString*)protocol {
+- (instancetype) initWithRequestID:(NSString*)requestID
+                       fileLength:(NSUInteger)fileLength
+                          username:(NSString*)username
+                       accountName:(NSString*)accountName
+                          protocol:(NSString*)protocol
+                               tag:(id)tag {
     if (self = [super init]) {
-        _url = url;
-        _mimeType = mimeType;
-        _totalLength = totalLength;
-        _fileHash = fileHash;
+        _requestID = requestID;
         _username = username;
+        _fileLength = fileLength;
         _accountName = accountName;
         _protocol = protocol;
+        _tag = tag;
     }
     return self;
 }

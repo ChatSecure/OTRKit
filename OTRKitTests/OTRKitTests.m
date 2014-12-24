@@ -8,17 +8,21 @@
 
 #import <XCTest/XCTest.h>
 #import "OTRKit.h"
+#import <OTRDataHandler.h>
 
 static NSString * const kOTRTestMessage = @"Hello World";
 static NSString * const kOTRTestAccountAlice = @"alice@example.com";
 static NSString * const kOTRTestAccountBob = @"bob@example.com";
 static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 
-@interface OTRKitTestsiOS : XCTestCase <OTRKitDelegate>
+@interface OTRKitTestsiOS : XCTestCase <OTRKitDelegate, OTRDataHandlerDelegate>
 @property (nonatomic, strong) OTRKit *otrKitAlice;
 @property (nonatomic, strong) OTRKit *otrKitBob;
+@property (nonatomic, strong) OTRDataHandler *dataHandlerAlice;
+@property (nonatomic, strong) OTRDataHandler *dataHandlerBob;
 @property (nonatomic, strong) XCTestExpectation *expectation;
 @property (nonatomic) dispatch_queue_t callbackQueue;
+@property (nonatomic, strong) NSData *testFileData;
 
 @property (nonatomic, strong, readonly) NSDictionary *accountToKitMappings;
 @property (nonatomic, strong, readonly) NSDictionary *kitToAccountMappings;
@@ -40,6 +44,10 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
     self.otrKitBob.delegate = self;
     self.otrKitBob.otrPolicy = OTRKitPolicyOpportunistic;
     self.otrKitBob.callbackQueue = self.callbackQueue;
+    self.dataHandlerAlice = [[OTRDataHandler alloc] initWithOTRKit:self.otrKitAlice delegate:self];
+    self.dataHandlerAlice.callbackQueue = self.callbackQueue;
+    self.dataHandlerBob = [[OTRDataHandler alloc] initWithOTRKit:self.otrKitBob delegate:self];
+    self.dataHandlerBob.callbackQueue = self.callbackQueue;
     XCTAssertNotNil(self.otrKitAlice, "otrKitAlice failed to initialize");
     XCTAssertNotNil(self.otrKitBob, "otrKitBob failed to initialize");
 }
@@ -64,6 +72,7 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
     success = [[NSFileManager defaultManager] createDirectoryAtPath:path2 withIntermediateDirectories:YES attributes:nil error:nil];
     XCTAssertTrue(success);
     
+    self.testFileData = [@"asdf" dataUsingEncoding:NSUTF8StringEncoding];
     self.expectation = [self expectationWithDescription:@"test1"];
     
     [self.otrKitAlice setupWithDataPath:path1];
@@ -175,9 +184,9 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
         // decoded message from bob
     } else if (otrKit == self.otrKitBob) {
         // decoded message from alice
-        XCTAssertEqualObjects(decodedMessage, kOTRTestMessage);
+        //XCTAssertEqualObjects(decodedMessage, kOTRTestMessage);
         if ([decodedMessage isEqualToString:kOTRTestMessage] && wasEncrypted) {
-            [self.expectation fulfill];
+            [self.dataHandlerAlice sendFileWithName:@"test" fileData:self.testFileData username:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP tag:tag];
         }
     }
 }
@@ -336,5 +345,37 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
     XCTAssertNil(error);
     NSLog(@"didFinishGeneratingPrivateKeyForAccountName: %@", accountName);
 }
+
+#pragma mark OTRDataHandlerDelegate methods
+
+- (void)dataHandler:(OTRDataHandler*)dataHandler
+           transfer:(OTRDataOutgoingTransfer*)transfer
+              error:(NSError*)error {
+    NSLog(@"error sending file: %@", transfer);
+}
+
+- (void)dataHandler:(OTRDataHandler*)dataHandler
+    offeredTransfer:(OTRDataIncomingTransfer*)transfer {
+    NSLog(@"offered file: %@", transfer);
+    // auto-accept
+    [dataHandler startIncomingTransfer:transfer];
+}
+
+- (void)dataHandler:(OTRDataHandler*)dataHandler
+           transfer:(OTRDataTransfer*)transfer
+           progress:(float)progress {
+    NSLog(@"transfer progress: %@", transfer);
+
+}
+
+- (void)dataHandler:(OTRDataHandler*)dataHandler
+   transferComplete:(OTRDataTransfer*)transfer {
+    NSLog(@"transfer complete: %@", transfer);
+    if ([transfer.fileData isEqualToData:self.testFileData]) {
+        [self.expectation fulfill];
+    }
+}
+
+
 
 @end

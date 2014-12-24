@@ -140,4 +140,8 @@
 	CFHTTPMessageSetBody(_message, (__bridge CFDataRef)body);
 }
 
+- (NSString*) description {
+    return [[NSString alloc] initWithData:[self HTTPMessageData] encoding:NSUTF8StringEncoding];
+}
+
 @end
