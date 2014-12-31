@@ -16,11 +16,11 @@
  *  Process OTRTLV.
  *  @see OTRTLV
  *
- *  @param tlvs        array of OTRTLV objects
+ *  @param tlv      OTRTLV object
  *  @param username The intended recipient of the message
  *  @param accountName Your account name
  *  @param protocol the protocol of accountName, such as @"xmpp"
- *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
+ *  @param tag optional tag to attach additional application-specific data to message.
  */
 - (void)receiveTLV:(OTRTLV*)tlv
           username:(NSString*)username

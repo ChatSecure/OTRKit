@@ -592,7 +592,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                                   protocol:(NSString *)protocol
                                 completion:(void (^)(BOOL verified))completion;
 
-#pragma mark OTRDATA
+#pragma mark TLV Handlers
 //////////////////////////////////////////////////////////////////////
 /// @name TLV Handlers
 //////////////////////////////////////////////////////////////////////

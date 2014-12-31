@@ -72,7 +72,13 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
     success = [[NSFileManager defaultManager] createDirectoryAtPath:path2 withIntermediateDirectories:YES attributes:nil error:nil];
     XCTAssertTrue(success);
     
-    self.testFileData = [@"asdf" dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableString *testString = [[NSMutableString alloc] init];
+    NSUInteger testLength = (int)(16384.0f * 10.5f);
+    for (int i = 0; i < testLength; i++) {
+        [testString appendString:@"a"];
+    }
+    
+    self.testFileData = [testString dataUsingEncoding:NSUTF8StringEncoding];
     self.expectation = [self expectationWithDescription:@"test1"];
     
     [self.otrKitAlice setupWithDataPath:path1];
@@ -364,7 +370,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 - (void)dataHandler:(OTRDataHandler*)dataHandler
            transfer:(OTRDataTransfer*)transfer
            progress:(float)progress {
-    NSLog(@"transfer progress: %@", transfer);
+    NSLog(@"transfer progress: %f %@", progress, transfer);
 
 }
 

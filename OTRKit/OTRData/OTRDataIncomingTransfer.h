@@ -10,12 +10,9 @@
 
 @interface OTRDataIncomingTransfer : OTRDataTransfer
 
-@property (nonatomic, readonly) NSUInteger totalChunks;
-
-@property (nonatomic) NSUInteger chunksReceived;
-
-@property (nonatomic) NSUInteger currentChunk;
-
+/**
+ *  This property is not thread-safe. Do not read it until dataHandler:transferComplete: is called.
+ */
 @property (nonatomic, strong) NSMutableData *fileData;
 
 @end

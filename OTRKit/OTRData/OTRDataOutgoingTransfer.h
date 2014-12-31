@@ -9,4 +9,7 @@
 #import "OTRDataTransfer.h"
 
 @interface OTRDataOutgoingTransfer : OTRDataTransfer
+
+@property (nonatomic, readwrite) NSUInteger bytesTransferred;
+
 @end

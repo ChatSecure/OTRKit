@@ -75,6 +75,11 @@
 
 #pragma mark Receiving Data
 
+/**
+ *  Use this to start a transfer offered by the delegate method dataHandler:offeredTransfer:
+ *
+ *  @param transfer transfer to be started
+ */
 - (void) startIncomingTransfer:(OTRDataIncomingTransfer*)transfer;
 
 @end

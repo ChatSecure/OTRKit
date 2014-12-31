@@ -137,8 +137,9 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
         NSString *endRangeString = [startEndRanges lastObject];
         NSUInteger startOfRange = [startRangeString integerValue];
         NSUInteger endOfRange = [endRangeString integerValue];
+        NSUInteger chunkLength = endOfRange - startOfRange;
         
-        if (endOfRange - startOfRange + 1 > kOTRDataMaxChunkLength || startOfRange > endOfRange) {
+        if (chunkLength > kOTRDataMaxChunkLength || startOfRange > endOfRange) {
             [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Invalid Range" httpBody:nil tag:tag];
             return;
         }
@@ -190,6 +191,7 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
         dispatch_async(self.callbackQueue, ^{
             [self.delegate dataHandler:self transfer:transfer progress:progress];
         });
+        [self requestOutstandingDataForIncomingTransfer:transfer];
     }
 }
 
@@ -277,8 +279,17 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
     [self.otrKit encodeMessage:nil tlvs:@[tlv] username:username accountName:accountName protocol:protocol tag:tag];
 }
 
-- (void) startIncomingTransfer:(OTRDataIncomingTransfer*)transfer {
-    NSRange range = NSMakeRange(0, transfer.fileLength);
+- (void) startIncomingTransfer:(OTRDataIncomingTransfer *)transfer {
+    [self requestOutstandingDataForIncomingTransfer:transfer];
+}
+
+- (void) requestOutstandingDataForIncomingTransfer:(OTRDataIncomingTransfer*)transfer {
+    NSUInteger requestLength = transfer.fileLength - transfer.fileData.length;
+    if (requestLength > kOTRDataMaxChunkLength) {
+        requestLength = kOTRDataMaxChunkLength;
+    }
+    
+    NSRange range = NSMakeRange(transfer.fileData.length, requestLength);
     NSString *rangeString = [NSString stringWithFormat:@"bytes=%d-%d", (int)range.location, (int)(range.location + range.length)];
     
     NSDictionary *headers = @{@"Range": rangeString,
