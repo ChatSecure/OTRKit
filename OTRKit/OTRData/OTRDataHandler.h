@@ -17,7 +17,7 @@
 @protocol OTRDataHandlerDelegate <NSObject>
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
-           transfer:(OTRDataOutgoingTransfer*)transfer
+           transfer:(OTRDataTransfer*)transfer
               error:(NSError*)error;
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler

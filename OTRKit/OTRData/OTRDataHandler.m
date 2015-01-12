@@ -13,6 +13,7 @@
 #import "OTRDataOutgoingTransfer.h"
 #import "OTRTLV.h"
 #import "OTRKit.h"
+#import "NSData+OTRDATA.h"
 
 static NSString * const kOTRDataHandlerURLScheme = @"otr-in-band";
 static NSString * const kOTRDataErrorDomain = @"org.chatsecure.OTRDataError";
@@ -27,6 +28,8 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
 
 
 @interface OTRDataHandler()
+
+@property (nonatomic) dispatch_queue_t internalQueue;
 
 /**
  *  Keyed to Request-Id
@@ -50,6 +53,7 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
 
 - (instancetype) initWithOTRKit:(OTRKit*)otrKit delegate:(id<OTRDataHandlerDelegate>)delegate {
     if (self = [super init]) {
+        _internalQueue = dispatch_queue_create("OTRDATA Queue", 0);
         _delegate = delegate;
         _otrKit = otrKit;
         _callbackQueue = dispatch_get_main_queue();
@@ -61,138 +65,152 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
 }
 
 - (void) handleIncomingRequestData:(NSData *)requestData username:(NSString *)username accountName:(NSString *)accountName protocol:(NSString *)protocol tag:(id)tag {
-    NSError *error = nil;
-    OTRHTTPMessage *request = [[OTRHTTPMessage alloc] initEmptyRequest];
-    [request appendData:requestData];
-    if (request.isHeaderComplete) {
-        NSLog(@"Headers: %@", request.allHTTPHeaderFields);
-    } else {
-        error = [NSError errorWithDomain:kOTRDataErrorDomain code:100 userInfo:@{NSLocalizedDescriptionKey: @"Message has incomplete headers"}];
-        return;
-    }
-    
-    NSString *requestMethod = request.HTTPMethod;
-    NSString *requestID = [request valueForHTTPHeaderField:kHTTPHeaderRequestID];
-    NSURL *url = request.url;
-    
-    if (![url.scheme isEqualToString:kOTRDataHandlerURLScheme]) {
-        NSLog(@"Unrecognized URL scheme %@", url.scheme);
-        //[self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Unknown scheme" httpBody:nil tag:tag];
-        //return;
-        // Using alternate schemes doesn't appear to work at the moment
-    }
-    
-    if ([requestMethod isEqualToString:@"OFFER"]) {
-        NSLog(@"Incoming offer: %@", request);
-        [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:200 httpStatusString:@"OK" httpBody:nil tag:tag];
-        NSString *fileLengthString = [request valueForHTTPHeaderField:kHTTPHeaderFileLength];
-        if (!fileLengthString) {
-            [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"File-Length must be supplied" httpBody:nil tag:tag];
-            return;
-        }
-        NSInteger fileLength = [fileLengthString integerValue];
-        NSString *fileHashString = [request valueForHTTPHeaderField:kHTTPHeaderFileHashSHA1];
-        if (!fileHashString) {
-            [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"File-Hash-SHA1 must be supplied" httpBody:nil tag:tag];
-            return;
-        }
-        NSString *mimeTypeString = [request valueForHTTPHeaderField:kHTTPHeaderMimeType];
-        NSString *fileNameString = [request valueForHTTPHeaderField:@"File-Name"];
-        OTRDataIncomingTransfer *transfer = [[OTRDataIncomingTransfer alloc] initWithRequestID:requestID fileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
-        transfer.mimeType = mimeTypeString;
-        transfer.fileName = fileNameString;
-        [self.incomingTransfers setObject:transfer forKey:requestID];
-        // notify delegate of new offered transfer
-        dispatch_async(self.callbackQueue, ^{
-            [self.delegate dataHandler:self offeredTransfer:transfer];
-        });
-    } else if ([requestMethod isEqualToString:@"GET"]) {
-        NSLog(@"Get");
-        OTRDataOutgoingTransfer *transfer = [self.outgoingTransfers objectForKey:requestID];
-        if (!transfer) {
-            [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"No such offer made" httpBody:nil tag:tag];
-            return;
-        }
-                
-        NSString *rangeHeader = [request valueForHTTPHeaderField:@"Range"];
-        if (!rangeHeader) {
-            [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Must have Range header" httpBody:nil tag:tag];
+    dispatch_async(self.internalQueue, ^{
+        NSError *error = nil;
+        OTRHTTPMessage *request = [[OTRHTTPMessage alloc] initEmptyRequest];
+        [request appendData:requestData];
+        if (request.isHeaderComplete) {
+            NSLog(@"Headers: %@", request.allHTTPHeaderFields);
+        } else {
+            error = [NSError errorWithDomain:kOTRDataErrorDomain code:100 userInfo:@{NSLocalizedDescriptionKey: @"Message has incomplete headers"}];
             return;
         }
         
-        NSArray *rangeComponents = [rangeHeader componentsSeparatedByString:@"="];
-        if (rangeComponents.count != 2 || ![[rangeComponents firstObject] isEqualToString:@"bytes"]) {
-            [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Range must start with bytes=" httpBody:nil tag:tag];
-            return;
+        NSString *requestMethod = request.HTTPMethod;
+        NSString *requestID = [request valueForHTTPHeaderField:kHTTPHeaderRequestID];
+        NSURL *url = request.url;
+        
+        if (![url.scheme isEqualToString:kOTRDataHandlerURLScheme]) {
+            NSLog(@"Unrecognized URL scheme %@", url.scheme);
+            //[self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Unknown scheme" httpBody:nil tag:tag];
+            //return;
+            // Using alternate schemes doesn't appear to work at the moment
         }
         
-        NSArray *startEndRanges = [[rangeComponents lastObject] componentsSeparatedByString:@"-"];
-        
-        if (startEndRanges.count != 2) {
-            [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Range must be START-END" httpBody:nil tag:tag];
-            return;
-        }
-        
-        NSString *startRangeString = [startEndRanges firstObject];
-        NSString *endRangeString = [startEndRanges lastObject];
-        NSUInteger startOfRange = [startRangeString integerValue];
-        NSUInteger endOfRange = [endRangeString integerValue];
-        NSUInteger chunkLength = endOfRange - startOfRange;
-        
-        if (chunkLength > kOTRDataMaxChunkLength || startOfRange > endOfRange) {
-            [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Invalid Range" httpBody:nil tag:tag];
-            return;
-        }
-        NSRange range = NSMakeRange(startOfRange, endOfRange - startOfRange);
-        NSData *subdata = [transfer.fileData subdataWithRange:range];
-        float percentageComplete = (float)endOfRange / (float)transfer.fileData.length;
-        
-        dispatch_async(self.callbackQueue, ^{
-            [self.delegate dataHandler:self transfer:transfer progress:percentageComplete];
-        });
-        
-        if (percentageComplete > 0.98f) {
+        if ([requestMethod isEqualToString:@"OFFER"]) {
+            NSLog(@"Incoming offer: %@", request);
+            [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:200 httpStatusString:@"OK" httpBody:nil tag:tag];
+            NSString *fileLengthString = [request valueForHTTPHeaderField:kHTTPHeaderFileLength];
+            if (!fileLengthString) {
+                [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"File-Length must be supplied" httpBody:nil tag:tag];
+                return;
+            }
+            NSInteger fileLength = [fileLengthString integerValue];
+            NSString *fileHashString = [request valueForHTTPHeaderField:kHTTPHeaderFileHashSHA1];
+            if (!fileHashString) {
+                [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"File-Hash-SHA1 must be supplied" httpBody:nil tag:tag];
+                return;
+            }
+            NSString *mimeTypeString = [request valueForHTTPHeaderField:kHTTPHeaderMimeType];
+            NSString *fileNameString = [request valueForHTTPHeaderField:@"File-Name"];
+            OTRDataIncomingTransfer *transfer = [[OTRDataIncomingTransfer alloc] initWithRequestID:requestID fileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
+            transfer.mimeType = mimeTypeString;
+            transfer.fileName = fileNameString;
+            transfer.fileHash = fileHashString;
+            [self.incomingTransfers setObject:transfer forKey:requestID];
+            // notify delegate of new offered transfer
             dispatch_async(self.callbackQueue, ^{
-                [self.delegate dataHandler:self transferComplete:transfer];
+                [self.delegate dataHandler:self offeredTransfer:transfer];
             });
+        } else if ([requestMethod isEqualToString:@"GET"]) {
+            NSLog(@"Get");
+            OTRDataOutgoingTransfer *transfer = [self.outgoingTransfers objectForKey:requestID];
+            if (!transfer) {
+                [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"No such offer made" httpBody:nil tag:tag];
+                return;
+            }
+            
+            NSString *rangeHeader = [request valueForHTTPHeaderField:@"Range"];
+            if (!rangeHeader) {
+                [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Must have Range header" httpBody:nil tag:tag];
+                return;
+            }
+            
+            NSArray *rangeComponents = [rangeHeader componentsSeparatedByString:@"="];
+            if (rangeComponents.count != 2 || ![[rangeComponents firstObject] isEqualToString:@"bytes"]) {
+                [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Range must start with bytes=" httpBody:nil tag:tag];
+                return;
+            }
+            
+            NSArray *startEndRanges = [[rangeComponents lastObject] componentsSeparatedByString:@"-"];
+            
+            if (startEndRanges.count != 2) {
+                [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Range must be START-END" httpBody:nil tag:tag];
+                return;
+            }
+            
+            NSString *startRangeString = [startEndRanges firstObject];
+            NSString *endRangeString = [startEndRanges lastObject];
+            NSUInteger startOfRange = [startRangeString integerValue];
+            NSUInteger endOfRange = [endRangeString integerValue];
+            NSUInteger chunkLength = endOfRange - startOfRange;
+            
+            if (chunkLength > kOTRDataMaxChunkLength || startOfRange > endOfRange) {
+                [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Invalid Range" httpBody:nil tag:tag];
+                return;
+            }
+            NSRange range = NSMakeRange(startOfRange, endOfRange - startOfRange);
+            NSData *subdata = [transfer.fileData subdataWithRange:range];
+            float percentageComplete = (float)endOfRange / (float)transfer.fileData.length;
+            
+            dispatch_async(self.callbackQueue, ^{
+                [self.delegate dataHandler:self transfer:transfer progress:percentageComplete];
+            });
+            
+            if (percentageComplete > 0.98f) {
+                dispatch_async(self.callbackQueue, ^{
+                    [self.delegate dataHandler:self transferComplete:transfer];
+                });
+            }
+            
+            [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:200 httpStatusString:@"OK" httpBody:subdata tag:tag];
         }
-        
-        [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:200 httpStatusString:@"OK" httpBody:subdata tag:tag];
-    }
+    });
 }
 
 - (void) handleIncomingResponseData:(NSData *)responseData username:(NSString *)username accountName:(NSString *)accountName protocol:(NSString *)protocol tag:(id)tag {
-    OTRHTTPMessage *incomingResponse = [[OTRHTTPMessage alloc] initEmptyRequest];
-    [incomingResponse appendData:responseData];
-    NSError *error = nil;
-    if (incomingResponse.isHeaderComplete) {
-        NSLog(@"handleIncomingResponseData: %@", incomingResponse);
-    } else {
-        error = [NSError errorWithDomain:kOTRDataErrorDomain code:100 userInfo:@{NSLocalizedDescriptionKey: @"Message has incomplete headers"}];
-        return;
-    }
-    NSString *requestID = [incomingResponse valueForHTTPHeaderField:@"Request-Id"];
-    
-    if (!requestID) {
-        return;
-    }
-    
-    OTRDataIncomingTransfer *transfer = [self.incomingTransfers objectForKey:requestID];
-    if (!transfer) {
-        return;
-    }
-    [transfer.fileData appendData:incomingResponse.HTTPBody];
-    if (transfer.fileData.length == transfer.fileLength) {
-        dispatch_async(self.callbackQueue, ^{
-            [self.delegate dataHandler:self transferComplete:transfer];
-        });
-    } else {
-        float progress = (float)transfer.fileData.length / (float)transfer.fileLength;
-        dispatch_async(self.callbackQueue, ^{
-            [self.delegate dataHandler:self transfer:transfer progress:progress];
-        });
-        [self requestOutstandingDataForIncomingTransfer:transfer];
-    }
+    dispatch_async(self.internalQueue, ^{
+        OTRHTTPMessage *incomingResponse = [[OTRHTTPMessage alloc] initEmptyRequest];
+        [incomingResponse appendData:responseData];
+        NSError *error = nil;
+        if (incomingResponse.isHeaderComplete) {
+            NSLog(@"handleIncomingResponseData: %@", incomingResponse);
+        } else {
+            error = [NSError errorWithDomain:kOTRDataErrorDomain code:100 userInfo:@{NSLocalizedDescriptionKey: @"Message has incomplete headers"}];
+            return;
+        }
+        NSString *requestID = [incomingResponse valueForHTTPHeaderField:@"Request-Id"];
+        
+        if (!requestID) {
+            return;
+        }
+        
+        OTRDataIncomingTransfer *transfer = [self.incomingTransfers objectForKey:requestID];
+        if (!transfer) {
+            return;
+        }
+        [transfer.fileData appendData:incomingResponse.HTTPBody];
+        if (transfer.fileData.length == transfer.fileLength) {
+            NSData *fileHash = [transfer.fileData otr_SHA1];
+            NSString *fileHashString = [fileHash otr_hexString];
+            if ([transfer.fileHash isEqualToString:fileHashString]) {
+                dispatch_async(self.callbackQueue, ^{
+                    [self.delegate dataHandler:self transferComplete:transfer];
+                });
+            } else {
+                dispatch_async(self.callbackQueue, ^{
+                    [self.delegate dataHandler:self transfer:transfer error:[NSError errorWithDomain:kOTRDataErrorDomain code:102 userInfo:@{NSLocalizedDescriptionKey: @"Bad SHA hash"}]];
+                });
+            }
+            
+        } else {
+            float progress = (float)transfer.fileData.length / (float)transfer.fileLength;
+            dispatch_async(self.callbackQueue, ^{
+                [self.delegate dataHandler:self transfer:transfer progress:progress];
+            });
+            [self requestOutstandingDataForIncomingTransfer:transfer];
+        }
+    });
 }
 
 /** For now, this won't work for large files because of RAM limitations */
@@ -213,30 +231,35 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
               accountName:(NSString*)accountName
                  protocol:(NSString*)protocol
                       tag:(id)tag {
-    NSUInteger fileLength = fileData.length;
-    
-    if (fileLength > kOTRDataMaxFileSize) {
-        dispatch_async(self.callbackQueue, ^{
-            //[self.delegate dataHandler:self errorSendingFile:fileName error:[NSError errorWithDomain:kOTRDataErrorDomain code:101 userInfo:@{NSLocalizedDescriptionKey: @"File too large"}] tag:tag];
-        });
-        return;
-    }
-    
-    NSString *urlString = [NSString stringWithFormat:@"%@://%@", kOTRDataHandlerURLScheme, fileName];
-    NSURL *url = [NSURL URLWithString:urlString];
-    
-    NSString *requestID = [[NSUUID UUID] UUIDString];
-    
-    NSDictionary *httpHeaders = @{@"File-Length": @(fileLength).stringValue,
-                                  @"File-Hash-SHA1": @"sha1 hash",
-                                  @"File-Name": fileName,
-                                  @"Request-Id": requestID};
-    
-    OTRDataOutgoingTransfer *transfer = [[OTRDataOutgoingTransfer alloc] initWithRequestID:requestID fileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
-    transfer.fileData = fileData;
-    [self.outgoingTransfers setObject:transfer forKey:requestID];
-    
-    [self sendRequestToUsername:username accountName:accountName protocol:protocol url:url httpMethod:@"OFFER" httpHeaders:httpHeaders tag:tag];
+    dispatch_async(self.internalQueue, ^{
+        NSUInteger fileLength = fileData.length;
+        
+        if (fileLength > kOTRDataMaxFileSize) {
+            dispatch_async(self.callbackQueue, ^{
+                //[self.delegate dataHandler:self errorSendingFile:fileName error:[NSError errorWithDomain:kOTRDataErrorDomain code:101 userInfo:@{NSLocalizedDescriptionKey: @"File too large"}] tag:tag];
+            });
+            return;
+        }
+        
+        NSString *urlString = [NSString stringWithFormat:@"%@://%@", kOTRDataHandlerURLScheme, fileName];
+        NSURL *url = [NSURL URLWithString:urlString];
+        
+        NSString *requestID = [[NSUUID UUID] UUIDString];
+        
+        NSData *fileHash = [fileData otr_SHA1];
+        NSString *fileHashString = [fileHash otr_hexString];
+        
+        NSDictionary *httpHeaders = @{@"File-Length": @(fileLength).stringValue,
+                                      @"File-Hash-SHA1": fileHashString,
+                                      @"File-Name": fileName,
+                                      @"Request-Id": requestID};
+        
+        OTRDataOutgoingTransfer *transfer = [[OTRDataOutgoingTransfer alloc] initWithRequestID:requestID fileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
+        transfer.fileData = fileData;
+        [self.outgoingTransfers setObject:transfer forKey:requestID];
+        
+        [self sendRequestToUsername:username accountName:accountName protocol:protocol url:url httpMethod:@"OFFER" httpHeaders:httpHeaders tag:tag];
+    });
 }
 
 - (void) sendRequestToUsername:(NSString*)username

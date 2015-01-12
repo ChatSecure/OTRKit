@@ -20,6 +20,9 @@
 @property (nonatomic, strong) NSData *fileData;
 @property (nonatomic, strong) NSString *mimeType;
 
+/** SHA-1 for now */
+@property (nonatomic, strong) NSString *fileHash;
+
 /**
  *  Total file length in bytes
  */

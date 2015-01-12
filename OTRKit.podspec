@@ -18,4 +18,5 @@ Pod::Spec.new do |s|
   s.vendored_libraries  = "OTRKitDependencies/lib/*.a"
   s.library     = 'gpg-error', 'gcrypt', 'otr'
   s.requires_arc = true
+  s.frameworks = 'Security'
 end

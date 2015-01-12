@@ -355,9 +355,9 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 #pragma mark OTRDataHandlerDelegate methods
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
-           transfer:(OTRDataOutgoingTransfer*)transfer
+           transfer:(OTRDataTransfer*)transfer
               error:(NSError*)error {
-    NSLog(@"error sending file: %@", transfer);
+    XCTFail(@"error sending file: %@ %@", transfer, error);
 }
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
@@ -377,8 +377,10 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 - (void)dataHandler:(OTRDataHandler*)dataHandler
    transferComplete:(OTRDataTransfer*)transfer {
     NSLog(@"transfer complete: %@", transfer);
-    if ([transfer.fileData isEqualToData:self.testFileData]) {
-        [self.expectation fulfill];
+    if (dataHandler == self.dataHandlerBob) {
+        if ([transfer.fileData isEqualToData:self.testFileData]) {
+            [self.expectation fulfill];
+        }
     }
 }
 
