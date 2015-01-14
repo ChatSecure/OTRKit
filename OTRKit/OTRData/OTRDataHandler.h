@@ -83,3 +83,8 @@
 - (void) startIncomingTransfer:(OTRDataIncomingTransfer*)transfer;
 
 @end
+
+#pragma mark Constants
+
+/** otr-in-band */
+extern NSString * const kOTRDataHandlerURLScheme;

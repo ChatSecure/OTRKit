@@ -10,6 +10,8 @@
 
 @interface OTRDataIncomingTransfer : OTRDataTransfer
 
+@property (nonatomic, strong) NSURL *offeredURL;
+
 /**
  *  This property is not thread-safe. Do not read it until dataHandler:transferComplete: is called.
  */

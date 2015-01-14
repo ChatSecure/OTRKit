@@ -15,7 +15,7 @@
 #import "OTRKit.h"
 #import "NSData+OTRDATA.h"
 
-static NSString * const kOTRDataHandlerURLScheme = @"otr-in-band";
+NSString * const kOTRDataHandlerURLScheme = @"otr-in-band";
 static NSString * const kOTRDataErrorDomain = @"org.chatsecure.OTRDataError";
 
 static NSString * const kHTTPHeaderRequestID = @"Request-Id";
@@ -23,7 +23,7 @@ static NSString * const kHTTPHeaderFileLength = @"File-Length";
 static NSString * const kHTTPHeaderFileHashSHA1 = @"File-Hash-SHA1";
 static NSString * const kHTTPHeaderMimeType = @"Mime-Type";
 
-static const NSUInteger kOTRDataMaxChunkLength = 16384;
+static const NSUInteger kOTRDataMaxChunkLength = 16383;
 static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
 
 
@@ -107,6 +107,7 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
             transfer.mimeType = mimeTypeString;
             transfer.fileName = fileNameString;
             transfer.fileHash = fileHashString;
+            transfer.offeredURL = url;
             [self.incomingTransfers setObject:transfer forKey:requestID];
             // notify delegate of new offered transfer
             dispatch_async(self.callbackQueue, ^{
@@ -318,7 +319,7 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
     NSDictionary *headers = @{@"Range": rangeString,
                               @"Request-Id": transfer.requestID};
     
-    [self sendRequestToUsername:transfer.username accountName:transfer.accountName protocol:transfer.protocol url:[NSURL URLWithString:@"/"] httpMethod:@"GET" httpHeaders:headers tag:transfer.tag];
+    [self sendRequestToUsername:transfer.username accountName:transfer.accountName protocol:transfer.protocol url:transfer.offeredURL httpMethod:@"GET" httpHeaders:headers tag:transfer.tag];
 }
 
 #pragma mark OTRTLVDelegate

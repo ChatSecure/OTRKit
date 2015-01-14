@@ -23,9 +23,11 @@
  **/
 
 #import "OTRHTTPMessage.h"
+#import "OTRDataHandler.h"
 
 @interface OTRHTTPMessage()
 @property (nonatomic) CFHTTPMessageRef message;
+@property (nonatomic, strong) NSURL *requestURL;
 @end
 
 @implementation OTRHTTPMessage
@@ -50,6 +52,7 @@
 {
 	if ((self = [super init]))
 	{
+        _requestURL = url;
 		_message = CFHTTPMessageCreateRequest(NULL,
 		                                    (__bridge CFStringRef)method,
 		                                    (__bridge CFURLRef)url,
@@ -127,7 +130,38 @@
 
 - (NSData *)HTTPMessageData
 {
-	return (__bridge_transfer NSData *)CFHTTPMessageCopySerializedMessage(_message);
+    NSData *messageData = (__bridge_transfer NSData *)CFHTTPMessageCopySerializedMessage(_message);
+    if (!self.requestURL) {
+        return messageData;
+    }
+    
+    // This is to work around a 'bug' in Apple's HTTP parser where it doesn't handle
+    // funky URL schemes (otr-in-band) required for compatibility with the Android version of OTRDATA
+    //
+    //  OFFER otr-in-band:/storage/IMG_20141224_160749%281%29.jpg HTTP/1.1
+    //  Request-Id: 2ee20a87-7ef0-46dd-8ada-49e3e31f2124
+    //  File-Length: 1208869
+    //  File-Hash-SHA1: c1b279ff4e7afe00f0ca26bc41003087b71f5786
+    //  Mime-Type: image/jpeg
+    //
+    // Apple's library will result in the first line reading:
+    //
+    //  OFFER /storage/IMG_20141224_160749%281%29.jpg HTTP/1.1
+    //  Request-Id: 2ee20a87-7ef0-46dd-8ada-49e3e31f2124
+    //  ...
+    //
+    // Which breaks the Android implementation because everything is keyed to the URL, not the request UUID.
+    
+    if (![self.requestURL.scheme isEqualToString:kOTRDataHandlerURLScheme]) {
+        return messageData;
+    }
+    
+    NSString *messageString = [[NSString alloc] initWithData:messageData encoding:NSUTF8StringEncoding];
+    NSString *replacementString = [NSString stringWithFormat:@"%@:/", kOTRDataHandlerURLScheme];
+    NSRange range = [messageString rangeOfString:@"/"];
+    NSString *replacedMessageString = [messageString stringByReplacingCharactersInRange:range withString:replacementString];
+    messageData = [replacedMessageString dataUsingEncoding:NSUTF8StringEncoding];
+    return messageData;
 }
 
 - (NSData *)HTTPBody
