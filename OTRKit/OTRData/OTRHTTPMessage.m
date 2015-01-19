@@ -161,6 +161,7 @@
     NSRange range = [messageString rangeOfString:@"/"];
     NSString *replacedMessageString = [messageString stringByReplacingCharactersInRange:range withString:replacementString];
     messageData = [replacedMessageString dataUsingEncoding:NSUTF8StringEncoding];
+    NSLog(@"message: %@", messageString);
     return messageData;
 }
 

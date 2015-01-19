@@ -10,7 +10,8 @@
 
 @interface OTRDataTransfer : NSObject
 
-@property (nonatomic, strong, readonly) NSString *requestID;
+/** Unique UUID string */
+@property (nonatomic, strong, readonly) NSString *transferId;
 @property (nonatomic, strong, readonly) NSString *username;
 @property (nonatomic, strong, readonly) NSString *accountName;
 @property (nonatomic, strong, readonly) NSString *protocol;
@@ -28,11 +29,10 @@
  */
 @property (nonatomic, readonly) NSUInteger fileLength;
 
-- (instancetype) initWithRequestID:(NSString*)requestID
-                       fileLength:(NSUInteger)fileLength
-                          username:(NSString*)username
-                       accountName:(NSString*)accountName
-                          protocol:(NSString*)protocol
-                               tag:(id)tag;
+- (instancetype) initWithFileLength:(NSUInteger)fileLength
+                           username:(NSString*)username
+                        accountName:(NSString*)accountName
+                           protocol:(NSString*)protocol
+                                tag:(id)tag;
 
 @end

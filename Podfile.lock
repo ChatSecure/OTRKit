@@ -9,6 +9,6 @@ EXTERNAL SOURCES:
     :path: ./OTRKit.podspec
 
 SPEC CHECKSUMS:
-  OTRKit: 65ac2b6a9f96b9ade62f7e6e503bdf4cc781739a
+  OTRKit: f97f1c3433349ac2f6d8d737d749c1edf55dbb1b
 
 COCOAPODS: 0.35.0

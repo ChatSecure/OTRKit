@@ -26,20 +26,39 @@ static NSString * const kHTTPHeaderMimeType = @"Mime-Type";
 static const NSUInteger kOTRDataMaxChunkLength = 16383;
 static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
 
+@interface OTRDataRequest : NSObject
+@property (nonatomic, strong, readonly) NSURL *url;
+@property (nonatomic, strong, readonly) NSString *requestId;
+- (instancetype) initWithRequestId:(NSString*)requestId url:(NSURL*)url;
+@end
+
+@implementation OTRDataRequest
+- (instancetype) initWithRequestId:(NSString*)requestId url:(NSURL*)url {
+    if (self = [super init]) {
+        _requestId = requestId;
+        _url = url;
+    }
+    return self;
+}
+@end
+
 
 @interface OTRDataHandler()
 
 @property (nonatomic) dispatch_queue_t internalQueue;
 
 /**
- *  Keyed to Request-Id
+ *  OTRDataIncomingTransfer keyed to URL
  */
 @property (nonatomic, strong, readonly) NSMutableDictionary *incomingTransfers;
 
 /**
- *  Keyed to Request-Id
+ *  OTRDataOutgoingTransfer keyed to URL
  */
 @property (nonatomic, strong, readonly) NSMutableDictionary *outgoingTransfers;
+
+/** OTRDataRequest keyed to Request-Id  */
+@property (nonatomic, strong, readonly) NSMutableDictionary *requestCache;
 
 @end
 
@@ -59,9 +78,16 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
         _callbackQueue = dispatch_get_main_queue();
         _incomingTransfers = [[NSMutableDictionary alloc] init];
         _outgoingTransfers = [[NSMutableDictionary alloc] init];
+        _requestCache = [[NSMutableDictionary alloc] init];
         [otrKit registerTLVHandler:self];
     }
     return self;
+}
+
+- (NSURL*)urlForTransfer:(OTRDataTransfer*)transfer {
+    NSString *urlString = [NSString stringWithFormat:@"%@:/storage/%@/%@", kOTRDataHandlerURLScheme, transfer.transferId, transfer.fileName];
+    NSURL *url = [NSURL URLWithString:urlString];
+    return url;
 }
 
 - (void) handleIncomingRequestData:(NSData *)requestData username:(NSString *)username accountName:(NSString *)accountName protocol:(NSString *)protocol tag:(id)tag {
@@ -69,9 +95,7 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
         NSError *error = nil;
         OTRHTTPMessage *request = [[OTRHTTPMessage alloc] initEmptyRequest];
         [request appendData:requestData];
-        if (request.isHeaderComplete) {
-            NSLog(@"Headers: %@", request.allHTTPHeaderFields);
-        } else {
+        if (!request.isHeaderComplete) {
             error = [NSError errorWithDomain:kOTRDataErrorDomain code:100 userInfo:@{NSLocalizedDescriptionKey: @"Message has incomplete headers"}];
             return;
         }
@@ -80,15 +104,7 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
         NSString *requestID = [request valueForHTTPHeaderField:kHTTPHeaderRequestID];
         NSURL *url = request.url;
         
-        if (![url.scheme isEqualToString:kOTRDataHandlerURLScheme]) {
-            NSLog(@"Unrecognized URL scheme %@", url.scheme);
-            //[self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Unknown scheme" httpBody:nil tag:tag];
-            //return;
-            // Using alternate schemes doesn't appear to work at the moment
-        }
-        
         if ([requestMethod isEqualToString:@"OFFER"]) {
-            NSLog(@"Incoming offer: %@", request);
             [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:200 httpStatusString:@"OK" httpBody:nil tag:tag];
             NSString *fileLengthString = [request valueForHTTPHeaderField:kHTTPHeaderFileLength];
             if (!fileLengthString) {
@@ -103,19 +119,19 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
             }
             NSString *mimeTypeString = [request valueForHTTPHeaderField:kHTTPHeaderMimeType];
             NSString *fileNameString = [request valueForHTTPHeaderField:@"File-Name"];
-            OTRDataIncomingTransfer *transfer = [[OTRDataIncomingTransfer alloc] initWithRequestID:requestID fileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
+            OTRDataIncomingTransfer *transfer = [[OTRDataIncomingTransfer alloc] initWithFileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
             transfer.mimeType = mimeTypeString;
             transfer.fileName = fileNameString;
             transfer.fileHash = fileHashString;
             transfer.offeredURL = url;
-            [self.incomingTransfers setObject:transfer forKey:requestID];
+            [self.incomingTransfers setObject:transfer forKey:url];
             // notify delegate of new offered transfer
             dispatch_async(self.callbackQueue, ^{
                 [self.delegate dataHandler:self offeredTransfer:transfer];
             });
         } else if ([requestMethod isEqualToString:@"GET"]) {
-            NSLog(@"Get");
-            OTRDataOutgoingTransfer *transfer = [self.outgoingTransfers objectForKey:requestID];
+            OTRDataOutgoingTransfer *transfer = [self.outgoingTransfers objectForKey:url];
+            
             if (!transfer) {
                 [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"No such offer made" httpBody:nil tag:tag];
                 return;
@@ -158,7 +174,8 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
                 [self.delegate dataHandler:self transfer:transfer progress:percentageComplete];
             });
             
-            if (percentageComplete > 0.98f) {
+            if (endOfRange == transfer.fileData.length) {
+                [self.outgoingTransfers removeObjectForKey:url];
                 dispatch_async(self.callbackQueue, ^{
                     [self.delegate dataHandler:self transferComplete:transfer];
                 });
@@ -174,9 +191,7 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
         OTRHTTPMessage *incomingResponse = [[OTRHTTPMessage alloc] initEmptyRequest];
         [incomingResponse appendData:responseData];
         NSError *error = nil;
-        if (incomingResponse.isHeaderComplete) {
-            NSLog(@"handleIncomingResponseData: %@", incomingResponse);
-        } else {
+        if (!incomingResponse.isHeaderComplete) {
             error = [NSError errorWithDomain:kOTRDataErrorDomain code:100 userInfo:@{NSLocalizedDescriptionKey: @"Message has incomplete headers"}];
             return;
         }
@@ -186,12 +201,24 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
             return;
         }
         
-        OTRDataIncomingTransfer *transfer = [self.incomingTransfers objectForKey:requestID];
+        OTRDataRequest *request = [self.requestCache objectForKey:requestID];
+        
+        if (!request) {
+            return;
+        }
+        [self.requestCache removeObjectForKey:requestID];
+        
+        
+        OTRDataIncomingTransfer *transfer = [self.incomingTransfers objectForKey:request.url];
         if (!transfer) {
             return;
         }
-        [transfer.fileData appendData:incomingResponse.HTTPBody];
+        NSData *incomingData = incomingResponse.HTTPBody;
+        if (incomingData.length) {
+            [transfer.fileData appendData:incomingData];
+        }
         if (transfer.fileData.length == transfer.fileLength) {
+            [self.incomingTransfers removeObjectForKey:request.url];
             NSData *fileHash = [transfer.fileData otr_SHA1];
             NSString *fileHashString = [fileHash otr_hexString];
             if ([transfer.fileHash isEqualToString:fileHashString]) {
@@ -242,9 +269,6 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
             return;
         }
         
-        NSString *urlString = [NSString stringWithFormat:@"%@://%@", kOTRDataHandlerURLScheme, fileName];
-        NSURL *url = [NSURL URLWithString:urlString];
-        
         NSString *requestID = [[NSUUID UUID] UUIDString];
         
         NSData *fileHash = [fileData otr_SHA1];
@@ -255,9 +279,14 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
                                       @"File-Name": fileName,
                                       @"Request-Id": requestID};
         
-        OTRDataOutgoingTransfer *transfer = [[OTRDataOutgoingTransfer alloc] initWithRequestID:requestID fileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
+        OTRDataOutgoingTransfer *transfer = [[OTRDataOutgoingTransfer alloc] initWithFileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
         transfer.fileData = fileData;
-        [self.outgoingTransfers setObject:transfer forKey:requestID];
+        transfer.fileName = fileName;
+        transfer.fileHash = fileHashString;
+        
+        NSURL *url = [self urlForTransfer:transfer];
+        
+        [self.outgoingTransfers setObject:transfer forKey:url];
         
         [self sendRequestToUsername:username accountName:accountName protocol:protocol url:url httpMethod:@"OFFER" httpHeaders:httpHeaders tag:tag];
     });
@@ -277,9 +306,14 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
     NSData *httpData = [message HTTPMessageData];
     OTRTLV *tlv = [[OTRTLV alloc] initWithType:OTRTLVTypeDataRequest data:httpData];
     if (!tlv) {
-        NSLog(@"OTRDATA Error: TLV too long!");
         return;
     }
+    NSString *requestId = [httpHeaders objectForKey:@"Request-Id"];
+    if (requestId) {
+        OTRDataRequest *request = [[OTRDataRequest alloc] initWithRequestId:requestId url:url];
+        [self.requestCache setObject:request forKey:requestId];
+    }
+    
     [self.otrKit encodeMessage:nil tlvs:@[tlv] username:username accountName:accountName protocol:protocol tag:tag];
 }
 
@@ -297,7 +331,6 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
     NSData *httpData = [response HTTPMessageData];
     OTRTLV *tlv = [[OTRTLV alloc] initWithType:OTRTLVTypeDataResponse data:httpData];
     if (!tlv) {
-        NSLog(@"OTRDATA Error: TLV too long!");
         return;
     }
     [self.otrKit encodeMessage:nil tlvs:@[tlv] username:username accountName:accountName protocol:protocol tag:tag];
@@ -316,8 +349,10 @@ static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
     NSRange range = NSMakeRange(transfer.fileData.length, requestLength);
     NSString *rangeString = [NSString stringWithFormat:@"bytes=%d-%d", (int)range.location, (int)(range.location + range.length)];
     
+    NSString *requestId = [[NSUUID UUID] UUIDString];
+    
     NSDictionary *headers = @{@"Range": rangeString,
-                              @"Request-Id": transfer.requestID};
+                              @"Request-Id": requestId};
     
     [self sendRequestToUsername:transfer.username accountName:transfer.accountName protocol:transfer.protocol url:transfer.offeredURL httpMethod:@"GET" httpHeaders:headers tag:transfer.tag];
 }

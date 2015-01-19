@@ -11,6 +11,7 @@
 @implementation OTRTLV
 
 - (instancetype) initWithType:(OTRTLVType)type data:(NSData *)data {
+    NSParameterAssert(data);
     if (self = [super init]) {
         _type = type;
         _data = data;

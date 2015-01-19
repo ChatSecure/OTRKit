@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		105E9F17B8B84ECDA8F4C39D /* libPods-OTRKitTestsiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7005D98163CE48C6BB04C646 /* libPods-OTRKitTestsiOS.a */; };
+		D955143E1A6896F600C1A45D /* test_image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D955143D1A6896F600C1A45D /* test_image.jpg */; };
+		D95514401A6897C500C1A45D /* OTRKitUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */; };
 		D9A94047197E423200EEADD4 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98B9D3018C93739008C8D1C /* XCTest.framework */; };
 		D9A94048197E423200EEADD4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D905CFCD155B2B0000654181 /* Foundation.framework */; };
 		D9A94049197E423200EEADD4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98B9D3318C93739008C8D1C /* UIKit.framework */; };
@@ -21,6 +23,8 @@
 		7005D98163CE48C6BB04C646 /* libPods-OTRKitTestsiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OTRKitTestsiOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A4AEADF47BB406994BB6B18 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D955143D1A6896F600C1A45D /* test_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test_image.jpg; sourceTree = "<group>"; };
+		D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKitUnitTests.m; sourceTree = "<group>"; };
 		D98B9D3018C93739008C8D1C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		D98B9D3318C93739008C8D1C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		D9A94046197E423200EEADD4 /* OTRKitTestsiOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OTRKitTestsiOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -87,6 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */,
+				D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */,
 				D9A9404B197E423200EEADD4 /* Supporting Files */,
 			);
 			path = OTRKitTests;
@@ -95,6 +100,7 @@
 		D9A9404B197E423200EEADD4 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D955143D1A6896F600C1A45D /* test_image.jpg */,
 				D9A9404D197E423300EEADD4 /* InfoPlist.strings */,
 				D9A94052197E423300EEADD4 /* OTRKitTests-Prefix.pch */,
 			);
@@ -160,6 +166,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D9A9404F197E423300EEADD4 /* InfoPlist.strings in Resources */,
+				D955143E1A6896F600C1A45D /* test_image.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,6 +210,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D95514401A6897C500C1A45D /* OTRKitUnitTests.m in Sources */,
 				D9A9406B197E42BE00EEADD4 /* OTRKitTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

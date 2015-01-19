@@ -10,14 +10,13 @@
 
 @implementation OTRDataTransfer
 
-- (instancetype) initWithRequestID:(NSString*)requestID
-                       fileLength:(NSUInteger)fileLength
+- (instancetype) initWithFileLength:(NSUInteger)fileLength
                           username:(NSString*)username
                        accountName:(NSString*)accountName
                           protocol:(NSString*)protocol
                                tag:(id)tag {
     if (self = [super init]) {
-        _requestID = requestID;
+        _transferId = [[NSUUID UUID] UUIDString];
         _username = username;
         _fileLength = fileLength;
         _accountName = accountName;

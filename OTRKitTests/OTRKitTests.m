@@ -72,13 +72,6 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
     success = [[NSFileManager defaultManager] createDirectoryAtPath:path2 withIntermediateDirectories:YES attributes:nil error:nil];
     XCTAssertTrue(success);
     
-    NSMutableString *testString = [[NSMutableString alloc] init];
-    NSUInteger testLength = (int)(16384.0f * 10.5f);
-    for (int i = 0; i < testLength; i++) {
-        [testString appendString:@"a"];
-    }
-    
-    self.testFileData = [testString dataUsingEncoding:NSUTF8StringEncoding];
     self.expectation = [self expectationWithDescription:@"test1"];
     
     [self.otrKitAlice setupWithDataPath:path1];
@@ -192,7 +185,11 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
         // decoded message from alice
         //XCTAssertEqualObjects(decodedMessage, kOTRTestMessage);
         if ([decodedMessage isEqualToString:kOTRTestMessage] && wasEncrypted) {
-            [self.dataHandlerAlice sendFileWithName:@"test" fileData:self.testFileData username:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP tag:tag];
+            NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"test_image" withExtension:@"jpg"];
+            NSData *fileData = [NSData dataWithContentsOfURL:fileURL];
+            NSString *fileName = [fileURL lastPathComponent];
+            self.testFileData = fileData;
+            [self.dataHandlerAlice sendFileWithName:fileName fileData:fileData username:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP tag:tag];
         }
     }
 }
