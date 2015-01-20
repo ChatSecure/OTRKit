@@ -8,6 +8,10 @@
 
 #import "OTRDataIncomingTransfer.h"
 
+@interface OTRDataIncomingTransfer()
+@property (nonatomic, strong) NSMutableData *incomingFileData;
+@end
+
 @implementation OTRDataIncomingTransfer
 
 - (instancetype) initWithFileLength:(NSUInteger)fileLength
@@ -16,9 +20,27 @@
                            protocol:(NSString*)protocol
                                 tag:(id)tag {
     if (self = [super initWithFileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag]) {
-        self.fileData = [NSMutableData dataWithCapacity:fileLength];
+        self.incomingFileData = [NSMutableData dataWithLength:fileLength];
     }
     return self;
 }
+
+- (void) handleResponse:(NSData*)response forRequest:(OTRDataRequest*)request {
+    NSRange range = request.range;
+    if (!response.length) {
+        return;
+    }
+    NSAssert(response.length == range.length, @"Data length and range must match!");
+    if (response.length != range.length) {
+        return;
+    }
+    [self.incomingFileData replaceBytesInRange:range withBytes:response.bytes length:response.length];
+    
+    _receivedBytes += response.length;
+    if (_receivedBytes == self.fileLength) {
+        self.fileData = self.incomingFileData;
+    }
+}
+
 
 @end
