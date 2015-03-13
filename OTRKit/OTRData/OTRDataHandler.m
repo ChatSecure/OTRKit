@@ -15,19 +15,34 @@
 #import "OTRKit.h"
 #import "NSData+OTRDATA.h"
 #import "OTRDataRequest.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 NSString * const kOTRDataHandlerURLScheme = @"otr-in-band";
 static NSString * const kOTRDataErrorDomain = @"org.chatsecure.OTRDataError";
 
+static NSString * const kHTTPHeaderRange = @"Range";
 static NSString * const kHTTPHeaderRequestID = @"Request-Id";
 static NSString * const kHTTPHeaderFileLength = @"File-Length";
 static NSString * const kHTTPHeaderFileHashSHA1 = @"File-Hash-SHA1";
 static NSString * const kHTTPHeaderMimeType = @"Mime-Type";
+static NSString * const kHTTPHeaderFileName = @"File-Name";
 
 static const NSUInteger kOTRDataMaxChunkLength = 16384;
 static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
 static const NSUInteger kOTRDataMaxOutstandingRequests = 3;
 
+NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
+    NSString* mimeType = @"application/octet-stream";
+    extension = [extension lowercaseString];
+    if (extension.length) {
+        CFStringRef uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)extension, NULL);
+        if (uti) {
+            mimeType = CFBridgingRelease(UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType));
+            CFRelease(uti);
+        }
+    }
+    return mimeType;
+}
 
 
 @interface OTRDataHandler()
@@ -105,10 +120,14 @@ static const NSUInteger kOTRDataMaxOutstandingRequests = 3;
                 return;
             }
             NSString *mimeTypeString = [request valueForHTTPHeaderField:kHTTPHeaderMimeType];
-            NSString *fileNameString = [request valueForHTTPHeaderField:@"File-Name"];
+            NSString *fileNameString = [request valueForHTTPHeaderField:kHTTPHeaderFileName];
             OTRDataIncomingTransfer *transfer = [[OTRDataIncomingTransfer alloc] initWithFileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
             transfer.mimeType = mimeTypeString;
-            transfer.fileName = fileNameString;
+            if (fileNameString) {
+                transfer.fileName = fileNameString;
+            } else {
+                transfer.fileName = [url lastPathComponent];
+            }
             transfer.fileHash = fileHashString;
             transfer.offeredURL = url;
             [self.incomingTransfers setObject:transfer forKey:url];
@@ -124,7 +143,7 @@ static const NSUInteger kOTRDataMaxOutstandingRequests = 3;
                 return;
             }
             
-            NSString *rangeHeader = [request valueForHTTPHeaderField:@"Range"];
+            NSString *rangeHeader = [request valueForHTTPHeaderField:kHTTPHeaderRange];
             if (!rangeHeader) {
                 [self sendResponseToUsername:username accountName:accountName protocol:protocol requestID:requestID httpStatusCode:400 httpStatusString:@"Must have Range header" httpBody:nil tag:tag];
                 return;
@@ -182,7 +201,7 @@ static const NSUInteger kOTRDataMaxOutstandingRequests = 3;
             error = [NSError errorWithDomain:kOTRDataErrorDomain code:100 userInfo:@{NSLocalizedDescriptionKey: @"Message has incomplete headers"}];
             return;
         }
-        NSString *requestID = [incomingResponse valueForHTTPHeaderField:@"Request-Id"];
+        NSString *requestID = [incomingResponse valueForHTTPHeaderField:kHTTPHeaderRequestID];
         
         if (!requestID) {
             return;
@@ -260,16 +279,20 @@ static const NSUInteger kOTRDataMaxOutstandingRequests = 3;
         
         NSData *fileHash = [fileData otr_SHA1];
         NSString *fileHashString = [fileHash otr_hexString];
+        NSString *fileExtension = [fileName pathExtension];
+        NSString *mimeType = OTRKitGetMimeTypeForExtension(fileExtension);
         
-        NSDictionary *httpHeaders = @{@"File-Length": @(fileLength).stringValue,
-                                      @"File-Hash-SHA1": fileHashString,
-                                      @"File-Name": fileName,
-                                      @"Request-Id": requestID};
+        NSDictionary *httpHeaders = @{kHTTPHeaderFileLength: @(fileLength).stringValue,
+                                      kHTTPHeaderFileHashSHA1: fileHashString,
+                                      kHTTPHeaderFileName: fileName,
+                                      kHTTPHeaderRequestID: requestID,
+                                      kHTTPHeaderMimeType: mimeType};
         
         OTRDataOutgoingTransfer *transfer = [[OTRDataOutgoingTransfer alloc] initWithFileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
         transfer.fileData = fileData;
         transfer.fileName = fileName;
         transfer.fileHash = fileHashString;
+        transfer.mimeType = mimeType;
         
         NSURL *url = [self urlForTransfer:transfer];
         
@@ -335,8 +358,8 @@ static const NSUInteger kOTRDataMaxOutstandingRequests = 3;
     
     NSString *requestId = [[NSUUID UUID] UUIDString];
     
-    NSDictionary *headers = @{@"Range": rangeString,
-                              @"Request-Id": requestId};
+    NSDictionary *headers = @{kHTTPHeaderRange: rangeString,
+                              kHTTPHeaderRequestID: requestId};
     
     OTRDataRequest *request = [[OTRDataRequest alloc] initWithRequestId:requestId url:transfer.offeredURL httpMethod:@"GET" httpHeaders:headers];
     request.range = range;
