@@ -7,4 +7,4 @@ install:
   - pod install
 
 script:
-  - xcodebuild -workspace OTRKit.xcworkspace -scheme OTRKitTestsiOS -sdk iphonesimulator -arch i386 test
+  - xctool -workspace OTRKit.xcworkspace -scheme OTRKitTestsiOS -sdk iphonesimulator -arch i386 test
