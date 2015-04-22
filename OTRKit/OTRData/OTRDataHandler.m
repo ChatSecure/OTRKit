@@ -174,13 +174,13 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
             }
             NSRange range = NSMakeRange(startOfRange, endOfRange - startOfRange + 1);
             NSData *subdata = [transfer.fileData subdataWithRange:range];
-            float percentageComplete = (float)endOfRange / (float)transfer.fileData.length;
+            float percentageComplete = ((float)endOfRange + 1) / (float)transfer.fileData.length;
             
             dispatch_async(self.callbackQueue, ^{
                 [self.delegate dataHandler:self transfer:transfer progress:percentageComplete];
             });
             
-            if (endOfRange == transfer.fileData.length) {
+            if (endOfRange + 1 == transfer.fileData.length) {
                 [self.outgoingTransfers removeObjectForKey:url];
                 dispatch_async(self.callbackQueue, ^{
                     [self.delegate dataHandler:self transferComplete:transfer];
