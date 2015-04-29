@@ -820,11 +820,14 @@ static OtrlMessageAppOps ui_ops = {
         
         BOOL wasEncrypted = NO;
         
+        // If the there is a newmessage then send that otherweise OTR didn't need to modify the original message.
         NSString *encodedMessage = nil;
         if (newmessage) {
             encodedMessage = [NSString stringWithUTF8String:newmessage];
             otrl_message_free(newmessage);
             wasEncrypted = [OTRKit stringStartsWithOTRPrefix:encodedMessage];
+        } else {
+            encodedMessage = message;
         }
         
         NSError *error = nil;
