@@ -3,7 +3,7 @@
 # User variables
 # VARIABLE : valid options
 # ARCHS : i386 x86_64 armv7 armv7s arm64
-# LIBRARIES: openssl libevent tor
+# LIBRARIES: gpg-error gcrypt otr
 # USE_BUILD_LOG: true false
 
 
@@ -40,8 +40,8 @@ fi
 
 # Versions
 export MIN_IOS_VERSION="7.0"
-export LIBGPG_ERROR_VERSION="1.17"
-export LIBGCRYPT_VERSION="1.6.2"
+export LIBGPG_ERROR_VERSION="1.19"
+export LIBGCRYPT_VERSION="1.6.3"
 export LIBOTR_VERSION="4.1.0"
 
 BUILT_ARCHS=()

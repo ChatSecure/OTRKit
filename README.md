@@ -5,8 +5,8 @@
 
 ### Dependency Versions
 
-* [libgpg-error](https://www.gnupg.org/(de)/related_software/libgpg-error/index.html) v1.17 - 2014-10-15
-* [libgcrypt](http://www.gnu.org/software/libgcrypt/) v1.6.2 - 2014-08-21
+* [libgpg-error](https://www.gnupg.org/(de)/related_software/libgpg-error/index.html) v1.19 - 2015-4-10
+* [libgcrypt](http://www.gnu.org/software/libgcrypt/) v1.6.3 - 2015-02-27
 * [libotr](https://otr.cypherpunks.ca) v4.1.0 - 21 Oct 2014
 
 ## Installation
