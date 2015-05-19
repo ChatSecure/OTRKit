@@ -282,11 +282,23 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
         NSString *fileExtension = [fileName pathExtension];
         NSString *mimeType = OTRKitGetMimeTypeForExtension(fileExtension);
         
-        NSDictionary *httpHeaders = @{kHTTPHeaderFileLength: @(fileLength).stringValue,
-                                      kHTTPHeaderFileHashSHA1: fileHashString,
-                                      kHTTPHeaderFileName: fileName,
-                                      kHTTPHeaderRequestID: requestID,
-                                      kHTTPHeaderMimeType: mimeType};
+        NSMutableDictionary *httpHeaders = [NSMutableDictionary dictionary];
+        
+        if (@(fileLength).stringValue) {
+            [httpHeaders setObject:@(fileLength).stringValue forKey:kHTTPHeaderFileLength];
+        }
+        if (fileHashString) {
+            [httpHeaders setObject:fileHashString forKey:kHTTPHeaderFileHashSHA1];
+        }
+        if (fileName) {
+            [httpHeaders setObject:fileName forKey:kHTTPHeaderFileName];
+        }
+        if (requestID) {
+            [httpHeaders setObject:requestID forKey:kHTTPHeaderRequestID];
+        }
+        if (mimeType) {
+            [httpHeaders setObject:mimeType forKey:kHTTPHeaderMimeType];
+        }
         
         OTRDataOutgoingTransfer *transfer = [[OTRDataOutgoingTransfer alloc] initWithFileLength:fileLength username:username accountName:accountName protocol:protocol tag:tag];
         transfer.fileData = fileData;
