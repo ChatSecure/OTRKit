@@ -1220,6 +1220,10 @@ static OtrlMessageAppOps ui_ops = {
 {
     dispatch_async(self.internalQueue, ^{
         ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
+        // Get root context if we're a child context
+        while (context != context->m_context) {
+            context = context->m_context;
+        }
         BOOL stop = NO;
         Fingerprint * fingerprint = nil;
         Fingerprint * currentFingerprint = context->fingerprint_root.next;
@@ -1236,7 +1240,7 @@ static OtrlMessageAppOps ui_ops = {
             }
         }
         
-        if (fingerprint != [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol]) {
+        if (fingerprint && fingerprint != [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol]) {
             //will not delete if it is the active fingerprint;
             otrl_context_forget_fingerprint(fingerprint, 0);
             [self writeFingerprints];
@@ -1244,6 +1248,7 @@ static OtrlMessageAppOps ui_ops = {
                 dispatch_async(self.callbackQueue, ^{
                     completion(YES);
                 });
+                return;
             }
         }
         
