@@ -553,6 +553,17 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                          protocol:(NSString*)protocol
                        completion:(void (^)(NSString *fingerprint))completion;
 
+/** 
+ *  Synchronously returns fingerprint for accountName / protocol. If there is no fingerprint, it will return nil.
+ *
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @return fingerprint your OTR fingerprint, uppercase without spaces, or nil if there is no fingerprint.
+ *  @warning This method may block for a non-trivial amount of time via dispatch_sync on self.internalQueue during private key generation.
+ */
+- (NSString *)synchronousFingerprintForAccountName:(NSString*)accountName
+                                                  protocol:(NSString*)protocol;
+
 /**
  *  For determining the fingerprint of a buddy.
  *

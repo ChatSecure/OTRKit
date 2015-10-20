@@ -706,12 +706,12 @@ static OtrlMessageAppOps ui_ops = {
         return;
     }
     dispatch_async(self.internalQueue, ^{
-        NSString *fingerprint = [self synchronousFingerprintForAccountName:accountName protocol:protocol];
+        NSString *fingerprint = [self internalSynchronousFingerprintForAccountName:accountName protocol:protocol];
         if (!fingerprint.length) {
             OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:nil];
             create_privkey_cb((__bridge void*)opdata, [accountName UTF8String], [protocol UTF8String]);
         }
-        fingerprint = [self synchronousFingerprintForAccountName:accountName protocol:protocol];
+        fingerprint = [self internalSynchronousFingerprintForAccountName:accountName protocol:protocol];
         NSParameterAssert(fingerprint.length > 0);
         fingerprint = [fingerprint stringByReplacingOccurrencesOfString:@" " withString:@""];
         fingerprint = [fingerprint uppercaseString];
@@ -1027,8 +1027,25 @@ static OtrlMessageAppOps ui_ops = {
     return fingerprint;
 }
 
-/** Synchronously returns fingerprint for accountName / protocol */
+/**
+ *  Synchronously returns fingerprint for accountName / protocol. If there is no fingerprint, it will return nil.
+ *
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @return fingerprint your OTR fingerprint, uppercase without spaces, or nil if there is no fingerprint.
+ *  @warning This method may block for a non-trivial amount of time via dispatch_sync on self.internalQueue during private key generation.
+ */
 - (NSString *)synchronousFingerprintForAccountName:(NSString*)accountName
+                                          protocol:(NSString*)protocol {
+    __block NSString *fingerprint = nil;
+    dispatch_sync(self.internalQueue, ^{
+        fingerprint = [self internalSynchronousFingerprintForAccountName:accountName protocol:protocol];
+    });
+    return fingerprint;
+}
+
+/** Synchronously returns fingerprint for accountName / protocol */
+- (NSString *)internalSynchronousFingerprintForAccountName:(NSString*)accountName
                                           protocol:(NSString*)protocol {
     NSParameterAssert(accountName.length > 0);
     NSParameterAssert(protocol.length > 0);
