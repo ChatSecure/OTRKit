@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		105E9F17B8B84ECDA8F4C39D /* libPods-OTRKitTestsiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7005D98163CE48C6BB04C646 /* libPods-OTRKitTestsiOS.a */; };
+		4C8256A2B2F984DFF6E55A57 /* Pods_OTRKitTestsiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55F4D1DAA23E4C77EF4A6E09 /* Pods_OTRKitTestsiOS.framework */; };
 		D955143E1A6896F600C1A45D /* test_image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D955143D1A6896F600C1A45D /* test_image.jpg */; };
 		D95514401A6897C500C1A45D /* OTRKitUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */; };
 		D9A94047197E423200EEADD4 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98B9D3018C93739008C8D1C /* XCTest.framework */; };
@@ -20,7 +20,7 @@
 /* Begin PBXFileReference section */
 		2786B05EF47E3F3E6659F982 /* Pods-OTRKitTestsiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.debug.xcconfig"; sourceTree = "<group>"; };
 		4D793CCBD3A3A0B0864D58B0 /* Pods-OTRKitTestsiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.release.xcconfig"; sourceTree = "<group>"; };
-		7005D98163CE48C6BB04C646 /* libPods-OTRKitTestsiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OTRKitTestsiOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		55F4D1DAA23E4C77EF4A6E09 /* Pods_OTRKitTestsiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTRKitTestsiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A4AEADF47BB406994BB6B18 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D955143D1A6896F600C1A45D /* test_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test_image.jpg; sourceTree = "<group>"; };
@@ -41,7 +41,7 @@
 				D9A94047197E423200EEADD4 /* XCTest.framework in Frameworks */,
 				D9A94049197E423200EEADD4 /* UIKit.framework in Frameworks */,
 				D9A94048197E423200EEADD4 /* Foundation.framework in Frameworks */,
-				105E9F17B8B84ECDA8F4C39D /* libPods-OTRKitTestsiOS.a in Frameworks */,
+				4C8256A2B2F984DFF6E55A57 /* Pods_OTRKitTestsiOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,7 +82,7 @@
 				D98B9D3018C93739008C8D1C /* XCTest.framework */,
 				D98B9D3318C93739008C8D1C /* UIKit.framework */,
 				7A4AEADF47BB406994BB6B18 /* libPods.a */,
-				7005D98163CE48C6BB04C646 /* libPods-OTRKitTestsiOS.a */,
+				55F4D1DAA23E4C77EF4A6E09 /* Pods_OTRKitTestsiOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -119,6 +119,7 @@
 				D9A94043197E423200EEADD4 /* Frameworks */,
 				D9A94044197E423200EEADD4 /* Resources */,
 				6F62F513BC324553A249B6A4 /* Copy Pods Resources */,
+				198ACE5AA9904FD2ECD22AC6 /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -135,7 +136,7 @@
 		D905CF5A155B010A00654181 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0700;
 			};
 			buildConfigurationList = D905CF5D155B010A00654181 /* Build configuration list for PBXProject "OTRKit" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -173,6 +174,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		198ACE5AA9904FD2ECD22AC6 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		6F62F513BC324553A249B6A4 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -243,8 +259,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -259,7 +277,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LLVM_LTO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -282,6 +300,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = _GCRYPT_IN_LIBGCRYPT;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -290,7 +309,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LLVM_LTO = YES;
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -308,7 +327,6 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
@@ -321,7 +339,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = "OTRKitTests/OTRKitTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.chrisballinger.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -339,7 +357,6 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
@@ -348,7 +365,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = "OTRKitTests/OTRKitTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.chrisballinger.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
 			};

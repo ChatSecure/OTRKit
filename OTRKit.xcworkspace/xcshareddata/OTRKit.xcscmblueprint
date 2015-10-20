@@ -1,0 +1,37 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "425D736B25093B4D45BF64638604863B9D31F2C1",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "65A79C2919A5538250064F3C245A290D7BFC656E" : 0,
+    "A9950D8C7A488A3339E7426A4D08917C04DE7033" : 0,
+    "425D736B25093B4D45BF64638604863B9D31F2C1" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "CF738AA0-A24E-416C-A0CC-B99CB57E5957",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "65A79C2919A5538250064F3C245A290D7BFC656E" : "..",
+    "A9950D8C7A488A3339E7426A4D08917C04DE7033" : "..\/..",
+    "425D736B25093B4D45BF64638604863B9D31F2C1" : "OTRKit\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "OTRKit",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "OTRKit.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:ChatSecure\/OTRKit.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "425D736B25093B4D45BF64638604863B9D31F2C1"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:ChatSecure\/ChatSecure-iOS.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "65A79C2919A5538250064F3C245A290D7BFC656E"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:zom\/Zom-iOS.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "A9950D8C7A488A3339E7426A4D08917C04DE7033"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 set -e
 
 if [ ! -e "libgcrypt-${LIBGCRYPT_VERSION}.tar.bz2" ]; then
-   curl -LO "ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-${LIBGCRYPT_VERSION}.tar.bz2"  --retry 5
+   curl -LO "https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${LIBGCRYPT_VERSION}.tar.bz2"  --retry 5
 fi
 
 # Extract source

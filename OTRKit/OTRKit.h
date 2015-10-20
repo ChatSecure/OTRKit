@@ -343,6 +343,23 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  */
 - (void) setMaximumProtocolSize:(int)maxSize forProtocol:(NSString*)protocol;
 
+#pragma mark Key Generation
+//////////////////////////////////////////////////////////////////////
+/// @name Key Generation
+//////////////////////////////////////////////////////////////////////
+
+/**
+ *  Initiates the generation of a new key pair for a given account/protocol, and optionally returns the fingerprint of the generated key via the completionBlock. If the key already exists this is a no-op that quickly returns the fingerprint (uppercase, without spaces).
+ *  
+ *  @param accountName Your account name
+ *  @param protocol the protocol of accountName, such as @"xmpp"
+ *  @param completion (optional) returns fingerprint if key exists or nil if there was an error
+ */
+- (void) generatePrivateKeyForAccountName:(NSString*)accountName
+                                 protocol:(NSString*)protocol
+                               completion:(void (^)(NSString *fingerprint, NSError *error))completionBlock;
+
+
 #pragma mark Messaging
 //////////////////////////////////////////////////////////////////////
 /// @name Messaging

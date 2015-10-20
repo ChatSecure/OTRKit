@@ -29,7 +29,7 @@ static NSString * const kHTTPHeaderFileName = @"File-Name";
 
 static const NSUInteger kOTRDataMaxChunkLength = 16384;
 static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
-static const NSUInteger kOTRDataMaxOutstandingRequests = 3;
+//static const NSUInteger kOTRDataMaxOutstandingRequests = 3;
 
 NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
     NSString* mimeType = @"application/octet-stream";

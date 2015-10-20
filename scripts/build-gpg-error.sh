@@ -2,7 +2,7 @@
 set -e
 
 if [ ! -e "libgpg-error-${LIBGPG_ERROR_VERSION}.tar.bz2" ]; then
-	curl -LO "ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-${LIBGPG_ERROR_VERSION}.tar.bz2"  --retry 5
+	curl -LO "https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${LIBGPG_ERROR_VERSION}.tar.bz2"  --retry 5
 fi
 
 # Extract source

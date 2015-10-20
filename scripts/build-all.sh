@@ -2,7 +2,7 @@
 
 # User variables
 # VARIABLE : valid options
-# ARCHS : i386 x86_64 armv7 armv7s arm64
+# ARCHS : i386 x86_64 armv7 arm64
 # LIBRARIES: gpg-error gcrypt otr
 # USE_BUILD_LOG: true false
 
@@ -27,7 +27,7 @@ fi
 if [ -n "${ARCHS}" ]; then
   echo "Building user-defined architectures: ${ARCHS}"
 else
-  ARCHS="i386 x86_64 armv7 armv7s arm64"
+  ARCHS="i386 x86_64 armv7 arm64"
   echo "Building architectures: ${ARCHS}"
 fi
 
@@ -39,9 +39,9 @@ else
 fi
 
 # Versions
-export MIN_IOS_VERSION="7.0"
-export LIBGPG_ERROR_VERSION="1.19"
-export LIBGCRYPT_VERSION="1.6.3"
+export MIN_IOS_VERSION="8.0"
+export LIBGPG_ERROR_VERSION="1.20"
+export LIBGCRYPT_VERSION="1.6.4"
 export LIBOTR_VERSION="4.1.0"
 
 BUILT_ARCHS=()

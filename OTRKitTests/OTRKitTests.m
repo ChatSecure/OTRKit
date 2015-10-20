@@ -7,8 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "OTRKit.h"
-#import <OTRDataHandler.h>
+@import OTRKit;
 
 static NSString * const kOTRTestMessage = @"Hello World";
 static NSString * const kOTRTestAccountAlice = @"alice@example.com";

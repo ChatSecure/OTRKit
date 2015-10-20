@@ -133,7 +133,7 @@ static void create_privkey_cb(void *opdata, const char *accountname,
                 });
             }
     } else {
-        NSError *error = [otrKit errorForGPGError:generateError];
+        NSError *error = [[otrKit class] errorForGPGError:generateError];
         if (otrKit.delegate) {
             dispatch_async(otrKit.callbackQueue, ^{
                 [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:error];
@@ -422,7 +422,7 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
     if (message) {
         messageString = [NSString stringWithUTF8String:message];
     }
-    NSError *error = [otrKit errorForGPGError:err];
+    NSError *error = [[otrKit class] errorForGPGError:err];
     OTRKitMessageEvent event = OTRKitMessageEventNone;
     switch (msg_event) {
         case OTRL_MSGEVENT_NONE:
@@ -685,8 +685,45 @@ static OtrlMessageAppOps ui_ops = {
     });
 }
 
-#pragma mark Initialization
+#pragma mark Key Generation
+//////////////////////////////////////////////////////////////////////
+/// @name Key Generation
+//////////////////////////////////////////////////////////////////////
 
+/**
+ *  Initiates the generation of a new key pair for a given account/protocol, and optionally returns the fingerprint of the generated key via the completionBlock. If the key already exists this is a no-op that quickly returns the fingerprint (uppercase, without spaces).
+ *
+ *  @param accountName Your account name
+ *  @param protocol the protocol of accountName, such as @"xmpp"
+ *  @param completion optional.
+ */
+- (void) generatePrivateKeyForAccountName:(NSString*)accountName
+                                 protocol:(NSString*)protocol
+                               completion:(void (^)(NSString *fingerprint, NSError *error))completionBlock {
+    NSParameterAssert(accountName.length > 0);
+    NSParameterAssert(protocol.length > 0);
+    if (!accountName.length || !protocol.length) {
+        return;
+    }
+    dispatch_async(self.internalQueue, ^{
+        NSString *fingerprint = [self synchronousFingerprintForAccountName:accountName protocol:protocol];
+        if (!fingerprint.length) {
+            OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:nil];
+            create_privkey_cb((__bridge void*)opdata, [accountName UTF8String], [protocol UTF8String]);
+        }
+        fingerprint = [self synchronousFingerprintForAccountName:accountName protocol:protocol];
+        NSParameterAssert(fingerprint.length > 0);
+        fingerprint = [fingerprint stringByReplacingOccurrencesOfString:@" " withString:@""];
+        fingerprint = [fingerprint uppercaseString];
+        if (completionBlock) {
+            dispatch_async(self.callbackQueue, ^{
+                completionBlock(fingerprint, nil);
+            });
+        }
+    });
+}
+
+#pragma mark Messaging
 
 - (void)decodeMessage:(NSString*)message
              username:(NSString*)username
@@ -832,7 +869,7 @@ static OtrlMessageAppOps ui_ops = {
         
         NSError *error = nil;
         if (err != 0) {
-            error = [self errorForGPGError:err];
+            error = [[self class] errorForGPGError:err];
             encodedMessage = nil;
         }
         
@@ -904,72 +941,6 @@ static OtrlMessageAppOps ui_ops = {
     }
 }
 
-- (NSError*) errorForGPGError:(gcry_error_t)gpg_error {
-    if (gpg_error == gcry_err_code(GPG_ERR_NO_ERROR)) {
-        return nil;
-    }
-    const char *gpg_error_string = gcry_strerror(gpg_error);
-    const char *gpg_error_source = gcry_strsource(gpg_error);
-    gpg_err_code_t gpg_error_code = gcry_err_code(gpg_error);
-    int errorCode = gcry_err_code_to_errno(gpg_error_code);
-    NSString *errorString = nil;
-    NSString *errorSource = nil;
-    if (gpg_error_string) {
-        errorString = [NSString stringWithUTF8String:gpg_error_string];
-    }
-    if (gpg_error_source) {
-        errorSource = [NSString stringWithUTF8String:gpg_error_source];
-    }
-    NSMutableString *errorDescription = [NSMutableString string];
-    if (errorString) {
-        [errorDescription appendString:errorString];
-    }
-    if (errorSource) {
-        [errorDescription appendString:errorSource];
-    }
-    NSError *error = [NSError errorWithDomain:kOTRKitErrorDomain code:errorCode userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
-    return error;
-}
-
-- (OtrlTLV*)tlvChainForTLVs:(NSArray*)tlvs {
-    if (!tlvs || !tlvs.count) {
-        return NULL;
-    }
-    OtrlTLV *root_tlv = NULL;
-    OtrlTLV *current_tlv = NULL;
-    NSUInteger validTLVCount = 0;
-    for (OTRTLV *tlv in tlvs) {
-        if (!tlv.isValidLength) {
-            continue;
-        }
-        OtrlTLV *new_tlv = otrl_tlv_new(tlv.type, tlv.data.length, tlv.data.bytes);
-        if (validTLVCount == 0) {
-            root_tlv = new_tlv;
-        } else {
-            current_tlv->next = new_tlv;
-        }
-        current_tlv = new_tlv;
-        validTLVCount++;
-    }
-    return root_tlv;
-}
-
-- (NSArray*)tlvArrayForTLVChain:(OtrlTLV*)tlv_chain {
-    if (!tlv_chain) {
-        return nil;
-    }
-    NSMutableArray *tlvArray = [NSMutableArray array];
-    OtrlTLV *current_tlv = tlv_chain;
-    while (current_tlv) {
-        NSData *tlvData = [NSData dataWithBytes:current_tlv->data length:current_tlv->len];
-        OTRTLVType type = current_tlv->type;
-        OTRTLV *tlv = [[OTRTLV alloc] initWithType:type data:tlvData];
-        [tlvArray addObject:tlv];
-        current_tlv = current_tlv->next;
-    }
-    return tlvArray;
-}
-
 - (ConnContext*) contextForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
     NSParameterAssert(username.length);
     NSParameterAssert(accountName.length);
@@ -982,6 +953,70 @@ static OtrlMessageAppOps ui_ops = {
     return context;
 }
 
+
+- (void)messageStateForUsername:(NSString*)username
+                    accountName:(NSString*)accountName
+                       protocol:(NSString*)protocol
+                     completion:(void (^)(OTRKitMessageState messageState))completion{
+    dispatch_async(self.internalQueue, ^{
+        ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
+        OTRKitMessageState messageState = OTRKitMessageStatePlaintext;
+        if (context) {
+            switch (context->msgstate) {
+                case OTRL_MSGSTATE_ENCRYPTED:
+                    messageState = OTRKitMessageStateEncrypted;
+                    break;
+                case OTRL_MSGSTATE_FINISHED:
+                    messageState = OTRKitMessageStateFinished;
+                    break;
+                case OTRL_MSGSTATE_PLAINTEXT:
+                    messageState = OTRKitMessageStatePlaintext;
+                    break;
+                default:
+                    messageState = OTRKitMessageStatePlaintext;
+                    break;
+            }
+        }
+        dispatch_async(self.callbackQueue, ^{
+            completion(messageState);
+        });
+    });
+}
+
+#pragma mark OTR Policy
+
+-(OTRKitPolicy)otrPolicy {
+    if (_otrPolicy) {
+        return _otrPolicy;
+    }
+    return OTRKitPolicyDefault;
+}
+
+-(OtrlPolicy)otrlPolicy {
+    switch (self.otrPolicy) {
+        case OTRKitPolicyDefault:
+            return OTRL_POLICY_DEFAULT;
+            break;
+        case OTRKitPolicyAlways:
+            return OTRL_POLICY_ALWAYS;
+            break;
+        case OTRKitPolicyManual:
+            return OTRL_POLICY_MANUAL;
+            break;
+        case OTRKitPolicyOpportunistic:
+            return OTRL_POLICY_OPPORTUNISTIC;
+            break;
+        case OTRKitPolicyNever:
+            return OTRL_POLICY_NEVER;
+            break;
+        default:
+            return OTRL_POLICY_DEFAULT;
+            break;
+    }
+}
+
+#pragma mark Fingerprints
+
 - (Fingerprint *)internalActiveFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
     Fingerprint * fingerprint = nil;
     ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
@@ -992,20 +1027,41 @@ static OtrlMessageAppOps ui_ops = {
     return fingerprint;
 }
 
+/** Synchronously returns fingerprint for accountName / protocol */
+- (NSString *)synchronousFingerprintForAccountName:(NSString*)accountName
+                                          protocol:(NSString*)protocol {
+    NSParameterAssert(accountName.length > 0);
+    NSParameterAssert(protocol.length > 0);
+    if (!accountName.length || !protocol.length) {
+        return nil;
+    }
+    NSString *fingerprintString = nil;
+    char *fingerprintBuffer = malloc(OTRL_PRIVKEY_FPRINT_HUMAN_LEN * sizeof(char));
+    if (!fingerprintBuffer) {
+        return nil;
+    }
+    char *fingerprint = otrl_privkey_fingerprint(_userState, fingerprintBuffer, [accountName UTF8String], [protocol UTF8String]);
+    if (!fingerprint) {
+        free(fingerprintBuffer);
+        return nil;
+    }
+    fingerprintString = [NSString stringWithUTF8String:fingerprint];
+    free(fingerprintBuffer);
+    return fingerprintString;
+}
+
 - (void)fingerprintForAccountName:(NSString*)accountName
                          protocol:(NSString*)protocol
                        completion:(void (^)(NSString *fingerprint))completion
 {
+    if (!completion) {
+        return;
+    }
     dispatch_async(self.internalQueue, ^{
-        NSString *fingerprintString = nil;
-        char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
-        otrl_privkey_fingerprint(_userState, our_hash, [accountName UTF8String], [protocol UTF8String]);
-        fingerprintString = [NSString stringWithUTF8String:our_hash];
-        if (completion) {
-            dispatch_async(self.callbackQueue, ^{
-                completion(fingerprintString);
-            });
-        }
+        NSString *fingerprintString = [self synchronousFingerprintForAccountName:accountName protocol:protocol];
+        dispatch_async(self.callbackQueue, ^{
+            completion(fingerprintString);
+        });
     });
 }
 
@@ -1119,65 +1175,6 @@ static OtrlMessageAppOps ui_ops = {
     fclose(storef);
 }
 
-- (void)messageStateForUsername:(NSString*)username
-                    accountName:(NSString*)accountName
-                       protocol:(NSString*)protocol
-                     completion:(void (^)(OTRKitMessageState messageState))completion{
-    dispatch_async(self.internalQueue, ^{
-        ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
-        OTRKitMessageState messageState = OTRKitMessageStatePlaintext;
-        if (context) {
-            switch (context->msgstate) {
-                case OTRL_MSGSTATE_ENCRYPTED:
-                    messageState = OTRKitMessageStateEncrypted;
-                    break;
-                case OTRL_MSGSTATE_FINISHED:
-                    messageState = OTRKitMessageStateFinished;
-                    break;
-                case OTRL_MSGSTATE_PLAINTEXT:
-                    messageState = OTRKitMessageStatePlaintext;
-                    break;
-                default:
-                    messageState = OTRKitMessageStatePlaintext;
-                    break;
-            }
-        }
-        dispatch_async(self.callbackQueue, ^{
-            completion(messageState);
-        });
-    });
-}
-
--(OTRKitPolicy)otrPolicy {
-    if (_otrPolicy) {
-        return _otrPolicy;
-    }
-    return OTRKitPolicyDefault;
-}
-
--(OtrlPolicy)otrlPolicy {
-    switch (self.otrPolicy) {
-        case OTRKitPolicyDefault:
-            return OTRL_POLICY_DEFAULT;
-            break;
-        case OTRKitPolicyAlways:
-            return OTRL_POLICY_ALWAYS;
-            break;
-        case OTRKitPolicyManual:
-            return OTRL_POLICY_MANUAL;
-            break;
-        case OTRKitPolicyOpportunistic:
-            return OTRL_POLICY_OPPORTUNISTIC;
-            break;
-        case OTRKitPolicyNever:
-            return OTRL_POLICY_NEVER;
-            break;
-        default:
-            return OTRL_POLICY_DEFAULT;
-            break;
-    }
-}
-
 - (void) requestAllFingerprints:(void (^)(NSArray *allFingerprints))completion
 {
     dispatch_async(self.internalQueue, ^{
@@ -1260,6 +1257,8 @@ static OtrlMessageAppOps ui_ops = {
     });
 }
 
+#pragma mark Symmetric Key
+
 - (void) requestSymmetricKeyForUsername:(NSString*)username
                             accountName:(NSString*)accountName
                                protocol:(NSString*)protocol
@@ -1276,7 +1275,7 @@ static OtrlMessageAppOps ui_ops = {
         NSData *keyData = nil;
         NSError *error = nil;
         if (err != gcry_err_code(GPG_ERR_NO_ERROR)) {
-            error = [self errorForGPGError:err];
+            error = [[self class] errorForGPGError:err];
         } else {
             keyData = [[NSData alloc] initWithBytes:symKey length:OTRL_EXTRAKEY_BYTES];
         }
@@ -1287,6 +1286,8 @@ static OtrlMessageAppOps ui_ops = {
         }
     });
 }
+
+#pragma mark SMP
 
 - (void) initiateSMPForUsername:(NSString*)username
                     accountName:(NSString*)accountName
@@ -1328,6 +1329,47 @@ static OtrlMessageAppOps ui_ops = {
     });
 }
 
+#pragma mark TLV Handlers
+
+- (OtrlTLV*)tlvChainForTLVs:(NSArray*)tlvs {
+    if (!tlvs || !tlvs.count) {
+        return NULL;
+    }
+    OtrlTLV *root_tlv = NULL;
+    OtrlTLV *current_tlv = NULL;
+    NSUInteger validTLVCount = 0;
+    for (OTRTLV *tlv in tlvs) {
+        if (!tlv.isValidLength) {
+            continue;
+        }
+        OtrlTLV *new_tlv = otrl_tlv_new(tlv.type, tlv.data.length, tlv.data.bytes);
+        if (validTLVCount == 0) {
+            root_tlv = new_tlv;
+        } else {
+            current_tlv->next = new_tlv;
+        }
+        current_tlv = new_tlv;
+        validTLVCount++;
+    }
+    return root_tlv;
+}
+
+- (NSArray*)tlvArrayForTLVChain:(OtrlTLV*)tlv_chain {
+    if (!tlv_chain) {
+        return nil;
+    }
+    NSMutableArray *tlvArray = [NSMutableArray array];
+    OtrlTLV *current_tlv = tlv_chain;
+    while (current_tlv) {
+        NSData *tlvData = [NSData dataWithBytes:current_tlv->data length:current_tlv->len];
+        OTRTLVType type = current_tlv->type;
+        OTRTLV *tlv = [[OTRTLV alloc] initWithType:type data:tlvData];
+        [tlvArray addObject:tlv];
+        current_tlv = current_tlv->next;
+    }
+    return tlvArray;
+}
+
 - (void) registerTLVHandler:(id<OTRTLVHandler>)handler {
     NSParameterAssert(handler != nil);
     if (!handler) {
@@ -1341,7 +1383,34 @@ static OtrlMessageAppOps ui_ops = {
     });
 }
 
-#pragma mark Static Methods
+#pragma mark Static Utility Methods
+
++ (NSError*) errorForGPGError:(gcry_error_t)gpg_error {
+    if (gpg_error == gcry_err_code(GPG_ERR_NO_ERROR)) {
+        return nil;
+    }
+    const char *gpg_error_string = gcry_strerror(gpg_error);
+    const char *gpg_error_source = gcry_strsource(gpg_error);
+    gpg_err_code_t gpg_error_code = gcry_err_code(gpg_error);
+    int errorCode = gcry_err_code_to_errno(gpg_error_code);
+    NSString *errorString = nil;
+    NSString *errorSource = nil;
+    if (gpg_error_string) {
+        errorString = [NSString stringWithUTF8String:gpg_error_string];
+    }
+    if (gpg_error_source) {
+        errorSource = [NSString stringWithUTF8String:gpg_error_source];
+    }
+    NSMutableString *errorDescription = [NSMutableString string];
+    if (errorString) {
+        [errorDescription appendString:errorString];
+    }
+    if (errorSource) {
+        [errorDescription appendString:errorSource];
+    }
+    NSError *error = [NSError errorWithDomain:kOTRKitErrorDomain code:errorCode userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+    return error;
+}
 
 + (BOOL) stringStartsWithOTRPrefix:(NSString*)string {
     return [string hasPrefix:@"?OTR"];
