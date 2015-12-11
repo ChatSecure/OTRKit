@@ -31,7 +31,7 @@
         NSString *rangeString = [NSString stringWithFormat:@"bytes=%d-%d", (int)range.location, (int)(range.location + range.length - 1)];
         
         NSString *requestId = [[NSUUID UUID] UUIDString];
-        NSDictionary <NSString *,NSString *>*headers = @{kHTTPHeaderRange: rangeString, kHTTPHeaderRequestID: requestId};
+        NSDictionary *headers = @{kHTTPHeaderRange: rangeString, kHTTPHeaderRequestID: requestId};
         
         _request = [[OTRDataRequest alloc] initWithRequestId:requestId url:transfer.offeredURL httpMethod:@"GET" httpHeaders:headers];
         _request.range = range;

@@ -64,7 +64,7 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
 @property (nonatomic, strong, readonly) NSMutableDictionary *requestCache;
 
 @property (nonatomic, strong) NSOperationQueue *dataGetOperationQueue;
-@property (nonatomic, strong, readonly) NSMutableDictionary <NSString *, OTRDataGetOperation *> *getOperationCache;
+@property (nonatomic, strong, readonly) NSMutableDictionary *getOperationCache;
 
 @end
 
@@ -365,15 +365,16 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
 }
 
 - (void) startIncomingTransfer:(OTRDataIncomingTransfer *)transfer {
-    NSArray <OTRDataGetOperation *>*operations = [self createRequestOperationsForIncomingTransfer:transfer];
-    [operations enumerateObjectsUsingBlock:^(OTRDataGetOperation * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [self.getOperationCache setObject:obj forKey:obj.request.requestId];
+    NSArray *operations = [self createRequestOperationsForIncomingTransfer:transfer];
+    [operations enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL * stop) {
+        OTRDataGetOperation *operation = (OTRDataGetOperation *)obj;
+        [self.getOperationCache setObject:operation forKey:operation.request.requestId];
     }];
     [self.dataGetOperationQueue addOperations:operations waitUntilFinished:NO];
 }
 
-- (NSArray<OTRDataGetOperation *>*)createRequestOperationsForIncomingTransfer:(OTRDataIncomingTransfer *)transfer {
-    NSMutableArray <OTRDataGetOperation *>*operations = [[NSMutableArray alloc] init];
+- (NSArray*)createRequestOperationsForIncomingTransfer:(OTRDataIncomingTransfer *)transfer {
+    NSMutableArray *operations = [[NSMutableArray alloc] init];
     NSUInteger length = transfer.fileLength;
     while (length > kOTRDataMaxChunkLength) {
         length -= kOTRDataMaxChunkLength;
