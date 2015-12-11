@@ -36,8 +36,8 @@
     }
     [self.incomingFileData replaceBytesInRange:range withBytes:response.bytes length:response.length];
     
-    _receivedBytes += response.length;
-    if (_receivedBytes == self.fileLength) {
+    self.bytesTransferred += response.length;
+    if (self.bytesTransferred == self.fileLength) {
         self.fileData = self.incomingFileData;
     }
 }

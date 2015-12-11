@@ -29,6 +29,11 @@
  */
 @property (nonatomic, readonly) NSUInteger fileLength;
 
+/**
+ * Total number of bytes transferred
+ */
+@property (nonatomic, readwrite) NSUInteger bytesTransferred;
+
 - (instancetype) initWithFileLength:(NSUInteger)fileLength
                            username:(NSString*)username
                         accountName:(NSString*)accountName

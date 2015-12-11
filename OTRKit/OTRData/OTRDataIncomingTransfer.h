@@ -13,9 +13,6 @@
 
 @property (nonatomic, strong) NSURL *offeredURL;
 
-/** Total number of bytes received */
-@property (nonatomic) NSUInteger receivedBytes;
-
 - (void) handleResponse:(NSData*)response forRequest:(OTRDataRequest*)request;
 
 @end
