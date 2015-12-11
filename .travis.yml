@@ -1,7 +1,8 @@
 language: objective-c
+osx_image: xcode7.1
 
 install:
-  - gem install cocoapods --no-rdoc --no-ri # Need Cocoapods >= 0.34.1
+  - gem install cocoapods --no-rdoc --no-ri --no-document --quiet # Need Cocoapods >= 0.34.1
   - export ARCHS="i386"   # Only build dependencies for i386 to speed things up
   - bash ./scripts/build-all.sh
   - pod install
