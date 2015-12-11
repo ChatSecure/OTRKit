@@ -14,6 +14,9 @@
 @class OTRKit;
 @class OTRDataHandler;
 
+extern  NSString *const kHTTPHeaderRange;
+extern  NSString *const kHTTPHeaderRequestID;
+
 @protocol OTRDataHandlerDelegate <NSObject>
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
@@ -72,6 +75,13 @@
               accountName:(NSString*)accountName
                  protocol:(NSString*)protocol
                       tag:(id)tag;
+
+/** Used internally for access to directly send a request */
+- (void) sendRequest:(OTRDataRequest*)request
+            username:(NSString*)username
+         accountName:(NSString*)accountName
+            protocol:(NSString*)protocol
+                 tag:(id)tag;
 
 #pragma mark Receiving Data
 

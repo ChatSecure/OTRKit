@@ -8,7 +8,6 @@
 
 #import "OTRDataGetOperation.h"
 #import "OTRDataHandler.h"
-#import "OTRDataHandler+Private.h"
 #import "OTRDataRequest.h"
 #import "OTRDataIncomingTransfer.h"
 
