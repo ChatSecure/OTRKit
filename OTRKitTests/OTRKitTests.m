@@ -367,7 +367,8 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
            transfer:(OTRDataTransfer*)transfer
            progress:(float)progress {
     NSLog(@"transfer progress: %f %@", progress, transfer);
-
+    XCTAssert(progress > 0,@"Progress less than zero");
+    XCTAssert(progress <= 1,@"Progress greater than one");
 }
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler

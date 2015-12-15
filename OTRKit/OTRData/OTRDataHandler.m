@@ -15,13 +15,14 @@
 #import "OTRKit.h"
 #import "NSData+OTRDATA.h"
 #import "OTRDataRequest.h"
+#import "OTRDataGetOperation.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 
 NSString * const kOTRDataHandlerURLScheme = @"otr-in-band";
 static NSString * const kOTRDataErrorDomain = @"org.chatsecure.OTRDataError";
 
-static NSString * const kHTTPHeaderRange = @"Range";
-static NSString * const kHTTPHeaderRequestID = @"Request-Id";
+NSString * const kHTTPHeaderRange = @"Range";
+NSString * const kHTTPHeaderRequestID = @"Request-Id";
 static NSString * const kHTTPHeaderFileLength = @"File-Length";
 static NSString * const kHTTPHeaderFileHashSHA1 = @"File-Hash-SHA1";
 static NSString * const kHTTPHeaderMimeType = @"Mime-Type";
@@ -29,7 +30,7 @@ static NSString * const kHTTPHeaderFileName = @"File-Name";
 
 static const NSUInteger kOTRDataMaxChunkLength = 16384;
 static const NSUInteger kOTRDataMaxFileSize = 1024*1024*64;
-//static const NSUInteger kOTRDataMaxOutstandingRequests = 3;
+static const NSUInteger kOTRDataMaxOutstandingRequests = 5;
 
 NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
     NSString* mimeType = @"application/octet-stream";
@@ -62,6 +63,9 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
 /** OTRDataRequest keyed to Request-Id  */
 @property (nonatomic, strong, readonly) NSMutableDictionary *requestCache;
 
+@property (nonatomic, strong) NSOperationQueue *dataGetOperationQueue;
+@property (nonatomic, strong, readonly) NSMutableDictionary *getOperationCache;
+
 @end
 
 @implementation OTRDataHandler
@@ -81,6 +85,9 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
         _incomingTransfers = [[NSMutableDictionary alloc] init];
         _outgoingTransfers = [[NSMutableDictionary alloc] init];
         _requestCache = [[NSMutableDictionary alloc] init];
+        _getOperationCache = [[NSMutableDictionary alloc] init];
+        self.dataGetOperationQueue = [[NSOperationQueue alloc] init];
+        self.dataGetOperationQueue.maxConcurrentOperationCount = kOTRDataMaxOutstandingRequests;
         [otrKit registerTLVHandler:self];
     }
     return self;
@@ -174,13 +181,14 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
             }
             NSRange range = NSMakeRange(startOfRange, endOfRange - startOfRange + 1);
             NSData *subdata = [transfer.fileData subdataWithRange:range];
-            float percentageComplete = ((float)endOfRange + 1) / (float)transfer.fileData.length;
+            transfer.bytesTransferred += subdata.length;
+            float percentageComplete = (float)transfer.bytesTransferred / (float)transfer.fileData.length;
             
             dispatch_async(self.callbackQueue, ^{
                 [self.delegate dataHandler:self transfer:transfer progress:percentageComplete];
             });
             
-            if (endOfRange + 1 == transfer.fileData.length) {
+            if (transfer.bytesTransferred == transfer.fileData.length) {
                 [self.outgoingTransfers removeObjectForKey:url];
                 dispatch_async(self.callbackQueue, ^{
                     [self.delegate dataHandler:self transferComplete:transfer];
@@ -207,24 +215,25 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
             return;
         }
         
-        OTRDataRequest *request = [self.requestCache objectForKey:requestID];
+        OTRDataGetOperation *operation = [self.getOperationCache objectForKey:requestID];
         
-        if (!request) {
+        if (!operation) {
             return;
         }
+        [operation requestCompleted];
         [self.requestCache removeObjectForKey:requestID];
         
         
-        OTRDataIncomingTransfer *transfer = [self.incomingTransfers objectForKey:request.url];
+        OTRDataIncomingTransfer *transfer = [self.incomingTransfers objectForKey:operation.request.url];
         if (!transfer) {
             return;
         }
         NSData *incomingData = incomingResponse.HTTPBody;
         if (incomingData.length) {
-            [transfer handleResponse:incomingData forRequest:request];
+            [transfer handleResponse:incomingData forRequest:operation.request];
         }
-        if (transfer.receivedBytes == transfer.fileLength) {
-            [self.incomingTransfers removeObjectForKey:request.url];
+        if (transfer.bytesTransferred == transfer.fileLength) {
+            [self.incomingTransfers removeObjectForKey:operation.request.url];
             NSData *fileHash = [transfer.fileData otr_SHA1];
             NSString *fileHashString = [fileHash otr_hexString];
             if ([transfer.fileHash isEqualToString:fileHashString]) {
@@ -238,11 +247,11 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
             }
             
         } else {
-            float progress = (float)transfer.receivedBytes / (float)transfer.fileLength;
+            float progress = (float)transfer.bytesTransferred / (float)transfer.fileLength;
             dispatch_async(self.callbackQueue, ^{
                 [self.delegate dataHandler:self transfer:transfer progress:progress];
             });
-            [self processOutstandingRequestsForIncomingTransfer:transfer];
+            //[self processOutstandingRequestsForIncomingTransfer:transfer];
         }
     });
 }
@@ -356,28 +365,32 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
 }
 
 - (void) startIncomingTransfer:(OTRDataIncomingTransfer *)transfer {
-    [self processOutstandingRequestsForIncomingTransfer:transfer];
+    NSArray *operations = [self createRequestOperationsForIncomingTransfer:transfer];
+    [operations enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL * stop) {
+        OTRDataGetOperation *operation = (OTRDataGetOperation *)obj;
+        [self.getOperationCache setObject:operation forKey:operation.request.requestId];
+    }];
+    [self.dataGetOperationQueue addOperations:operations waitUntilFinished:NO];
 }
 
-- (void) processOutstandingRequestsForIncomingTransfer:(OTRDataIncomingTransfer*)transfer {
-    NSUInteger requestLength = transfer.fileLength - transfer.receivedBytes;
-    if (requestLength > kOTRDataMaxChunkLength) {
-        requestLength = kOTRDataMaxChunkLength;
+- (NSArray*)createRequestOperationsForIncomingTransfer:(OTRDataIncomingTransfer *)transfer {
+    NSMutableArray *operations = [[NSMutableArray alloc] init];
+    NSUInteger length = transfer.fileLength;
+    while (length > kOTRDataMaxChunkLength) {
+        length -= kOTRDataMaxChunkLength;
+        NSRange range = NSMakeRange(length, kOTRDataMaxChunkLength);
+        
+        OTRDataGetOperation *operation = [[OTRDataGetOperation alloc] initWithRange:range incomingTransfer:transfer dataHandler:self];
+        
+        [operations insertObject:operation atIndex:0];
     }
-    NSRange range = NSMakeRange(transfer.receivedBytes, requestLength);
     
-    NSString *rangeString = [NSString stringWithFormat:@"bytes=%d-%d", (int)range.location, (int)(range.location + range.length - 1)];
+    OTRDataGetOperation *operation = [[OTRDataGetOperation alloc] initWithRange:NSMakeRange(0, length) incomingTransfer:transfer dataHandler:self];
     
-    NSString *requestId = [[NSUUID UUID] UUIDString];
+    [operations insertObject:operation atIndex:0];
     
-    NSDictionary *headers = @{kHTTPHeaderRange: rangeString,
-                              kHTTPHeaderRequestID: requestId};
     
-    OTRDataRequest *request = [[OTRDataRequest alloc] initWithRequestId:requestId url:transfer.offeredURL httpMethod:@"GET" httpHeaders:headers];
-    request.range = range;
-    
-    [self.requestCache setObject:request forKey:requestId];
-    [self sendRequest:request username:transfer.username accountName:transfer.accountName protocol:transfer.protocol tag:transfer.tag];
+    return operations;
 }
 
 #pragma mark OTRTLVDelegate
