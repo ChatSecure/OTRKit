@@ -3,11 +3,11 @@
 
 [OTRKit](https://github.com/ChatSecure/OTRKit) is an Objective-C wrapper for the [OTRv3](http://en.wikipedia.org/wiki/Off-the-Record_Messaging) encrypted messaging protocol, using [libotr](https://otr.cypherpunks.ca). This library was designed for use with the encrypted iOS messaging app [ChatSecure](https://github.com/chrisballinger/ChatSecure-iOS), but should theoretically work for Mac OS X as well with some minor tweaking to the build scripts.
 
-### Dependency Versions
+### Dependencies
 
-* [libgpg-error](https://www.gnupg.org/(de)/related_software/libgpg-error/index.html) v1.19 - 2015-4-10
-* [libgcrypt](http://www.gnu.org/software/libgcrypt/) v1.6.3 - 2015-02-27
-* [libotr](https://otr.cypherpunks.ca) v4.1.0 - 21 Oct 2014
+* [libgpg-error](https://www.gnupg.org/(de)/related_software/libgpg-error/index.html)
+* [libgcrypt](http://www.gnu.org/software/libgcrypt/)
+* [libotr](https://otr.cypherpunks.ca)
 
 ## Installation
 

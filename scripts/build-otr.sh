@@ -11,6 +11,9 @@ tar zxf "libotr-${LIBOTR_VERSION}.tar.gz"
 
 pushd "libotr-${LIBOTR_VERSION}"
 
+   # Apply patches
+   patch -p1 < "${TOPDIR}/patches/0001-Disable-client-test.patch"
+
    LDFLAGS="-L${ARCH_BUILT_LIBS_DIR} -fPIE -miphoneos-version-min=${MIN_IOS_VERSION}"
    CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} -miphoneos-version-min=${MIN_IOS_VERSION}"
    CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} -miphoneos-version-min=${MIN_IOS_VERSION}"
