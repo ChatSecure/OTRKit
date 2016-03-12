@@ -742,7 +742,7 @@ static OtrlMessageAppOps ui_ops = {
         int ignore_message;
         char *newmessage = NULL;
         ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
-        NSParameterAssert(context);
+        NSParameterAssert(context != NULL);
         OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:tag];
         
         OtrlTLV *otr_tlvs = NULL;
@@ -766,6 +766,16 @@ static OtrlMessageAppOps ui_ops = {
         if (context) {
             if (context->msgstate == OTRL_MSGSTATE_FINISHED) {
                 [self disableEncryptionWithUsername:username accountName:accountName protocol:protocol];
+            }
+        } else {
+            // This happens when one side has a stale OTR session for the 1st message. Is it a bug in libotr?
+            context = [self contextForUsername:username accountName:accountName protocol:protocol];
+            if (context->msgstate == OTRL_MSGSTATE_PLAINTEXT && ignore_message == 1) {
+                if (self.delegate) {
+                    dispatch_async(self.callbackQueue, ^{
+                        [self.delegate otrKit:self handleMessageEvent:OTRKitMessageEventEncryptionError message:message username:username accountName:accountName protocol:protocol tag:tag error:[NSError errorWithDomain:kOTRKitErrorDomain code:7 userInfo:@{NSLocalizedDescriptionKey: @"Encryption error"}]];
+                    });
+                }
             }
         }
         BOOL wasEncrypted = [OTRKit stringStartsWithOTRPrefix:message];
@@ -892,14 +902,15 @@ static OtrlMessageAppOps ui_ops = {
                            accountName:(NSString*)accountName
                               protocol:(NSString*)protocol
 {
-    [self encodeMessage:@"?OTR?" tlvs:nil username:recipient accountName:accountName protocol:protocol tag:nil];
+    [self encodeMessage:@"?OTRv23?" tlvs:nil username:recipient accountName:accountName protocol:protocol tag:nil];
 }
 
 - (void)disableEncryptionWithUsername:(NSString*)recipient
                           accountName:(NSString*)accountName
                              protocol:(NSString*)protocol {
     dispatch_async(self.internalQueue, ^{
-        otrl_message_disconnect_all_instances(_userState, &ui_ops, NULL, [accountName UTF8String], [protocol UTF8String], [recipient UTF8String]);
+        OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:nil];
+        otrl_message_disconnect_all_instances(_userState, &ui_ops, (__bridge void *)(opdata), [accountName UTF8String], [protocol UTF8String], [recipient UTF8String]);
         [self updateEncryptionStatusWithContext:[self contextForUsername:recipient accountName:accountName protocol:protocol]];
     });
 }
@@ -949,7 +960,7 @@ static OtrlMessageAppOps ui_ops = {
         return NULL;
     }
     ConnContext *context = otrl_context_find(_userState, [username UTF8String], [accountName UTF8String], [protocol UTF8String], OTRL_INSTAG_BEST, YES, NULL, NULL, NULL);
-    NSParameterAssert(context);
+    NSParameterAssert(context != NULL);
     return context;
 }
 
