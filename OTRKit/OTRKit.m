@@ -1104,6 +1104,36 @@ static OtrlMessageAppOps ui_ops = {
     
 }
 
+- (void)allFingerprintsForUsername:(NSString*)username
+                       accountName:(NSString*)accountName
+                          protocol:(NSString*)protocol
+                        completion:(void (^)(NSArray<NSString *>*activeFingerprint))completion
+{
+    dispatch_async(self.internalQueue, ^{
+        if (!completion) {
+            return;
+        }
+        
+        NSMutableArray<NSString*>*fingerprintsArray = [[NSMutableArray alloc] init];
+        char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
+        ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
+        if(context)
+        {
+            Fingerprint *fingerprint = context->fingerprint_root.next;
+            while (fingerprint != NULL) {
+                otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
+                NSString *fingerprintString = [NSString stringWithUTF8String:their_hash];
+                [fingerprintsArray addObject:fingerprintString];
+                fingerprint = fingerprint->next;
+            }
+        }
+        
+        dispatch_async(self.callbackQueue, ^{
+            completion(fingerprintsArray);
+        });
+    });
+}
+
 - (void)hasVerifiedFingerprintsForUsername:(NSString *)username
                                accountName:(NSString*)accountName
                                   protocol:(NSString *)protocol
