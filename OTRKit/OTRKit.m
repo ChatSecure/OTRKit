@@ -75,7 +75,10 @@ NSString * const kOTRKitTrustKey       = @"kOTRKitTrustKey";
 @end
 
 
-@interface OTRKit()
+@interface OTRKit() {
+    /** Used for determining correct usage of dispatch_sync */
+    void *IsOnInternalQueueKey;
+}
 @property (nonatomic) dispatch_queue_t internalQueue;
 @property (nonatomic, strong) NSTimer *pollTimer;
 @property (nonatomic) OtrlUserState userState;
@@ -592,6 +595,12 @@ static OtrlMessageAppOps ui_ops = {
     if (self = [super init]) {
         self.callbackQueue = dispatch_get_main_queue();
         self.internalQueue = dispatch_queue_create("OTRKit Internal Queue", 0);
+        
+        // For safe usage of dispatch_sync
+        IsOnInternalQueueKey = &IsOnInternalQueueKey;
+        void *nonNullUnusedPointer = (__bridge void *)self;
+        dispatch_queue_set_specific(_internalQueue, IsOnInternalQueueKey, nonNullUnusedPointer, NULL);
+        
         self.otrPolicy = OTRKitPolicyDefault;
         _tlvHandlers = [NSMutableDictionary dictionary];
         NSDictionary *protocolDefaults = @{@"prpl-msn":   @(1409),
@@ -1049,9 +1058,14 @@ static OtrlMessageAppOps ui_ops = {
 - (NSString *)synchronousFingerprintForAccountName:(NSString*)accountName
                                           protocol:(NSString*)protocol {
     __block NSString *fingerprint = nil;
-    dispatch_sync(self.internalQueue, ^{
+    if (dispatch_get_specific(IsOnInternalQueueKey)) {
         fingerprint = [self internalSynchronousFingerprintForAccountName:accountName protocol:protocol];
-    });
+    } else {
+        dispatch_sync(self.internalQueue, ^{
+            fingerprint = [self internalSynchronousFingerprintForAccountName:accountName protocol:protocol];
+        });
+    }
+    
     return fingerprint;
 }
 
