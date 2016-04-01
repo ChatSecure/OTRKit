@@ -578,6 +578,19 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                           completion:(void (^)(NSString *activeFingerprint))completion;
 
 /**
+ * Retern all fingerprints verified or not
+ *
+ *  @param username    username of remote buddy
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @param completion Returns an array of all fingerprints for that buddy account protocol combination
+ */
+- (void)allFingerprintsForUsername:(NSString*)username
+                       accountName:(NSString*)accountName
+                          protocol:(NSString*)protocol
+                        completion:(void (^)(NSArray<NSString *>*activeFingerprint))completion;
+
+/**
  *  Whether or not buddy's fingerprint is marked as verified.
  *
  *  @param username    username of remote buddy
