@@ -789,7 +789,7 @@ static OtrlMessageAppOps ui_ops = {
         }
         BOOL wasEncrypted = [OTRKit stringStartsWithOTRPrefix:message];
 
-        if(ignore_message == 0)
+        if(ignore_message == 0 || !wasEncrypted)
         {
             if(newmessage) {
                 decodedMessage = [NSString stringWithUTF8String:newmessage];
