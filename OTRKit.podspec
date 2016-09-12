@@ -13,9 +13,9 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios, "8.0"
   s.source_files = "OTRKit/**/*.{h,m}", "OTRKitDependencies/include/**/*.h"
-  s.header_mappings_dir = "OTRKitDependencies/include"
   s.public_header_files = "OTRKit/**/*.h"
-  s.preserve_paths  = "COPYING.LGPLv2.1", "COPYING.MPLv2", "OTRKitDependencies/libs/*", "OTRKitDependencies/include/**/*.h"
+  s.preserve_paths  = "COPYING.LGPLv2.1", "COPYING.MPLv2"
+  s.xcconfig = { 'HEADER_SEARCH_PATHS' => '$(PODS_ROOT)/OTRKit/OTRKitDependencies/include' }
   s.vendored_libraries  = "OTRKitDependencies/lib/*.a"
   s.library     = 'gpg-error', 'gcrypt', 'otr'
   s.requires_arc = true
