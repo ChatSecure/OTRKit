@@ -41,11 +41,11 @@
 #import "privkey.h"
 #import "proto.h"
 #import "OTRDataHandler.h"
+#import "OTRErrorUtility.h"
 
 static NSString * const kOTRKitPrivateKeyFileName = @"otr.private_key";
 static NSString * const kOTRKitFingerprintsFileName = @"otr.fingerprints";
 static NSString * const kOTRKitInstanceTagsFileName =  @"otr.instance_tags";
-static NSString * const kOTRKitErrorDomain       = @"org.chatsecure.OTRKit";
 
 NSString * const kOTRKitUsernameKey    = @"kOTRKitUsernameKey";
 NSString * const kOTRKitAccountNameKey = @"kOTRKitAccountNameKey";
@@ -136,7 +136,7 @@ static void create_privkey_cb(void *opdata, const char *accountname,
                 });
             }
     } else {
-        NSError *error = [[otrKit class] errorForGPGError:generateError];
+        NSError *error = [OTRErrorUtility errorForGPGError:generateError];
         if (otrKit.delegate) {
             dispatch_async(otrKit.callbackQueue, ^{
                 [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:error];
@@ -425,7 +425,7 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
     if (message) {
         messageString = [NSString stringWithUTF8String:message];
     }
-    NSError *error = [[otrKit class] errorForGPGError:err];
+    NSError *error = [OTRErrorUtility errorForGPGError:err];
     OTRKitMessageEvent event = OTRKitMessageEventNone;
     switch (msg_event) {
         case OTRL_MSGEVENT_NONE:
@@ -888,7 +888,7 @@ static OtrlMessageAppOps ui_ops = {
         
         NSError *error = nil;
         if (err != 0) {
-            error = [[self class] errorForGPGError:err];
+            error = [OTRErrorUtility errorForGPGError:err];
             encodedMessage = nil;
         }
         
@@ -1347,7 +1347,7 @@ static OtrlMessageAppOps ui_ops = {
         NSData *keyData = nil;
         NSError *error = nil;
         if (err != gcry_err_code(GPG_ERR_NO_ERROR)) {
-            error = [[self class] errorForGPGError:err];
+            error = [OTRErrorUtility errorForGPGError:err];
         } else {
             keyData = [[NSData alloc] initWithBytes:symKey length:OTRL_EXTRAKEY_BYTES];
         }
@@ -1456,33 +1456,6 @@ static OtrlMessageAppOps ui_ops = {
 }
 
 #pragma mark Static Utility Methods
-
-+ (NSError*) errorForGPGError:(gcry_error_t)gpg_error {
-    if (gpg_error == gcry_err_code(GPG_ERR_NO_ERROR)) {
-        return nil;
-    }
-    const char *gpg_error_string = gcry_strerror(gpg_error);
-    const char *gpg_error_source = gcry_strsource(gpg_error);
-    gpg_err_code_t gpg_error_code = gcry_err_code(gpg_error);
-    int errorCode = gcry_err_code_to_errno(gpg_error_code);
-    NSString *errorString = nil;
-    NSString *errorSource = nil;
-    if (gpg_error_string) {
-        errorString = [NSString stringWithUTF8String:gpg_error_string];
-    }
-    if (gpg_error_source) {
-        errorSource = [NSString stringWithUTF8String:gpg_error_source];
-    }
-    NSMutableString *errorDescription = [NSMutableString string];
-    if (errorString) {
-        [errorDescription appendString:errorString];
-    }
-    if (errorSource) {
-        [errorDescription appendString:errorSource];
-    }
-    NSError *error = [NSError errorWithDomain:kOTRKitErrorDomain code:errorCode userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
-    return error;
-}
 
 + (BOOL) stringStartsWithOTRPrefix:(NSString*)string {
     return [string hasPrefix:@"?OTR"];
