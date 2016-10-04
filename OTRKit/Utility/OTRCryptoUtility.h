@@ -1,5 +1,5 @@
 //
-//  OTRUtility.h
+//  OTRCryptoUtility.h
 //  Pods
 //
 //  Created by David Chiles on 10/3/16.
@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OTRUtility : NSObject
+@interface OTRCryptoUtility : NSObject
 
 /**
  Encrypt data with key and IV using AES-128-GCM

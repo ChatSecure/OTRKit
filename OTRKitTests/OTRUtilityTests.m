@@ -37,12 +37,12 @@
     
     NSError *error = nil;
     
-    NSData *encryptedData = [OTRUtility encryptAESGCMData:plaintextData key:keyData iv:ivData error:&error];
+    NSData *encryptedData = [OTRCryptoUtility encryptAESGCMData:plaintextData key:keyData iv:ivData error:&error];
     NSLog(@"ENCRYPTED: %@",encryptedData);
     XCTAssertNil(error);
     XCTAssertNotNil(encryptedData);
     
-    NSData *decryptedData = [OTRUtility decryptAESGCMData:encryptedData key:keyData iv:ivData error:&error];
+    NSData *decryptedData = [OTRCryptoUtility decryptAESGCMData:encryptedData key:keyData iv:ivData error:&error];
     NSLog(@"DECRYPTED: %@",decryptedData);
     XCTAssertNotNil(decryptedData);
     XCTAssertNil(error);

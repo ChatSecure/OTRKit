@@ -1,16 +1,16 @@
 //
-//  OTRUtility.m
+//  OTRCryptoUtility.m
 //  Pods
 //
 //  Created by David Chiles on 10/3/16.
 //
 //
 
-#import "OTRUtility.h"
+#import "OTRCryptoUtility.h"
 #import "OTRErrorUtility.h"
 #import "gcrypt.h"
 
-@implementation OTRUtility
+@implementation OTRCryptoUtility
 
 + (NSData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
     return [self AESGCMEncrypt:YES data:data key:key iv:iv error:error];

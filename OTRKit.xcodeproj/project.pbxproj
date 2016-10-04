@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C8256A2B2F984DFF6E55A57 /* Pods_OTRKitTestsiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55F4D1DAA23E4C77EF4A6E09 /* Pods_OTRKitTestsiOS.framework */; };
+		4672416DB61B75CFEF2D1E9A /* Pods_OTRKitTestsiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF18814F904F556BDA9C001A /* Pods_OTRKitTestsiOS.framework */; };
 		63547DE81DA30B1100E4E24D /* OTRUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */; };
 		D955143E1A6896F600C1A45D /* test_image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D955143D1A6896F600C1A45D /* test_image.jpg */; };
 		D95514401A6897C500C1A45D /* OTRKitUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */; };
@@ -19,11 +19,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2786B05EF47E3F3E6659F982 /* Pods-OTRKitTestsiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.debug.xcconfig"; sourceTree = "<group>"; };
-		4D793CCBD3A3A0B0864D58B0 /* Pods-OTRKitTestsiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.release.xcconfig"; sourceTree = "<group>"; };
-		55F4D1DAA23E4C77EF4A6E09 /* Pods_OTRKitTestsiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTRKitTestsiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B477E1470C17E449CBA0437 /* Pods-OTRKitTestsiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.release.xcconfig"; sourceTree = "<group>"; };
 		63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRUtilityTests.m; sourceTree = "<group>"; };
-		7A4AEADF47BB406994BB6B18 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		83F6598AE0D6A8CDD18E78B6 /* Pods-OTRKitTestsiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.debug.xcconfig"; sourceTree = "<group>"; };
+		CF18814F904F556BDA9C001A /* Pods_OTRKitTestsiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTRKitTestsiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D955143D1A6896F600C1A45D /* test_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test_image.jpg; sourceTree = "<group>"; };
 		D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKitUnitTests.m; sourceTree = "<group>"; };
@@ -43,18 +42,18 @@
 				D9A94047197E423200EEADD4 /* XCTest.framework in Frameworks */,
 				D9A94049197E423200EEADD4 /* UIKit.framework in Frameworks */,
 				D9A94048197E423200EEADD4 /* Foundation.framework in Frameworks */,
-				4C8256A2B2F984DFF6E55A57 /* Pods_OTRKitTestsiOS.framework in Frameworks */,
+				4672416DB61B75CFEF2D1E9A /* Pods_OTRKitTestsiOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		830EC4A161AFA88054485F8C /* Pods */ = {
+		1B8447B0E03F4101A6C62F53 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				2786B05EF47E3F3E6659F982 /* Pods-OTRKitTestsiOS.debug.xcconfig */,
-				4D793CCBD3A3A0B0864D58B0 /* Pods-OTRKitTestsiOS.release.xcconfig */,
+				83F6598AE0D6A8CDD18E78B6 /* Pods-OTRKitTestsiOS.debug.xcconfig */,
+				3B477E1470C17E449CBA0437 /* Pods-OTRKitTestsiOS.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -65,7 +64,7 @@
 				D9A9404A197E423200EEADD4 /* OTRKitTests */,
 				D905CFCC155B2B0000654181 /* Frameworks */,
 				D905CF68155B010B00654181 /* Products */,
-				830EC4A161AFA88054485F8C /* Pods */,
+				1B8447B0E03F4101A6C62F53 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -83,8 +82,7 @@
 				D905CFCD155B2B0000654181 /* Foundation.framework */,
 				D98B9D3018C93739008C8D1C /* XCTest.framework */,
 				D98B9D3318C93739008C8D1C /* UIKit.framework */,
-				7A4AEADF47BB406994BB6B18 /* libPods.a */,
-				55F4D1DAA23E4C77EF4A6E09 /* Pods_OTRKitTestsiOS.framework */,
+				CF18814F904F556BDA9C001A /* Pods_OTRKitTestsiOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -117,12 +115,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D9A94053197E423300EEADD4 /* Build configuration list for PBXNativeTarget "OTRKitTestsiOS" */;
 			buildPhases = (
-				92284C7852D74834875C0EB7 /* Check Pods Manifest.lock */,
+				4843967B39253CB7EE6A669F /* [CP] Check Pods Manifest.lock */,
 				D9A94042197E423200EEADD4 /* Sources */,
 				D9A94043197E423200EEADD4 /* Frameworks */,
 				D9A94044197E423200EEADD4 /* Resources */,
-				6F62F513BC324553A249B6A4 /* Copy Pods Resources */,
-				198ACE5AA9904FD2ECD22AC6 /* Embed Pods Frameworks */,
+				8B0FD1F2E14466C7F7C88685 /* [CP] Embed Pods Frameworks */,
+				5664868C9C60627FD735AF8F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -139,7 +137,7 @@
 		D905CF5A155B010A00654181 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0800;
 			};
 			buildConfigurationList = D905CF5D155B010A00654181 /* Build configuration list for PBXProject "OTRKit" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -177,29 +175,29 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		198ACE5AA9904FD2ECD22AC6 /* Embed Pods Frameworks */ = {
+		4843967B39253CB7EE6A669F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS-frameworks.sh\"\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		6F62F513BC324553A249B6A4 /* Copy Pods Resources */ = {
+		5664868C9C60627FD735AF8F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -207,19 +205,19 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		92284C7852D74834875C0EB7 /* Check Pods Manifest.lock */ = {
+		8B0FD1F2E14466C7F7C88685 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -253,12 +251,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -293,12 +294,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -323,7 +327,7 @@
 		};
 		D9A94054197E423300EEADD4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2786B05EF47E3F3E6659F982 /* Pods-OTRKitTestsiOS.debug.xcconfig */;
+			baseConfigurationReference = 83F6598AE0D6A8CDD18E78B6 /* Pods-OTRKitTestsiOS.debug.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -351,7 +355,7 @@
 		};
 		D9A94055197E423300EEADD4 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4D793CCBD3A3A0B0864D58B0 /* Pods-OTRKitTestsiOS.release.xcconfig */;
+			baseConfigurationReference = 3B477E1470C17E449CBA0437 /* Pods-OTRKitTestsiOS.release.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
