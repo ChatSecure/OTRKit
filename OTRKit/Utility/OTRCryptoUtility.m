@@ -56,12 +56,34 @@
         return nil;
     }
     
-    //size_t blockLength = gcry_cipher_get_algo_blklen(GCRY_CIPHER_AES128);
+    size_t blockLength = gcry_cipher_get_algo_blklen(GCRY_CIPHER_AES128);
     NSMutableData *outData = [data mutableCopy];
     if (encrypt) {
-        err = gcry_cipher_encrypt(handle, outData.bytes, outData.length, NULL, 0);
+        err = gcry_cipher_encrypt(handle, outData.mutableBytes, outData.length, NULL, 0);
+        if (err != 0 ){
+            errorHandleBlock(handle,err);
+            return nil;
+        }
+        NSMutableData *tag = [NSMutableData dataWithLength:blockLength];
+        err = gcry_cipher_gettag(handle, tag.mutableBytes, tag.length);
+        
+        [outData appendData:tag];
+        
+    } else if(data.length > blockLength) {
+        
+        NSData *encryptedData = [data subdataWithRange:NSMakeRange(0, data.length - blockLength)];
+        NSData *tag = [data subdataWithRange:NSMakeRange(data.length - blockLength, blockLength)];
+        
+        outData = [encryptedData mutableCopy];
+        err = gcry_cipher_decrypt(handle, outData.mutableBytes, outData.length, NULL, 0);
+        if (err != 0 ){
+            errorHandleBlock(handle,err);
+            return nil;
+        }
+        err = gcry_cipher_checktag(handle, tag.bytes, tag.length);
     } else {
-        err = gcry_cipher_decrypt(handle, outData.bytes, outData.length, NULL, 0);
+        errorHandleBlock(handle,GPG_ERR_INV_LENGTH);
+        return nil;
     }
     
     if (err != 0) {

@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OTRCryptoUtility : NSObject
 
 /**
- Encrypt data with key and IV using AES-128-GCM
+ Encrypt data with key and IV using AES-128-GCM. Adds the tag of 16 bytes to the end of the ecnrypted data.
  
  @param data The data to be encrypted.
  @param iv The initialization vector. Must be 16 bytes in length.
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error;
 
 /**
- Decrypt data with key and IV using AES-128-GCM
+ Decrypt data with key and IV using AES-128-GCM. Assumes the last 16 bytes are the tag.
  
  @param data The data to be decrypted.
  @param iv The initialization vector. Must be 16 bytes in length.
