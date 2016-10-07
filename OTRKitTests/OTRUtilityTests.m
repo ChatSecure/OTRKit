@@ -37,10 +37,14 @@
     
     NSError *error = nil;
     
-    NSData *encryptedData = [OTRCryptoUtility encryptAESGCMData:plaintextData key:keyData iv:ivData error:&error];
-    NSLog(@"ENCRYPTED: %@",encryptedData);
+    
+    OTRCryptoData *encryptedData = [OTRCryptoUtility encryptAESGCMData:plaintextData key:keyData iv:ivData error:&error];
+    NSLog(@"ENCRYPTED: %@",encryptedData.data);
     XCTAssertNil(error);
     XCTAssertNotNil(encryptedData);
+    XCTAssert(encryptedData.authTag.length > 0);
+    XCTAssert(encryptedData.data.length > 0);
+    XCTAssertNotEqualObjects(encryptedData.data, plaintextData);
     
     NSData *decryptedData = [OTRCryptoUtility decryptAESGCMData:encryptedData key:keyData iv:ivData error:&error];
     NSLog(@"DECRYPTED: %@",decryptedData);

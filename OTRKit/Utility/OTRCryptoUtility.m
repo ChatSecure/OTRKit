@@ -10,89 +10,139 @@
 #import "OTRErrorUtility.h"
 #import "gcrypt.h"
 
+typedef NS_ENUM(NSUInteger, OTRCryptoMode) {
+    OTRCryptoModeEncrypt,
+    OTRCryptoModeDecrypt
+};
+
+@interface OTRCryptoData()
+/** Encrypted data */
+@property (nonatomic, readwrite, copy) NSData *data;
+/** GCM auth tags should be 16 bytes */
+@property (nonatomic, readwrite, copy) NSData *authTag;
+@end
+
+@implementation OTRCryptoData
+
+- (instancetype) init {
+    NSAssert(NO, @"Use designated initializer");
+    return nil;
+}
+
+- (instancetype) initWithData:(NSData*)data
+                      authTag:(NSData*)authTag {
+    NSParameterAssert(data);
+    NSParameterAssert(authTag);
+    if (self = [super init]) {
+        _data = [data copy];
+        _authTag = [authTag copy];
+    }
+    return self;
+}
+
+#pragma mark NSCopying
+
+- (instancetype)copyWithZone:(nullable NSZone *)zone {
+    OTRCryptoData *data = [[[self class] alloc] initWithData:self.data authTag:self.authTag];
+    return data;
+}
+
+@end
+
 @implementation OTRCryptoUtility
 
-+ (NSData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
-    return [self AESGCMEncrypt:YES data:data key:key iv:iv error:error];
-}
-
-+ (NSData *)decryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
-    return [self AESGCMEncrypt:NO data:data key:key iv:iv error:error];
-}
-
-+ (NSData *)AESGCMEncrypt:(BOOL)encrypt data:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
-    
-    assert([data length] != 0);
-    assert([key length] != 0);
-    assert([iv length] != 0);
-    
-    if ([data length] == 0 || [key length] == 0 || [iv length] == 0) {
-        *error = [NSError errorWithDomain:kOTRKitErrorDomain code:8 userInfo:@{NSLocalizedDescriptionKey:@"All parameters need to be non-nil and have a length"}];
-        return nil;
++ (nullable OTRCryptoData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
+    /** Encrypt in place */
+    OTRCryptoData *cryptoData = [[OTRCryptoData alloc] initWithData:data authTag:[NSData data]];
+    BOOL success = [self processCryptoData:cryptoData mode:OTRCryptoModeEncrypt key:key iv:iv error:error];
+    if (success) {
+        return [cryptoData copy];
     }
+    return nil;
+}
+
++ (nullable NSData *)decryptAESGCMData:(OTRCryptoData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
+    OTRCryptoData *outData = [data copy];
+    BOOL success = [self processCryptoData:outData mode:OTRCryptoModeDecrypt key:key iv:iv error:error];
+    if (success) {
+        return [outData.data copy];
+    }
+    return nil;
+}
+
+/** Returns YES on success, NO on failure */
++ (BOOL)processCryptoData:(OTRCryptoData*)cryptoData mode:(OTRCryptoMode)mode key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
+    NSParameterAssert(cryptoData.data.length != 0);
+    NSParameterAssert([key length] != 0);
+    NSParameterAssert([iv length] != 0);
+    
+    if ([cryptoData.data length] == 0 || [key length] == 0 || [iv length] == 0) {
+        if (error) {
+            *error = [NSError errorWithDomain:kOTRKitErrorDomain code:8 userInfo:@{NSLocalizedDescriptionKey:@"All parameters need to be non-nil and have a length"}];
+        }
+        return NO;
+    }
+    key = [key copy];
+    iv = [iv copy];
     
     gcry_cipher_hd_t handle;
     gcry_error_t err = gcry_cipher_open(&handle,GCRY_CIPHER_AES128,GCRY_CIPHER_MODE_GCM,GCRY_CIPHER_SECURE);
     
     void (^errorHandleBlock)(gcry_cipher_hd_t, gcry_error_t) = ^void(gcry_cipher_hd_t handle, gcry_error_t err) {
-        *error = [OTRErrorUtility errorForGPGError:err];
+        if (error) {
+            *error = [OTRErrorUtility errorForGPGError:err];
+        }
         gcry_cipher_close(handle);
     };
     
     if (err != 0) {
         errorHandleBlock(handle,err);
-        return nil;
+        return NO;
     }
     
     err = gcry_cipher_setkey(handle,key.bytes,key.length);
     if (err != 0) {
         errorHandleBlock(handle,err);
-        return nil;
+        return NO;
     }
     
     err = gcry_cipher_setiv(handle,iv.bytes,iv.length);
     if (err != 0) {
         errorHandleBlock(handle,err);
-        return nil;
+        return NO;
     }
     
-    size_t blockLength = gcry_cipher_get_algo_blklen(GCRY_CIPHER_AES128);
-    NSMutableData *outData = [data mutableCopy];
-    if (encrypt) {
+    NSMutableData *outData = [cryptoData.data mutableCopy];
+    if (mode == OTRCryptoModeEncrypt) {
         err = gcry_cipher_encrypt(handle, outData.mutableBytes, outData.length, NULL, 0);
         if (err != 0 ){
             errorHandleBlock(handle,err);
-            return nil;
+            return NO;
         }
-        NSMutableData *tag = [NSMutableData dataWithLength:blockLength];
+        NSMutableData *tag = [NSMutableData dataWithLength:GCRY_GCM_BLOCK_LEN];
         err = gcry_cipher_gettag(handle, tag.mutableBytes, tag.length);
+        cryptoData.authTag = tag;
         
-        [outData appendData:tag];
-        
-    } else if(data.length > blockLength) {
-        
-        NSData *encryptedData = [data subdataWithRange:NSMakeRange(0, data.length - blockLength)];
-        NSData *tag = [data subdataWithRange:NSMakeRange(data.length - blockLength, blockLength)];
-        
-        outData = [encryptedData mutableCopy];
-        err = gcry_cipher_decrypt(handle, outData.mutableBytes, outData.length, NULL, 0);
+    } else if(mode == OTRCryptoModeDecrypt) {
+         err = gcry_cipher_decrypt(handle, outData.mutableBytes, outData.length, NULL, 0);
         if (err != 0 ){
             errorHandleBlock(handle,err);
-            return nil;
+            return NO;
         }
-        err = gcry_cipher_checktag(handle, tag.bytes, tag.length);
+        err = gcry_cipher_checktag(handle, cryptoData.authTag.bytes, cryptoData.authTag.length);
     } else {
-        errorHandleBlock(handle,GPG_ERR_INV_LENGTH);
-        return nil;
+        errorHandleBlock(handle,GPG_ERR_GENERAL);
+        return NO;
     }
     
     if (err != 0) {
         errorHandleBlock(handle,err);
-        return nil;
+        return NO;
     }
     
     gcry_cipher_close(handle);
-    return [outData copy];
+    cryptoData.data = outData;
+    return YES;
 }
 
 @end

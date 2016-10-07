@@ -9,11 +9,29 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+@interface OTRCryptoData : NSObject <NSCopying>
 
+/** Encrypted data */
+@property (nonatomic, readonly, copy) NSData *data;
+/** GCM auth tags should be 16 bytes */
+@property (nonatomic, readonly, copy) NSData *authTag;
+
+/** Data to be decrypted. Auth tag is required for GCM mode. */
+- (instancetype) initWithData:(NSData*)data
+                      authTag:(NSData*)authTag NS_DESIGNATED_INITIALIZER;
+
+/** Not available, use designated initializer */
+- (instancetype) init NS_UNAVAILABLE;
+
+@end
+NS_ASSUME_NONNULL_END
+
+NS_ASSUME_NONNULL_BEGIN
+/** Lightweight wrapper around some libgcrypt functions */
 @interface OTRCryptoUtility : NSObject
 
 /**
- Encrypt data with key and IV using AES-128-GCM. Adds the tag of 16 bytes to the end of the ecnrypted data.
+ Encrypt data with key and IV using AES-128-GCM.
  
  @param data The data to be encrypted.
  @param iv The initialization vector. Must be 16 bytes in length.
@@ -22,10 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return The encrypted data.
  */
-+ (nullable NSData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error;
++ (nullable OTRCryptoData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error;
 
 /**
- Decrypt data with key and IV using AES-128-GCM. Assumes the last 16 bytes are the tag.
+ Decrypt data with key and IV using AES-128-GCM.
  
  @param data The data to be decrypted.
  @param iv The initialization vector. Must be 16 bytes in length.
@@ -34,8 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return The decrypted data.
  */
-+ (nullable NSData *)decryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error;
++ (nullable NSData *)decryptAESGCMData:(OTRCryptoData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error;
 
 @end
-
 NS_ASSUME_NONNULL_END
