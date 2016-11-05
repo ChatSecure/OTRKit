@@ -72,11 +72,11 @@ typedef NS_ENUM(NSUInteger, OTRCryptoMode) {
 
 /** Returns YES on success, NO on failure */
 + (BOOL)processCryptoData:(OTRCryptoData*)cryptoData mode:(OTRCryptoMode)mode key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
-    NSParameterAssert(cryptoData.data.length != 0);
+    //NSParameterAssert(cryptoData.data.length != 0);
     NSParameterAssert([key length] != 0);
     NSParameterAssert([iv length] != 0);
     
-    if ([cryptoData.data length] == 0 || [key length] == 0 || [iv length] == 0) {
+    if ([key length] == 0 || [iv length] == 0) {
         if (error) {
             *error = [NSError errorWithDomain:kOTRKitErrorDomain code:8 userInfo:@{NSLocalizedDescriptionKey:@"All parameters need to be non-nil and have a length"}];
         }
