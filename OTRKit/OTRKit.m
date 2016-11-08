@@ -961,6 +961,16 @@ static OtrlMessageAppOps ui_ops = {
     }
 }
 
+- (ConnContext*) parentContextForContext:(ConnContext*)context {
+    // Get parent context so fingerprint fetching is more useful
+    if (!context) { return NULL; }
+    NSParameterAssert(context);
+    while (context != context->m_context) {
+        context = context->m_context;
+    }
+    return context;
+}
+
 - (ConnContext*) contextForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol {
     NSParameterAssert(username.length);
     NSParameterAssert(accountName.length);
@@ -1141,7 +1151,7 @@ static OtrlMessageAppOps ui_ops = {
         
         NSMutableArray<NSString*>*fingerprintsArray = [[NSMutableArray alloc] init];
         char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
-        ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
+        ConnContext *context = [self parentContextForContext:[self contextForUsername:username accountName:accountName protocol:protocol]];
         if(context)
         {
             Fingerprint *fingerprint = context->fingerprint_root.next;

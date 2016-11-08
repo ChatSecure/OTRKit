@@ -588,7 +588,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 - (void)allFingerprintsForUsername:(NSString*)username
                        accountName:(NSString*)accountName
                           protocol:(NSString*)protocol
-                        completion:(void (^)(NSArray<NSString *>*activeFingerprint))completion;
+                        completion:(void (^)(NSArray<NSString *>*allFingerprints))completion;
 
 /**
  *  Whether or not buddy's fingerprint is marked as verified.
