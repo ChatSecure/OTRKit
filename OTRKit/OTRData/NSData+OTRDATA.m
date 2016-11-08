@@ -12,13 +12,12 @@
 @implementation NSData (OTRDATA)
 
 - (NSData*) otr_SHA1 {
-    uint8_t *digest = malloc(sizeof(uint8_t) * CC_SHA1_DIGEST_LENGTH);
+    NSMutableData *digest = [NSMutableData dataWithLength:CC_SHA1_DIGEST_LENGTH];
     if (!digest) {
         return nil;
     }
-    CC_SHA1(self.bytes, (CC_LONG)self.length, digest);
-    NSData *digestData = [NSData dataWithBytesNoCopy:digest length:CC_SHA1_DIGEST_LENGTH freeWhenDone:YES];
-    return digestData;
+    CC_SHA1(self.bytes, (CC_LONG)self.length, digest.mutableBytes);
+    return digest;
 }
 
 // http://stackoverflow.com/a/9084784/805882

@@ -10,6 +10,7 @@
 
 @class OTRTLV;
 
+NS_ASSUME_NONNULL_BEGIN
 @protocol OTRTLVHandler <NSObject>
 
 /**
@@ -26,7 +27,7 @@
           username:(NSString*)username
        accountName:(NSString*)accountName
           protocol:(NSString*)protocol
-               tag:(id)tag;
+               tag:(nullable id)tag;
 
 /**
  *  Returns array of boxed NSNumbers of OTRTLVType that instance can handle.
@@ -34,6 +35,7 @@
  *  @see OTRTLV
  *  @see OTRTLVType
  */
-- (NSArray*) handledTLVTypes;
+- (NSArray<NSNumber*>*) handledTLVTypes;
 
 @end
+NS_ASSUME_NONNULL_END

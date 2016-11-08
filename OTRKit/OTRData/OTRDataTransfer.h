@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
 @interface OTRDataTransfer : NSObject
 
 /** Unique UUID string */
@@ -15,14 +16,14 @@
 @property (nonatomic, strong, readonly) NSString *username;
 @property (nonatomic, strong, readonly) NSString *accountName;
 @property (nonatomic, strong, readonly) NSString *protocol;
-@property (nonatomic, strong, readonly) id tag;
+@property (nonatomic, strong, readonly, nullable) id tag;
 
-@property (nonatomic, strong) NSString *fileName;
-@property (nonatomic, strong) NSData *fileData;
-@property (nonatomic, strong) NSString *mimeType;
+@property (nonatomic, strong, nullable) NSString *fileName;
+@property (nonatomic, strong, nullable) NSData *fileData;
+@property (nonatomic, strong, nullable) NSString *mimeType;
 
 /** SHA-1 for now */
-@property (nonatomic, strong) NSString *fileHash;
+@property (nonatomic, strong, nullable) NSString *fileHash;
 
 /**
  *  Total file length in bytes
@@ -38,6 +39,7 @@
                            username:(NSString*)username
                         accountName:(NSString*)accountName
                            protocol:(NSString*)protocol
-                                tag:(id)tag;
+                                tag:(nullable id)tag;
 
 @end
+NS_ASSUME_NONNULL_END

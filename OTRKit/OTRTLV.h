@@ -35,6 +35,7 @@ typedef NS_ENUM(uint16_t, OTRTLVType) {
     OTRTLVTypeDataResponse = 0x0101
 };
 
+NS_ASSUME_NONNULL_BEGIN
 @interface OTRTLV : NSObject
 
 @property (nonatomic, strong, readonly) NSData *data;
@@ -44,7 +45,7 @@ typedef NS_ENUM(uint16_t, OTRTLVType) {
  * @param type: TLV type
  * @param data: this data must be of length shorter than UINT16_MAX bytes
  */
-- (instancetype) initWithType:(OTRTLVType)type data:(NSData*)data;
+- (nullable instancetype) initWithType:(OTRTLVType)type data:(NSData*)data;
 
 /**
  * returns NO if data.length > UINT16_MAX
@@ -52,3 +53,4 @@ typedef NS_ENUM(uint16_t, OTRTLVType) {
 - (BOOL) isValidLength;
 
 @end
+NS_ASSUME_NONNULL_END

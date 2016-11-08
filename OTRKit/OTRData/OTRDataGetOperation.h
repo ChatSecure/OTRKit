@@ -11,6 +11,7 @@
 @class OTRDataHandler;
 @class OTRDataIncomingTransfer;
 
+NS_ASSUME_NONNULL_BEGIN
 /**
  The `OTRDataGetOperation` class is a small wrapper to control the number of get requests that can be open at one given time.
  There's no real heavy lifting going on here just makes a request and hands it off to the dataHandler. The dataHandler is then
@@ -33,3 +34,4 @@
 - (void)requestCompleted;
 
 @end
+NS_ASSUME_NONNULL_END

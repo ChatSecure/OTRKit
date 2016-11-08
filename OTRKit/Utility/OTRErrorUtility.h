@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
+NS_ASSUME_NONNULL_BEGIN
 extern NSString * const kOTRKitErrorDomain;
 
 @interface OTRErrorUtility : NSObject
@@ -20,6 +21,7 @@ extern NSString * const kOTRKitErrorDomain;
  
  @return The correct NSError.
  */
-+ (NSError*) errorForGPGError:(unsigned int)gpg_error;
++ (nullable NSError*) errorForGPGError:(unsigned int)gpg_error;
 
 @end
+NS_ASSUME_NONNULL_END

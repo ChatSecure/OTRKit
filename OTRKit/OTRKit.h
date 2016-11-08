@@ -85,6 +85,7 @@ typedef NS_ENUM(NSUInteger, OTRKitMessageEvent) {
     OTRKitMessageEventReceivedMessageForOtherInstance
 };
 
+NS_ASSUME_NONNULL_BEGIN
 extern NSString * const kOTRKitUsernameKey;
 extern NSString * const kOTRKitAccountNameKey;
 extern NSString * const kOTRKitFingerprintKey;
@@ -111,7 +112,7 @@ extern NSString * const kOTRKitTrustKey;
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
-            tag:(id)tag;
+            tag:(nullable id)tag;
 
 /**
  *  All outgoing messages should be sent to the OTRKit encodeMessage method before being
@@ -131,8 +132,8 @@ extern NSString * const kOTRKitTrustKey;
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
-            tag:(id)tag
-          error:(NSError*)error;
+            tag:(nullable id)tag
+          error:(nullable NSError*)error;
 
 
 /**
@@ -149,13 +150,13 @@ extern NSString * const kOTRKitTrustKey;
  *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
- decodedMessage:(NSString*)decodedMessage
+ decodedMessage:(nullable NSString*)decodedMessage
    wasEncrypted:(BOOL)wasEncrypted
-           tlvs:(NSArray*)tlvs
+           tlvs:(NSArray<OTRTLV*>*)tlvs
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
-            tag:(id)tag;
+            tag:(nullable id)tag;
 
 /**
  *  When the encryption status changes this method is called
@@ -235,8 +236,8 @@ handleMessageEvent:(OTRKitMessageEvent)event
           username:(NSString*)username
        accountName:(NSString*)accountName
           protocol:(NSString*)protocol
-               tag:(id)tag
-             error:(NSError*)error;
+               tag:(nullable id)tag
+             error:(nullable NSError*)error;
 
 /**
  *  When another buddy requests a shared symmetric key this will be called.
@@ -249,7 +250,7 @@ handleMessageEvent:(OTRKitMessageEvent)event
 - (void)        otrKit:(OTRKit*)otrKit
   receivedSymmetricKey:(NSData*)symmetricKey
                 forUse:(NSUInteger)use
-               useData:(NSData*)useData
+               useData:(nullable NSData*)useData
               username:(NSString*)username
            accountName:(NSString*)accountName
               protocol:(NSString*)protocol;
@@ -278,18 +279,18 @@ willStartGeneratingPrivateKeyForAccountName:(NSString*)accountName
 - (void)                             otrKit:(OTRKit *)otrKit
 didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                                    protocol:(NSString*)protocol
-                                      error:(NSError*)error;
+                                      error:(nullable NSError*)error;
 @end
 
 @interface OTRKit : NSObject
 
 
-@property (nonatomic, weak) id<OTRKitDelegate> delegate;
+@property (nonatomic, weak, nullable) id<OTRKitDelegate> delegate;
 
 /**
  *  Defaults to main queue. All delegate and block callbacks will be done on this queue.
  */
-@property (nonatomic) dispatch_queue_t callbackQueue;
+@property (nonatomic, nullable) dispatch_queue_t callbackQueue;
 
 /** 
  * By default uses `OTRKitPolicyDefault`
@@ -299,22 +300,22 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 /**
  *  Path to where the OTR private keys and related data is stored.
  */
-@property (nonatomic, strong, readonly) NSString* dataPath;
+@property (nonatomic, strong, nullable, readonly) NSString* dataPath;
 
 /**
  *  Path to the OTR private keys file.
  */
-@property (nonatomic, strong, readonly) NSString* privateKeyPath;
+@property (nonatomic, strong, nullable, readonly) NSString* privateKeyPath;
 
 /**
  *  Path to the OTR fingerprints file.
  */
-@property (nonatomic, strong, readonly) NSString* fingerprintsPath;
+@property (nonatomic, strong, nullable, readonly) NSString* fingerprintsPath;
 
 /**
  *  Path to the OTRv3 Instance tags file.
  */
-@property (nonatomic, strong, readonly) NSString* instanceTagsPath;
+@property (nonatomic, strong, nullable, readonly) NSString* instanceTagsPath;
 
 #pragma mark Setup
 //////////////////////////////////////////////////////////////////////
@@ -333,7 +334,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  * You must call this method before any others.
  * @param dataPath This is a path to a folder where private keys, fingerprints, and instance tags will be stored. If this is nil a default path will be chosen for you.
  */
-- (void) setupWithDataPath:(NSString*)dataPath;
+- (void) setupWithDataPath:(nullable NSString*)dataPath;
 
 /**
  *  For specifying fragmentation for a protocol.
@@ -357,7 +358,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  */
 - (void) generatePrivateKeyForAccountName:(NSString*)accountName
                                  protocol:(NSString*)protocol
-                               completion:(void (^)(NSString *fingerprint, NSError *error))completionBlock;
+                               completion:(void (^)(NSString *_Nullable fingerprint, NSError * _Nullable error))completionBlock;
 
 
 #pragma mark Messaging
@@ -368,19 +369,19 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 /**
  * Encodes a message and optional array of OTRTLVs, splits it into fragments,
  * then injects the encoded data via the injectMessage: delegate method.
- * @param message The message to be encoded
- * @param tlvs Array of OTRTLVs, the data length of each TLV must be smaller than UINT16_MAX or it will be ignored.
+ * @param message The message to be encoded. May be nil if only sending TLVs.
+ * @param tlvs Array of OTRTLVs, the data length of each TLV must be smaller than UINT16_MAX or it will be ignored. May be nil if only sending message.
  * @param username The intended recipient of the message
  * @param accountName Your account name
  * @param protocol the protocol of accountName, such as @"xmpp"
  * @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
-- (void)encodeMessage:(NSString*)message
-                 tlvs:(NSArray*)tlvs
+- (void)encodeMessage:(nullable NSString*)message
+                 tlvs:(nullable NSArray<OTRTLV*>*)tlvs
              username:(NSString*)username
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol
-                  tag:(id)tag;
+                  tag:(nullable id)tag;
 
 /**
  *  All messages should be sent through here before being processed by your program.
@@ -395,7 +396,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
              username:(NSString*)username
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol
-                  tag:(id)tag;
+                  tag:(nullable id)tag;
 
 /**
  *  You can use this method to determine whether or not OTRKit is currently generating a private key.
@@ -510,8 +511,8 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                             accountName:(NSString*)accountName
                                protocol:(NSString*)protocol
                                  forUse:(NSUInteger)use
-                                useData:(NSData*)useData
-                             completion:(void (^)(NSData *key, NSError *error))completion;
+                                useData:(nullable NSData*)useData
+                             completion:(void (^)(NSData *_Nullable key, NSError * _Nullable error))completion;
 
 #pragma mark Fingerprint Verification
 //////////////////////////////////////////////////////////////////////
@@ -523,7 +524,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  OTRFingerprintKey, OTRProtocolKey, OTRFingerprintKey to store the relevant
  *  information.
  */
-- (void) requestAllFingerprints:(void (^)(NSArray *allFingerprints))completion;
+- (void) requestAllFingerprints:(void (^)(NSArray<NSDictionary*> *allFingerprints))completion;
 
 
 /**
@@ -551,7 +552,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  */
 - (void)fingerprintForAccountName:(NSString*)accountName
                          protocol:(NSString*)protocol
-                       completion:(void (^)(NSString *fingerprint))completion;
+                       completion:(void (^)(NSString * _Nullable fingerprint))completion;
 
 /** 
  *  Synchronously returns fingerprint for accountName / protocol. If there is no fingerprint, it will return nil.
@@ -561,7 +562,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @return fingerprint your OTR fingerprint, uppercase without spaces, or nil if there is no fingerprint.
  *  @warning This method may block for a non-trivial amount of time via dispatch_sync on self.internalQueue during private key generation.
  */
-- (NSString *)synchronousFingerprintForAccountName:(NSString*)accountName
+- (nullable NSString *)synchronousFingerprintForAccountName:(NSString*)accountName
                                                   protocol:(NSString*)protocol;
 
 /**
@@ -575,7 +576,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 - (void)activeFingerprintForUsername:(NSString*)username
                          accountName:(NSString*)accountName
                             protocol:(NSString*)protocol
-                          completion:(void (^)(NSString *activeFingerprint))completion;
+                          completion:(void (^)(NSString * _Nullable activeFingerprint))completion;
 
 /**
  * Retern all fingerprints verified or not
@@ -583,7 +584,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @param username    username of remote buddy
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
- *  @param completion Returns an array of all fingerprints for that buddy account protocol combination
+ *  @param completion Returns an array of all fingerprints for that buddy account protocol combination.
  */
 - (void)allFingerprintsForUsername:(NSString*)username
                        accountName:(NSString*)accountName
@@ -670,3 +671,5 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 + (NSString *) libgpgErrorVersion;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -11,10 +11,11 @@
 @implementation OTRTLV
 
 - (instancetype) initWithType:(OTRTLVType)type data:(NSData *)data {
-    NSParameterAssert(data);
+    NSParameterAssert(data != nil);
+    if (!data) { return nil; }
     if (self = [super init]) {
         _type = type;
-        _data = data;
+        _data = [data copy];
         if (![self isValidLength]) {
             return nil;
         }

@@ -14,6 +14,7 @@
 @class OTRKit;
 @class OTRDataHandler;
 
+NS_ASSUME_NONNULL_BEGIN
 extern  NSString *const kHTTPHeaderRange;
 extern  NSString *const kHTTPHeaderRequestID;
 
@@ -41,18 +42,18 @@ extern  NSString *const kHTTPHeaderRequestID;
  *  This reference is needed to inject messages over the network.
  *  @see registerTLVHandler:
  */
-@property (nonatomic, weak, readwrite) OTRKit *otrKit;
+@property (nonatomic, weak, readonly) OTRKit *otrKit;
 
 /**
  *  All OTRDataHandlerDelegate callbacks will be done on this queue.
  *  Defaults to main queue.
  */
-@property (nonatomic, strong, readwrite) dispatch_queue_t callbackQueue;
+@property (nonatomic, strong, readwrite, nullable) dispatch_queue_t callbackQueue;
 
 /**
  *  Implement a delegate listener to handle file events.
  */
-@property (nonatomic, weak, readwrite) id<OTRDataHandlerDelegate> delegate;
+@property (nonatomic, weak, readonly) id<OTRDataHandlerDelegate> delegate;
 
 /**
  *  This method will automatically register itself with OTRKit via registerTLVHandler:
@@ -66,7 +67,7 @@ extern  NSString *const kHTTPHeaderRequestID;
                 username:(NSString*)username
              accountName:(NSString*)accountName
                 protocol:(NSString*)protocol
-                     tag:(id)tag;
+                     tag:(nullable id)tag;
 
 /** For now, this won't work for large files because of RAM limitations */
 - (void) sendFileWithName:(NSString*)fileName
@@ -74,14 +75,14 @@ extern  NSString *const kHTTPHeaderRequestID;
                  username:(NSString*)username
               accountName:(NSString*)accountName
                  protocol:(NSString*)protocol
-                      tag:(id)tag;
+                      tag:(nullable id)tag;
 
 /** Used internally for access to directly send a request */
 - (void) sendRequest:(OTRDataRequest*)request
             username:(NSString*)username
          accountName:(NSString*)accountName
             protocol:(NSString*)protocol
-                 tag:(id)tag;
+                 tag:(nullable id)tag;
 
 #pragma mark Receiving Data
 
@@ -98,3 +99,4 @@ extern  NSString *const kHTTPHeaderRequestID;
 
 /** otr-in-band */
 extern NSString * const kOTRDataHandlerURLScheme;
+NS_ASSUME_NONNULL_END
