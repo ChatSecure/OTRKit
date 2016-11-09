@@ -37,6 +37,7 @@
 #import <Foundation/Foundation.h>
 #import "OTRTLV.h"
 #import "OTRTLVHandler.h"
+#import "OTRFingerprint.h"
 
 @class OTRKit;
 
@@ -521,11 +522,17 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 
 /**
  *  @param completion Returns an array of dictionaries using OTRAccountNameKey, OTRUsernameKey,
- *  OTRFingerprintKey, OTRProtocolKey, OTRFingerprintKey to store the relevant
+ *  OTRFingerprintKey, OTRProtocolKey, kOTRKitTrustKey to store the relevant
  *  information.
  */
 - (void) requestAllFingerprints:(void (^)(NSArray<NSDictionary*> *allFingerprints))completion;
 
+/** Synchronously fetches every known fingerprint, excluding yourself. */
+- (NSArray<OTRFingerprint*>*) allFingerprints;
+
+/** Synchronously fetches your own fingerprint for this device / account, which is implicitly trusted. */
+- (nullable OTRFingerprint*)fingerprintForAccountName:(NSString*)accountName
+                         protocol:(NSString*)protocol;
 
 /**
  *  Delete a specified fingerprint.

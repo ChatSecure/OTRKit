@@ -14,6 +14,6 @@
 - (nullable NSData*) otr_SHA1;
 
 /** Returns hexadecimal string of NSData. Empty string if data is empty. */
-- (NSString*) otr_hexString;
+- (nonnull NSString*) otr_hexString;
 
 @end

@@ -1357,6 +1357,51 @@ static OtrlMessageAppOps ui_ops = {
 
 }
 
+
+- (NSArray<OTRFingerprint*>*) allFingerprints {
+    NSMutableArray<OTRFingerprint*> *allFingerprints = [NSMutableArray array];
+    [self performBlock:^{
+        ConnContext * context = _userState->context_root;
+        while (context) {
+            Fingerprint * fingerprint = context->fingerprint_root.next;
+            while (fingerprint) {
+                char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
+                otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
+                NSString * fingerprintString = [NSString stringWithUTF8String:their_hash];
+                NSString * username = [NSString stringWithUTF8String:fingerprint->context->username];
+                NSString * accountName = [NSString stringWithUTF8String:fingerprint->context->accountname];
+                NSString * protocol = [NSString stringWithUTF8String:fingerprint->context->protocol];
+                BOOL trusted = otrl_context_is_fingerprint_trusted(fingerprint);
+                OTRTrustLevel trustLevel = OTRTrustLevelUntrusted;
+                if (trusted) {
+                    trustLevel = OTRTrustLevelTrustedUser;
+                }
+                OTRFingerprint *otrFingerprint = [[OTRFingerprint alloc] initWithUsername:username accountName:accountName protocol:protocol fingerprint:fingerprintString trustLevel:trustLevel];
+                [allFingerprints addObject:otrFingerprint];
+                fingerprint = fingerprint->next;
+            }
+            context = context->next;
+        }
+    }];
+    return allFingerprints;
+}
+
+/** Synchronously fetches your own fingerprint. */
+- (nullable OTRFingerprint*)fingerprintForAccountName:(NSString*)accountName
+                                             protocol:(NSString*)protocol {
+    NSParameterAssert(accountName != nil);
+    NSParameterAssert(protocol != nil);
+    if (!accountName || !protocol) {
+        return nil;
+    }
+    NSString *myFingerprintString = [self synchronousFingerprintForAccountName:accountName protocol:protocol];
+    if (!myFingerprintString) {
+        return nil;
+    }
+    OTRFingerprint *fingerprint = [[OTRFingerprint alloc] initWithUsername:accountName accountName:accountName protocol:protocol fingerprint:myFingerprintString trustLevel:OTRTrustLevelTrustedUser];
+    return fingerprint;
+}
+
 - (void)deleteFingerprint:(NSString *)fingerprintString
                  username:(NSString *)username
               accountName:(NSString *)accountName
