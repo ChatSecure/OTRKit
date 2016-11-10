@@ -42,6 +42,7 @@
 @class OTRKit;
 
 typedef NS_ENUM(NSUInteger, OTRKitMessageState) {
+    OTRKitMessageStateUnknown,
     OTRKitMessageStatePlaintext,
     OTRKitMessageStateEncrypted,
     OTRKitMessageStateFinished
@@ -104,7 +105,7 @@ extern NSString * const kOTRKitTrustKey;
  *
  *  @param otrKit      reference to shared instance
  *  @param message     message to be sent over the network. may contain ciphertext.
- *  @param recipient   intended recipient of the message
+ *  @param username   intended recipient of the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
  *  @param fingerprint fingerprint of contact, if in session
@@ -150,7 +151,7 @@ extern NSString * const kOTRKitTrustKey;
  *  @param decodedMessage plaintext message to display to the user. May be nil if other party is sending raw TLVs without messages attached.
  *  @param wasEncrypted whether or not the original message sent to decodeMessage: was encrypted or plaintext. This is just a check of the original message for a "?OTR" prefix.
  *  @param tlvs        OTRTLV values that may be present.
- *  @param sender      buddy who sent the message
+ *  @param username      buddy who sent the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
  *  @param fingerprint fingerprint of contact, if in session
@@ -295,12 +296,12 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 @interface OTRKit : NSObject
 
 
-@property (nonatomic, weak, nullable) id<OTRKitDelegate> delegate;
+@property (atomic, weak, nullable) id<OTRKitDelegate> delegate;
 
 /**
- *  Defaults to main queue. All delegate and block callbacks will be done on this queue.
+ *  Defaults to main queue. All delegate and block callbacks will be done on this queue. Cannot be set to nil.
  */
-@property (nonatomic, nullable) dispatch_queue_t callbackQueue;
+@property (atomic, strong, readwrite) dispatch_queue_t callbackQueue;
 
 /** 
  * By default uses `OTRKitPolicyDefault`
@@ -310,22 +311,22 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 /**
  *  Path to where the OTR private keys and related data is stored.
  */
-@property (nonatomic, strong, nullable, readonly) NSString* dataPath;
+@property (nonatomic, copy, readonly) NSString* dataPath;
 
 /**
  *  Path to the OTR private keys file.
  */
-@property (nonatomic, strong, nullable, readonly) NSString* privateKeyPath;
+@property (nonatomic, strong, readonly) NSString* privateKeyPath;
 
 /**
  *  Path to the OTR fingerprints file.
  */
-@property (nonatomic, strong, nullable, readonly) NSString* fingerprintsPath;
+@property (nonatomic, strong, readonly) NSString* fingerprintsPath;
 
 /**
  *  Path to the OTRv3 Instance tags file.
  */
-@property (nonatomic, strong, nullable, readonly) NSString* instanceTagsPath;
+@property (nonatomic, strong, readonly) NSString* instanceTagsPath;
 
 #pragma mark Setup
 //////////////////////////////////////////////////////////////////////
@@ -333,18 +334,14 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 //////////////////////////////////////////////////////////////////////
 
 /**
- *  Always use the sharedInstance. Using two OTRKits within your application
- *  may exhibit strange problems.
+ * Designated initialzer method.
  *
- *  @return singleton instance
+ * @param dataPath This is a path to a folder where private keys, fingerprints, and instance tags will be stored. If a nil dataPath is passed, a default within the documents directory is chosen.
  */
-+ (instancetype) sharedInstance;
+- (instancetype) initWithDataPath:(nullable NSString*)dataPath NS_DESIGNATED_INITIALIZER;
 
-/**
- * You must call this method before any others.
- * @param dataPath This is a path to a folder where private keys, fingerprints, and instance tags will be stored. If this is nil a default path will be chosen for you.
- */
-- (void) setupWithDataPath:(nullable NSString*)dataPath;
+/** Use initWithDataPath: instead. */
+- (instancetype) init NS_UNAVAILABLE;
 
 /**
  *  For specifying fragmentation for a protocol.
@@ -352,7 +349,8 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @param maxSize  max size of protocol messages in bytes
  *  @param protocol protocol like "xmpp"
  */
-- (void) setMaximumProtocolSize:(int)maxSize forProtocol:(NSString*)protocol;
+- (void) setMaximumProtocolSize:(NSUInteger)maxSize forProtocol:(NSString*)protocol;
+
 
 #pragma mark Key Generation
 //////////////////////////////////////////////////////////////////////
@@ -368,7 +366,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  */
 - (void) generatePrivateKeyForAccountName:(NSString*)accountName
                                  protocol:(NSString*)protocol
-                               completion:(void (^)(NSString *_Nullable fingerprint, NSError * _Nullable error))completionBlock;
+                               completion:(void (^)(OTRFingerprint *_Nullable fingerprint, NSError * _Nullable error))completionBlock;
 
 
 #pragma mark Messaging
@@ -420,7 +418,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                                 completion:(void (^)(BOOL isGeneratingKey))completion;
 
 /**
- *  Shortcut for injecting a "?OTR?" message.
+ *  Shortcut for injecting a "?OTRv23?" message.
  *
  *  @param recipient   name of buddy you'd like to start OTR conversation
  *  @param accountName your account name
@@ -450,10 +448,9 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  *  @param completion current encryption state, called on callbackQueue
  */
-- (void)messageStateForUsername:(NSString*)username
-                    accountName:(NSString*)accountName
-                       protocol:(NSString*)protocol
-                     completion:(void (^)(OTRKitMessageState messageState))completion;
+- (OTRKitMessageState)messageStateForUsername:(NSString*)username
+                                  accountName:(NSString*)accountName
+                                     protocol:(NSString*)protocol;
 
 #pragma mark Socialist's Millionaire Protocol
 //////////////////////////////////////////////////////////////////////
@@ -517,12 +514,12 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @param completion Symmetric key ready to be used externally, or error.
  */
 
-- (void) requestSymmetricKeyForUsername:(NSString*)username
+- (nullable NSData*) requestSymmetricKeyForUsername:(NSString*)username
                             accountName:(NSString*)accountName
                                protocol:(NSString*)protocol
                                  forUse:(NSUInteger)use
                                 useData:(nullable NSData*)useData
-                             completion:(void (^)(NSData *_Nullable key, NSError * _Nullable error))completion;
+                                  error:(NSError**)error;
 
 #pragma mark Fingerprint Verification
 //////////////////////////////////////////////////////////////////////
@@ -552,126 +549,6 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 
 /** Delete fingerprint from the trust store. Will throw an error if you try to delete the active fingerprint, or the fingerprint isn't in the store. */
 - (BOOL) deleteFingerprint:(OTRFingerprint*)fingerprint error:(NSError**)error;
-
-
-#pragma mark Old Fingerprint Verification
-//////////////////////////////////////////////////////////////////////
-/// @name Old Fingerprint Verification
-//////////////////////////////////////////////////////////////////////
-
-/**
- *  @param completion Returns an array of dictionaries using OTRAccountNameKey, OTRUsernameKey,
- *  OTRFingerprintKey, OTRProtocolKey, kOTRKitTrustKey to store the relevant
- *  information.
- */
-- (void) requestAllFingerprints:(void (^)(NSArray<NSDictionary*> *allFingerprints))completion;
-
-/**
- *  Delete a specified fingerprint.
- *
- *  @param fingerprint fingerprint to be deleted
- *  @param username    username of remote buddy
- *  @param accountName your account name
- *  @param protocol    the protocol of accountName, such as @"xmpp"
- *  @param completion whether not the operation was successful.
- */
-- (void)deleteFingerprint:(NSString *)fingerprint
-                 username:(NSString *)username
-              accountName:(NSString *)accountName
-                 protocol:(NSString *)protocol
-               completion:(void (^)(BOOL success))completion;
-
-
-/**
- *  For determining your own fingerprint.
- *
- *  @param accountName your account name
- *  @param protocol    the protocol of accountName, such as @"xmpp"
- *  @param completion Returns your private key fingerprint
- */
-- (void)fingerprintForAccountName:(NSString*)accountName
-                         protocol:(NSString*)protocol
-                       completion:(void (^)(NSString * _Nullable fingerprint))completion;
-
-/** 
- *  Synchronously returns fingerprint for accountName / protocol. If there is no fingerprint, it will return nil.
- *
- *  @param accountName your account name
- *  @param protocol    the protocol of accountName, such as @"xmpp"
- *  @return fingerprint your OTR fingerprint, uppercase without spaces, or nil if there is no fingerprint.
- *  @warning This method may block for a non-trivial amount of time via dispatch_sync on self.internalQueue during private key generation.
- */
-- (nullable NSString *)synchronousFingerprintForAccountName:(NSString*)accountName
-                                                  protocol:(NSString*)protocol;
-
-/**
- *  For determining the fingerprint of a buddy.
- *
- *  @param username    username of remote buddy
- *  @param accountName your account name
- *  @param protocol    the protocol of accountName, such as @"xmpp"
- *  @param completion Returns username's private key fingerprint
- */
-- (void)activeFingerprintForUsername:(NSString*)username
-                         accountName:(NSString*)accountName
-                            protocol:(NSString*)protocol
-                          completion:(void (^)(NSString * _Nullable activeFingerprint))completion;
-
-/**
- * Retern all fingerprints verified or not
- *
- *  @param username    username of remote buddy
- *  @param accountName your account name
- *  @param protocol    the protocol of accountName, such as @"xmpp"
- *  @param completion Returns an array of all fingerprints for that buddy account protocol combination.
- */
-- (void)allFingerprintsForUsername:(NSString*)username
-                       accountName:(NSString*)accountName
-                          protocol:(NSString*)protocol
-                        completion:(void (^)(NSArray<NSString *>*allFingerprints))completion;
-
-/**
- *  Whether or not buddy's fingerprint is marked as verified.
- *
- *  @param username    username of remote buddy
- *  @param accountName your account name
- *  @param protocol    the protocol of accountName, such as @"xmpp"
- *  @param completion fingerprint verification state for buddy
- */
-- (void)activeFingerprintIsVerifiedForUsername:(NSString*)username
-                                   accountName:(NSString*)accountName
-                                      protocol:(NSString*)protocol
-                                    completion:(void (^)(BOOL verified))completion;
-
-
-/**
- *  Mark a user's active fingerprint as verified
- *
- *  @param username    username of remote buddy
- *  @param accountName your account name
- *  @param protocol    the protocol of accountName, such as @"xmpp"
- *  @param verified    whether or not to trust this fingerprint
- *  @param completion  whether or not operation was successful
- */
-- (void)setActiveFingerprintVerificationForUsername:(NSString*)username
-                                        accountName:(NSString*)accountName
-                                           protocol:(NSString*)protocol
-                                           verified:(BOOL)verified
-                                         completion:(void (^)(void))completion;
-
-/**
- *  Whether or not buddy has any previously verified fingerprints.
- *
- *  @param username    username of remote buddy
- *  @param accountName your account name
- *  @param protocol    the protocol of accountName, such as @"xmpp"
- *
- *  @param completoin Whether or not buddy has any previously verified fingerprints.
- */
-- (void)hasVerifiedFingerprintsForUsername:(NSString *)username
-                               accountName:(NSString*)accountName
-                                  protocol:(NSString *)protocol
-                                completion:(void (^)(BOOL verified))completion;
 
 #pragma mark TLV Handlers
 //////////////////////////////////////////////////////////////////////
@@ -707,7 +584,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 
 + (NSString *)libgcryptVersion;
 
-+ (NSString *) libgpgErrorVersion;
++ (NSString *)libgpgErrorVersion;
 
 @end
 

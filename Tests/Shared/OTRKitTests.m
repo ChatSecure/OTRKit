@@ -19,12 +19,13 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 @property (nonatomic, strong) OTRKit *otrKitBob;
 @property (nonatomic, strong) OTRDataHandler *dataHandlerAlice;
 @property (nonatomic, strong) OTRDataHandler *dataHandlerBob;
-@property (nonatomic, strong) XCTestExpectation *expectation;
 @property (nonatomic) dispatch_queue_t callbackQueue;
 @property (nonatomic, strong) NSData *testFileData;
 
-@property (nonatomic, strong, readonly) NSDictionary *accountToKitMappings;
-@property (nonatomic, strong, readonly) NSDictionary *kitToAccountMappings;
+
+@property (nonatomic, strong) XCTestExpectation *aliceExp;
+@property (nonatomic, strong) XCTestExpectation *bobExp;
+@property (nonatomic, strong) XCTestExpectation *fileTransferExp;
 
 @end
 
@@ -33,13 +34,22 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 - (void)setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *path1 = [documentsDirectory stringByAppendingPathComponent:@"otrKitAlice"];
+    NSString *path2 = [documentsDirectory stringByAppendingPathComponent:@"otrKitBob"];
+    BOOL success = NO;
+    success = [[NSFileManager defaultManager] createDirectoryAtPath:path1 withIntermediateDirectories:YES attributes:nil error:nil];
+    XCTAssertTrue(success);
+    success = [[NSFileManager defaultManager] createDirectoryAtPath:path2 withIntermediateDirectories:YES attributes:nil error:nil];
+    XCTAssertTrue(success);
+    
     self.callbackQueue = dispatch_queue_create("callback queue", 0);
-    self.otrKitAlice = [[OTRKit alloc] init];
+    self.otrKitAlice = [[OTRKit alloc] initWithDataPath:path1];
     self.otrKitAlice.delegate = self;
     self.otrKitAlice.otrPolicy = OTRKitPolicyOpportunistic;
     self.otrKitAlice.callbackQueue = self.callbackQueue;
-    self.otrKitBob = [[OTRKit alloc] init];
+    self.otrKitBob = [[OTRKit alloc] initWithDataPath:path2];
     self.otrKitBob.delegate = self;
     self.otrKitBob.otrPolicy = OTRKitPolicyOpportunistic;
     self.otrKitBob.callbackQueue = self.callbackQueue;
@@ -61,21 +71,9 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 
 - (void)testMessaging
 {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *path1 = [documentsDirectory stringByAppendingPathComponent:@"otrKitAlice"];
-    NSString *path2 = [documentsDirectory stringByAppendingPathComponent:@"otrKitBob"];
-    BOOL success = NO;
-    success = [[NSFileManager defaultManager] createDirectoryAtPath:path1 withIntermediateDirectories:YES attributes:nil error:nil];
-    XCTAssertTrue(success);
-    success = [[NSFileManager defaultManager] createDirectoryAtPath:path2 withIntermediateDirectories:YES attributes:nil error:nil];
-    XCTAssertTrue(success);
-    
-    self.expectation = [self expectationWithDescription:@"test1"];
-    
-    [self.otrKitAlice setupWithDataPath:path1];
-    [self.otrKitBob setupWithDataPath:path2];
-    
+    self.aliceExp = [self expectationWithDescription:@"testMessaging alice"];
+    self.bobExp = [self expectationWithDescription:@"testMessaging bob"];
+
     [self.otrKitAlice initiateEncryptionWithUsername:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP];
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError *error) {
@@ -87,25 +85,13 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 
 #pragma mark OTRKitDelegate
 
-/**
- *  This method **MUST** be implemented or OTR will not work. All outgoing messages
- *  should be sent first through OTRKit encodeMessage and then passed from this delegate
- *  to the appropriate chat protocol manager to send the actual message.
- *
- *  @param otrKit      reference to shared instance
- *  @param message     message to be sent over the network. may contain ciphertext.
- *  @param recipient   intended recipient of the message
- *  @param accountName your local account name
- *  @param protocol    protocol for account name such as "xmpp"
- *  @param tag optional tag to attached to message. Only used locally.
- */
 - (void) otrKit:(OTRKit*)otrKit
   injectMessage:(NSString*)message
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
     fingerprint:(nullable OTRFingerprint*)fingerprint
-            tag:(id)tag {
+            tag:(nullable id)tag {
     XCTAssertNotNil(otrKit);
     NSLog(@"%@ send message: %d %@->%@ tag: %@", otrKit, [OTRKit stringStartsWithOTRPrefix:message], accountName, username, tag);
     NSLog(@"%@ receive message: %d %@->%@ tag: %@", otrKit, [OTRKit stringStartsWithOTRPrefix:message], username, accountName, tag);
@@ -119,18 +105,6 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
     }
 }
 
-/**
- *  All outgoing messages should be sent to the OTRKit encodeMessage method before being
- *  sent over the network.
- *
- *  @param otrKit      reference to shared instance
- *  @param encodedMessage     plaintext message
- *  @param wasEncrypted whether or not encodedMessage message is ciphertext, or just plaintext appended with the opportunistic whitespace. This is just a check of the encodedMessage message for a "?OTR" prefix.
- *  @param username      buddy who sent the message
- *  @param accountName your local account name
- *  @param protocol    protocol for account name such as "xmpp"
- *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
- */
 - (void) otrKit:(OTRKit*)otrKit
  encodedMessage:(NSString*)encodedMessage
    wasEncrypted:(BOOL)wasEncrypted
@@ -138,8 +112,8 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
     fingerprint:(nullable OTRFingerprint*)fingerprint
-            tag:(id)tag
-          error:(NSError*)error {
+            tag:(nullable id)tag
+          error:(nullable NSError*)error {
     XCTAssertNotNil(otrKit);
     if (!wasEncrypted) {
         NSLog(@"%@ encodedMessage: %@ %@->%@ tag: %@", otrKit, encodedMessage, accountName, username, tag);
@@ -157,28 +131,15 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 }
 
 
-/**
- *  All incoming messages should be sent to the OTRKit decodeMessage method before being
- *  processed by your application. You should only display the messages coming from this delegate method.
- *
- *  @param otrKit      reference to shared instance
- *  @param decodedMessage plaintext message to display to the user. May be nil if other party is sending raw TLVs without messages attached.
- *  @param wasEncrypted whether or not the original message sent to decodeMessage: was encrypted or plaintext. This is just a check of the original message for a "?OTR" prefix.
- *  @param tlvs        OTRTLV values that may be present.
- *  @param sender      buddy who sent the message
- *  @param accountName your local account name
- *  @param protocol    protocol for account name such as "xmpp"
- *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
- */
 - (void) otrKit:(OTRKit*)otrKit
- decodedMessage:(NSString*)decodedMessage
+ decodedMessage:(nullable NSString*)decodedMessage
    wasEncrypted:(BOOL)wasEncrypted
-           tlvs:(NSArray*)tlvs
+           tlvs:(NSArray<OTRTLV*>*)tlvs
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
     fingerprint:(nullable OTRFingerprint*)fingerprint
-            tag:(id)tag {
+            tag:(nullable id)tag {
     XCTAssertNotNil(otrKit);
     NSLog(@"%@ decodedMessage(%d): %@ username: %@ accountName: %@ tag: %@", otrKit, wasEncrypted, decodedMessage, username, accountName, tag);
     if (otrKit == self.otrKitAlice) {
@@ -213,10 +174,18 @@ updateMessageState:(OTRKitMessageState)messageState
        fingerprint:(OTRFingerprint*)fingerprint
 {
     XCTAssertNotNil(otrKit);
+    XCTAssertNotNil(username);
+    XCTAssertNotNil(accountName);
+    XCTAssertNotNil(protocol);
+    XCTAssertNotNil(fingerprint);
+    NSLog(@"%s %d %s %s", __FILE__, __LINE__, __PRETTY_FUNCTION__, __FUNCTION__);
     if (messageState == OTRKitMessageStateEncrypted) {
         NSLog(@"%@ OTR active for %@ %@ %@", otrKit, username, accountName, protocol);
         if (otrKit == self.otrKitAlice) {
             [self.otrKitAlice encodeMessage:kOTRTestMessage tlvs:nil username:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP tag:nil];
+            [self.aliceExp fulfill];
+        } else if (otrKit == self.otrKitBob) {
+            [self.bobExp fulfill];
         }
     }
 }
@@ -226,7 +195,7 @@ updateMessageState:(OTRKitMessageState)messageState
  *  is called synchronously on the callback queue so be careful.
  *
  *  @param otrKit      reference to shared instance
- *  @param recipient   intended recipient of the message
+ *  @param username   intended recipient of the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
  *
@@ -381,7 +350,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
     NSLog(@"transfer complete: %@", transfer);
     if (dataHandler == self.dataHandlerBob) {
         if ([transfer.fileData isEqualToData:self.testFileData]) {
-            [self.expectation fulfill];
+            [self.fileTransferExp fulfill];
         }
     }
 }

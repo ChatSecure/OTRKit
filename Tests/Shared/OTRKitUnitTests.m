@@ -18,13 +18,12 @@
 
 - (void)setUp {
     [super setUp];
-    self.otrKit = [OTRKit sharedInstance];
     NSString *dirName = [NSUUID UUID].UUIDString;
     NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:dirName];
     NSError *error = nil;
     [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
     XCTAssertNil(error);
-    [self.otrKit setupWithDataPath:path];
+    self.otrKit = [[OTRKit alloc] initWithDataPath:path];
 }
 
 - (void)tearDown {
@@ -49,22 +48,20 @@
 }
 
 - (void) testGenerateKey {
-    OTRKit *otrKit = [OTRKit sharedInstance];
     self.expectation = [self expectationWithDescription:@"Generate Key"];
     NSString *protocol = @"xmpp";
     NSString *account1 = @"alice@dukgo.com";
     NSString *account2 = @"bob@dukgo.com";
-    __block NSString *fingerprint1 = nil;
-    [otrKit generatePrivateKeyForAccountName:account1 protocol:protocol completion:^(NSString *fingerprint, NSError *error) {
-        XCTAssert(fingerprint.length > 0);
+    [self.otrKit generatePrivateKeyForAccountName:account1 protocol:protocol completion:^(OTRFingerprint *fingerprint, NSError *error) {
+        XCTAssertNotNil(fingerprint);
         NSLog(@"Generated fingerprint for %@: %@", account1, fingerprint);
-        fingerprint1 = fingerprint;
-        [otrKit generatePrivateKeyForAccountName:account1 protocol:protocol completion:^(NSString *fingerprint, NSError *error) {
-            XCTAssert(fingerprint.length > 0);
-            XCTAssertEqualObjects(fingerprint, fingerprint1);
+        OTRFingerprint *fingerprint1 = fingerprint;
+        [self.otrKit generatePrivateKeyForAccountName:account1 protocol:protocol completion:^(OTRFingerprint *fingerprint, NSError *error) {
+            XCTAssertNotNil(fingerprint);
+            XCTAssertEqualObjects(fingerprint.fingerprint, fingerprint1.fingerprint);
             NSLog(@"Generated fingerprint for %@: %@", account1, fingerprint);
-            [otrKit generatePrivateKeyForAccountName:account2 protocol:protocol completion:^(NSString *fingerprint, NSError *error) {
-                XCTAssert(fingerprint.length > 0);
+            [self.otrKit generatePrivateKeyForAccountName:account2 protocol:protocol completion:^(OTRFingerprint *fingerprint, NSError *error) {
+                XCTAssertNotNil(fingerprint);
                 NSLog(@"Generated fingerprint for %@: %@", account2, fingerprint);
                 [self.expectation fulfill];
             }];
