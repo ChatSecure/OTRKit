@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name            = "OTRKit"
-  s.version         = "1.1.3"
+  s.version         = "2.0.0"
   s.summary         = "OTRKit is a lightweight Objective-C wrapper for libotr to provide OTR (Off the Record) message encryption."
   s.author          = "Chris Ballinger <chris@chatsecure.org>"
 

@@ -104,6 +104,7 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
+    fingerprint:(nullable OTRFingerprint*)fingerprint
             tag:(id)tag {
     XCTAssertNotNil(otrKit);
     NSLog(@"%@ send message: %d %@->%@ tag: %@", otrKit, [OTRKit stringStartsWithOTRPrefix:message], accountName, username, tag);
@@ -136,6 +137,7 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
+    fingerprint:(nullable OTRFingerprint*)fingerprint
             tag:(id)tag
           error:(NSError*)error {
     XCTAssertNotNil(otrKit);
@@ -175,6 +177,7 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
+    fingerprint:(nullable OTRFingerprint*)fingerprint
             tag:(id)tag {
     XCTAssertNotNil(otrKit);
     NSLog(@"%@ decodedMessage(%d): %@ username: %@ accountName: %@ tag: %@", otrKit, wasEncrypted, decodedMessage, username, accountName, tag);
@@ -206,7 +209,9 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 updateMessageState:(OTRKitMessageState)messageState
           username:(NSString*)username
        accountName:(NSString*)accountName
-          protocol:(NSString*)protocol {
+          protocol:(NSString*)protocol
+       fingerprint:(OTRFingerprint*)fingerprint
+{
     XCTAssertNotNil(otrKit);
     if (messageState == OTRKitMessageStateEncrypted) {
         NSLog(@"%@ OTR active for %@ %@ %@", otrKit, username, accountName, protocol);

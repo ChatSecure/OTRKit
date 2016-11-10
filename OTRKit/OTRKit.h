@@ -48,11 +48,12 @@ typedef NS_ENUM(NSUInteger, OTRKitMessageState) {
 };
 
 typedef NS_ENUM(NSUInteger, OTRKitPolicy) {
+    OTRKitPolicyDefault,
     OTRKitPolicyNever,
     OTRKitPolicyOpportunistic,
     OTRKitPolicyManual,
     OTRKitPolicyAlways,
-    OTRKitPolicyDefault
+    
 };
 
 typedef NS_ENUM(NSUInteger, OTRKitSMPEvent) {
@@ -106,6 +107,7 @@ extern NSString * const kOTRKitTrustKey;
  *  @param recipient   intended recipient of the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
+ *  @param fingerprint fingerprint of contact, if in session
  *  @param tag optional tag to attached to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
@@ -113,6 +115,7 @@ extern NSString * const kOTRKitTrustKey;
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
+    fingerprint:(nullable OTRFingerprint*)fingerprint
             tag:(nullable id)tag;
 
 /**
@@ -124,6 +127,7 @@ extern NSString * const kOTRKitTrustKey;
  *  @param wasEncrypted whether or not encodedMessage message is ciphertext, or just plaintext appended with the opportunistic whitespace. This is just a check of the encodedMessage message for a "?OTR" prefix.
  *  @param username      buddy who sent the message
  *  @param accountName your local account name
+ *  @param fingerprint fingerprint of contact, if in session
  *  @param protocol    protocol for account name such as "xmpp"
  *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
@@ -133,6 +137,7 @@ extern NSString * const kOTRKitTrustKey;
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
+    fingerprint:(nullable OTRFingerprint*)fingerprint
             tag:(nullable id)tag
           error:(nullable NSError*)error;
 
@@ -148,6 +153,7 @@ extern NSString * const kOTRKitTrustKey;
  *  @param sender      buddy who sent the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
+ *  @param fingerprint fingerprint of contact, if in session
  *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
@@ -157,6 +163,7 @@ extern NSString * const kOTRKitTrustKey;
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
+    fingerprint:(nullable OTRFingerprint*)fingerprint
             tag:(nullable id)tag;
 
 /**
@@ -167,12 +174,14 @@ extern NSString * const kOTRKitTrustKey;
  *  @param username     buddy whose state has changed
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
+ *  @param fingerprint fingerprint of contact
  */
 - (void)    otrKit:(OTRKit*)otrKit
 updateMessageState:(OTRKitMessageState)messageState
           username:(NSString*)username
        accountName:(NSString*)accountName
-          protocol:(NSString*)protocol;
+          protocol:(NSString*)protocol
+       fingerprint:(OTRFingerprint*)fingerprint;
 
 /**
  *  libotr likes to know if buddies are still "online". This method
@@ -296,7 +305,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 /** 
  * By default uses `OTRKitPolicyDefault`
  */
-@property (nonatomic) OTRKitPolicy otrPolicy;
+@property (atomic, readwrite) OTRKitPolicy otrPolicy;
 
 /**
  *  Path to where the OTR private keys and related data is stored.
@@ -520,19 +529,42 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 /// @name Fingerprint Verification
 //////////////////////////////////////////////////////////////////////
 
-/**
- *  @param completion Returns an array of dictionaries using OTRAccountNameKey, OTRUsernameKey,
- *  OTRFingerprintKey, OTRProtocolKey, kOTRKitTrustKey to store the relevant
- *  information.
- */
-- (void) requestAllFingerprints:(void (^)(NSArray<NSDictionary*> *allFingerprints))completion;
 
 /** Synchronously fetches every known fingerprint, excluding yourself. */
 - (NSArray<OTRFingerprint*>*) allFingerprints;
 
 /** Synchronously fetches your own fingerprint for this device / account, which is implicitly trusted. */
 - (nullable OTRFingerprint*)fingerprintForAccountName:(NSString*)accountName
-                         protocol:(NSString*)protocol;
+                                             protocol:(NSString*)protocol;
+
+/** Synchronously fetches all fingerprints known for a given user */
+- (NSArray<OTRFingerprint*>*) fingerprintsForUsername:(NSString*)username
+                                          accountName:(NSString*)accountName
+                                             protocol:(NSString*)protocol;
+
+/** Synchronously fetches fingerprint used in the current session with user. */
+- (nullable OTRFingerprint*)activeFingerprintForUsername:(NSString*)username
+                                             accountName:(NSString*)accountName
+                                             protocol:(NSString*)protocol;
+
+/** Update a fingerprint's trust status, or store a new one. */
+- (void) saveFingerprint:(OTRFingerprint*)fingerprint;
+
+/** Delete fingerprint from the trust store. Will throw an error if you try to delete the active fingerprint, or the fingerprint isn't in the store. */
+- (BOOL) deleteFingerprint:(OTRFingerprint*)fingerprint error:(NSError**)error;
+
+
+#pragma mark Old Fingerprint Verification
+//////////////////////////////////////////////////////////////////////
+/// @name Old Fingerprint Verification
+//////////////////////////////////////////////////////////////////////
+
+/**
+ *  @param completion Returns an array of dictionaries using OTRAccountNameKey, OTRUsernameKey,
+ *  OTRFingerprintKey, OTRProtocolKey, kOTRKitTrustKey to store the relevant
+ *  information.
+ */
+- (void) requestAllFingerprints:(void (^)(NSArray<NSDictionary*> *allFingerprints))completion;
 
 /**
  *  Delete a specified fingerprint.

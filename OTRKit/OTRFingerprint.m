@@ -29,4 +29,31 @@
     return self;
 }
 
+/** Returns true if trustLevel = (OTRTrustLevelTrustedTofu || OTRTrustLevelTrustedTofu) */
+- (BOOL) isTrusted {
+    return self.trustLevel == OTRTrustLevelTrustedUser ||
+    self.trustLevel == OTRTrustLevelTrustedTofu;
+}
+
+- (NSString*) trustLavelString {
+    NSString *trustLevel = @"";
+    switch (self.trustLevel) {
+        case OTRTrustLevelUntrustedNew:
+            trustLevel = @"UntrustedNew";
+            break;
+        case OTRTrustLevelUntrusted:
+            trustLevel = @"Untrusted";
+            break;
+        case OTRTrustLevelTrustedTofu:
+            trustLevel = @"TrustedTofu";
+            break;
+        case OTRTrustLevelTrustedUser:
+            trustLevel = @"TrustedUser";
+        default:
+            trustLevel = @"Untrusted";
+            break;
+    }
+    return trustLevel;
+}
+
 @end

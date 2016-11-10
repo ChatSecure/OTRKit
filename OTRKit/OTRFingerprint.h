@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "OTRProtocols.h"
 
 typedef NS_ENUM(NSUInteger, OTRTrustLevel) {
     OTRTrustLevelUntrustedNew = 0,
@@ -29,6 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
                          protocol:(NSString*)protocol
                       fingerprint:(NSString*)fingerprint
                        trustLevel:(OTRTrustLevel)trustLevel;
+
+/** Returns true if trustLevel = (OTRTrustLevelTrustedTofu || OTRTrustLevelTrustedTofu) */
+- (BOOL) isTrusted;
+
+/** Used internally. Stringified version of trustLevel */
+- (NSString*) trustLavelString;
 
 @end
 NS_ASSUME_NONNULL_END
