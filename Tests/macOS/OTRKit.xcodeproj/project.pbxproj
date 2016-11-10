@@ -7,42 +7,36 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4672416DB61B75CFEF2D1E9A /* Pods_OTRKitTestsiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF18814F904F556BDA9C001A /* Pods_OTRKitTestsiOS.framework */; };
-		63547DE81DA30B1100E4E24D /* OTRUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */; };
-		D955143E1A6896F600C1A45D /* test_image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D955143D1A6896F600C1A45D /* test_image.jpg */; };
-		D95514401A6897C500C1A45D /* OTRKitUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */; };
-		D9A94047197E423200EEADD4 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98B9D3018C93739008C8D1C /* XCTest.framework */; };
-		D9A94048197E423200EEADD4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D905CFCD155B2B0000654181 /* Foundation.framework */; };
-		D9A94049197E423200EEADD4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98B9D3318C93739008C8D1C /* UIKit.framework */; };
-		D9A9404F197E423300EEADD4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D9A9404D197E423300EEADD4 /* InfoPlist.strings */; };
-		D9A9406B197E42BE00EEADD4 /* OTRKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */; };
+		C080A3F187599AE8D717241F /* Pods_OTRKitTestsMac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328293020A936BCFB215E168 /* Pods_OTRKitTestsMac.framework */; };
+		D9EA1C3E1DD4FEE200055E75 /* OTRUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */; };
+		D9EA1C3F1DD4FEE400055E75 /* OTRKitUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */; };
+		D9EA1C401DD4FEE700055E75 /* OTRKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */; };
+		D9EA1C411DD4FEF500055E75 /* test_image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D955143D1A6896F600C1A45D /* test_image.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3B477E1470C17E449CBA0437 /* Pods-OTRKitTestsiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.release.xcconfig"; sourceTree = "<group>"; };
-		63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRUtilityTests.m; sourceTree = "<group>"; };
-		83F6598AE0D6A8CDD18E78B6 /* Pods-OTRKitTestsiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.debug.xcconfig"; sourceTree = "<group>"; };
-		CF18814F904F556BDA9C001A /* Pods_OTRKitTestsiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTRKitTestsiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		21D1EBC2171EB93D483ADD36 /* Pods-OTRKitTestsMac.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsMac.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac.debug.xcconfig"; sourceTree = "<group>"; };
+		328293020A936BCFB215E168 /* Pods_OTRKitTestsMac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTRKitTestsMac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRUtilityTests.m; path = ../../Shared/OTRUtilityTests.m; sourceTree = "<group>"; };
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		D955143D1A6896F600C1A45D /* test_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test_image.jpg; sourceTree = "<group>"; };
-		D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKitUnitTests.m; sourceTree = "<group>"; };
+		D955143D1A6896F600C1A45D /* test_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = test_image.jpg; path = ../../Shared/test_image.jpg; sourceTree = "<group>"; };
+		D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRKitUnitTests.m; path = ../../Shared/OTRKitUnitTests.m; sourceTree = "<group>"; };
 		D98B9D3018C93739008C8D1C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		D98B9D3318C93739008C8D1C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		D9A94046197E423200EEADD4 /* OTRKitTestsiOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OTRKitTestsiOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9A9404E197E423300EEADD4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D9A94052197E423300EEADD4 /* OTRKitTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OTRKitTests-Prefix.pch"; sourceTree = "<group>"; };
-		D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKitTests.m; sourceTree = "<group>"; };
+		D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRKitTests.m; path = ../../Shared/OTRKitTests.m; sourceTree = "<group>"; };
+		D9EA1C301DD4FC2600055E75 /* OTRKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OTRKit.framework; path = "../../../../../../../Library/Developer/Xcode/DerivedData/OTRKit-btyaascrghjaacgibwbkeukjymae/Build/Products/Debug/OTRKit/OTRKit.framework"; sourceTree = "<group>"; };
+		D9EA1C361DD4FED500055E75 /* OTRKitTestsMac.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OTRKitTestsMac.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9EA1C3A1DD4FED500055E75 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FD89C0CA89343876F99D516F /* Pods-OTRKitTestsMac.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsMac.release.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		D9A94043197E423200EEADD4 /* Frameworks */ = {
+		D9EA1C331DD4FED500055E75 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9A94047197E423200EEADD4 /* XCTest.framework in Frameworks */,
-				D9A94049197E423200EEADD4 /* UIKit.framework in Frameworks */,
-				D9A94048197E423200EEADD4 /* Foundation.framework in Frameworks */,
-				4672416DB61B75CFEF2D1E9A /* Pods_OTRKitTestsiOS.framework in Frameworks */,
+				C080A3F187599AE8D717241F /* Pods_OTRKitTestsMac.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,8 +46,8 @@
 		1B8447B0E03F4101A6C62F53 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				83F6598AE0D6A8CDD18E78B6 /* Pods-OTRKitTestsiOS.debug.xcconfig */,
-				3B477E1470C17E449CBA0437 /* Pods-OTRKitTestsiOS.release.xcconfig */,
+				21D1EBC2171EB93D483ADD36 /* Pods-OTRKitTestsMac.debug.xcconfig */,
+				FD89C0CA89343876F99D516F /* Pods-OTRKitTestsMac.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -62,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				D9A9404A197E423200EEADD4 /* OTRKitTests */,
+				D9EA1C371DD4FED500055E75 /* OTRKitTestsMac */,
 				D905CFCC155B2B0000654181 /* Frameworks */,
 				D905CF68155B010B00654181 /* Products */,
 				1B8447B0E03F4101A6C62F53 /* Pods */,
@@ -71,7 +66,7 @@
 		D905CF68155B010B00654181 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D9A94046197E423200EEADD4 /* OTRKitTestsiOS.xctest */,
+				D9EA1C361DD4FED500055E75 /* OTRKitTestsMac.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,10 +74,10 @@
 		D905CFCC155B2B0000654181 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D9EA1C301DD4FC2600055E75 /* OTRKit.framework */,
 				D905CFCD155B2B0000654181 /* Foundation.framework */,
 				D98B9D3018C93739008C8D1C /* XCTest.framework */,
-				D98B9D3318C93739008C8D1C /* UIKit.framework */,
-				CF18814F904F556BDA9C001A /* Pods_OTRKitTestsiOS.framework */,
+				328293020A936BCFB215E168 /* Pods_OTRKitTestsMac.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -108,27 +103,35 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		D9EA1C371DD4FED500055E75 /* OTRKitTestsMac */ = {
+			isa = PBXGroup;
+			children = (
+				D9EA1C3A1DD4FED500055E75 /* Info.plist */,
+			);
+			path = OTRKitTestsMac;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D9A94045197E423200EEADD4 /* OTRKitTestsiOS */ = {
+		D9EA1C351DD4FED500055E75 /* OTRKitTestsMac */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D9A94053197E423300EEADD4 /* Build configuration list for PBXNativeTarget "OTRKitTestsiOS" */;
+			buildConfigurationList = D9EA1C3B1DD4FED500055E75 /* Build configuration list for PBXNativeTarget "OTRKitTestsMac" */;
 			buildPhases = (
-				4843967B39253CB7EE6A669F /* [CP] Check Pods Manifest.lock */,
-				D9A94042197E423200EEADD4 /* Sources */,
-				D9A94043197E423200EEADD4 /* Frameworks */,
-				D9A94044197E423200EEADD4 /* Resources */,
-				8B0FD1F2E14466C7F7C88685 /* [CP] Embed Pods Frameworks */,
-				5664868C9C60627FD735AF8F /* [CP] Copy Pods Resources */,
+				E95B12A3CDA252EB38C87E3E /* [CP] Check Pods Manifest.lock */,
+				D9EA1C321DD4FED500055E75 /* Sources */,
+				D9EA1C331DD4FED500055E75 /* Frameworks */,
+				D9EA1C341DD4FED500055E75 /* Resources */,
+				47C48C87A77573665BD56EBE /* [CP] Embed Pods Frameworks */,
+				5DED5EC927B7AD50292C921B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = OTRKitTestsiOS;
-			productName = OTRKitTestsiOS;
-			productReference = D9A94046197E423200EEADD4 /* OTRKitTestsiOS.xctest */;
+			name = OTRKitTestsMac;
+			productName = OTRKitTestsMac;
+			productReference = D9EA1C361DD4FED500055E75 /* OTRKitTestsMac.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -138,6 +141,12 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0800;
+				TargetAttributes = {
+					D9EA1C351DD4FED500055E75 = {
+						CreatedOnToolsVersion = 8.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = D905CF5D155B010A00654181 /* Build configuration list for PBXProject "OTRKit" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -157,55 +166,24 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D9A94045197E423200EEADD4 /* OTRKitTestsiOS */,
+				D9EA1C351DD4FED500055E75 /* OTRKitTestsMac */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		D9A94044197E423200EEADD4 /* Resources */ = {
+		D9EA1C341DD4FED500055E75 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9A9404F197E423300EEADD4 /* InfoPlist.strings in Resources */,
-				D955143E1A6896F600C1A45D /* test_image.jpg in Resources */,
+				D9EA1C411DD4FEF500055E75 /* test_image.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4843967B39253CB7EE6A669F /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		5664868C9C60627FD735AF8F /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8B0FD1F2E14466C7F7C88685 /* [CP] Embed Pods Frameworks */ = {
+		47C48C87A77573665BD56EBE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -217,19 +195,49 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5DED5EC927B7AD50292C921B /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E95B12A3CDA252EB38C87E3E /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run \'pod install\' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		D9A94042197E423200EEADD4 /* Sources */ = {
+		D9EA1C321DD4FED500055E75 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63547DE81DA30B1100E4E24D /* OTRUtilityTests.m in Sources */,
-				D95514401A6897C500C1A45D /* OTRKitUnitTests.m in Sources */,
-				D9A9406B197E42BE00EEADD4 /* OTRKitTests.m in Sources */,
+				D9EA1C401DD4FEE700055E75 /* OTRKitTests.m in Sources */,
+				D9EA1C3E1DD4FEE200055E75 /* OTRUtilityTests.m in Sources */,
+				D9EA1C3F1DD4FEE400055E75 /* OTRKitUnitTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,7 +293,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LLVM_LTO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Debug;
@@ -319,63 +327,66 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LLVM_LTO = YES;
-				SDKROOT = iphoneos;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
-		D9A94054197E423300EEADD4 /* Debug */ = {
+		D9EA1C3C1DD4FED500055E75 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 83F6598AE0D6A8CDD18E78B6 /* Pods-OTRKitTestsiOS.debug.xcconfig */;
+			baseConfigurationReference = 21D1EBC2171EB93D483ADD36 /* Pods-OTRKitTestsMac.debug.xcconfig */;
 			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "OTRKitTests/OTRKitTests-Prefix.pch";
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "OTRKitTests/OTRKitTests-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.chrisballinger.${PRODUCT_NAME:rfc1034identifier}";
+				INFOPLIST_FILE = OTRKitTestsMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.chatsecure.OTRKitTestsMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
 		};
-		D9A94055197E423300EEADD4 /* Release */ = {
+		D9EA1C3D1DD4FED500055E75 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B477E1470C17E449CBA0437 /* Pods-OTRKitTestsiOS.release.xcconfig */;
+			baseConfigurationReference = FD89C0CA89343876F99D516F /* Pods-OTRKitTestsMac.release.xcconfig */;
 			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				COPY_PHASE_STRIP = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "OTRKitTests/OTRKitTests-Prefix.pch";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "OTRKitTests/OTRKitTests-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.chrisballinger.${PRODUCT_NAME:rfc1034identifier}";
+				INFOPLIST_FILE = OTRKitTestsMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = org.chatsecure.OTRKitTestsMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
@@ -391,14 +402,13 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D9A94053197E423300EEADD4 /* Build configuration list for PBXNativeTarget "OTRKitTestsiOS" */ = {
+		D9EA1C3B1DD4FED500055E75 /* Build configuration list for PBXNativeTarget "OTRKitTestsMac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D9A94054197E423300EEADD4 /* Debug */,
-				D9A94055197E423300EEADD4 /* Release */,
+				D9EA1C3C1DD4FED500055E75 /* Debug */,
+				D9EA1C3D1DD4FED500055E75 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

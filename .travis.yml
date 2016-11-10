@@ -4,10 +4,13 @@ osx_image: xcode8
 install:
   - export ARCHS="x86_64"   # Only build dependencies for x86_64 to speed things up
   - bash ./scripts/build-all.sh
+  - export PLATFORM_TARGET="macOS"
+  - bash ./scripts/build-all.sh  
   - bundle install
-  - bundle exec pod install
+  - bundle exec pod install --project-directory=Tests/iOS/
+  - bundle exec pod install --project-directory=Tests/macOS/  
 
 script:
   - set -o pipefail
-  - xcodebuild -workspace OTRKit.xcworkspace -scheme OTRKitTestsiOS -sdk iphonesimulator -destination 'name=iPhone 6' test | xcpretty -c
-  
+  - xcodebuild -workspace Tests/iOS/OTRKit.xcworkspace -scheme OTRKitTestsiOS -sdk iphonesimulator -destination 'name=iPhone 6' test | xcpretty -c
+  - xcodebuild -workspace Tests/macOS/OTRKit.xcworkspace -scheme OTRKitTestsMac -sdk macosx -destination 'platform=OS X,arch=x86_64' test | xcpretty -c

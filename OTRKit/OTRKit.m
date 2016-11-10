@@ -1367,8 +1367,12 @@ static OtrlMessageAppOps ui_ops = {
         return;
     }
     NSArray<OTRFingerprint*>* fingerprints = [self fingerprintsForUsername:username accountName:accountName protocol:protocol];
+    NSMutableArray *fingerprintStrings = [[NSMutableArray alloc] initWithCapacity:fingerprints.count];
+    [fingerprints enumerateObjectsUsingBlock:^(OTRFingerprint * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [fingerprintStrings addObject:obj.fingerprint];
+    }];
     dispatch_async(self.callbackQueue, ^{
-        completion(fingerprints);
+        completion(fingerprintStrings);
     });
 }
 
@@ -1471,7 +1475,7 @@ static OtrlMessageAppOps ui_ops = {
     fclose(storef);
 }
 
-- (void) requestAllFingerprints:(void (^)(NSArray *allFingerprints))completion
+- (void) requestAllFingerprints:(void (^)(NSArray<NSDictionary*> *allFingerprints))completion
 {
     NSParameterAssert(completion != nil);
     if (!completion) { return; }

@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "OTRProtocols.h"
 
 typedef NS_ENUM(NSUInteger, OTRTrustLevel) {
     OTRTrustLevelUntrustedNew = 0,

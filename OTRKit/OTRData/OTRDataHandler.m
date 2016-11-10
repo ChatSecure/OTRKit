@@ -16,7 +16,12 @@
 #import "NSData+OTRDATA.h"
 #import "OTRDataRequest.h"
 #import "OTRDataGetOperation.h"
+
+#if TARGET_OS_IPHONE
 #import <MobileCoreServices/MobileCoreServices.h>
+#elif TARGET_OS_MAC
+#import <CoreServices/CoreServices.h>
+#endif
 
 NSString * const kOTRDataHandlerURLScheme = @"otr-in-band";
 static NSString * const kOTRDataErrorDomain = @"org.chatsecure.OTRDataError";
@@ -69,12 +74,6 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
 @end
 
 @implementation OTRDataHandler
-
-- (instancetype) init {
-    if (self = [self initWithOTRKit:nil delegate:nil]) {
-    }
-    return self;
-}
 
 - (instancetype) initWithOTRKit:(OTRKit*)otrKit delegate:(id<OTRDataHandlerDelegate>)delegate {
     if (self = [super init]) {

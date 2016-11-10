@@ -1,0 +1,6 @@
+use_frameworks!
+
+target :OTRKitTestsMac do
+    platform :osx, '10.10'
+    pod 'OTRKit', :path => '../../OTRKit.podspec'
+end

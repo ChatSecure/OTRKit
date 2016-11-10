@@ -60,6 +60,8 @@ extern  NSString *const kHTTPHeaderRequestID;
  */
 - (instancetype) initWithOTRKit:(OTRKit*)otrKit delegate:(id<OTRDataHandlerDelegate>)delegate;
 
+- (instancetype) init NS_UNAVAILABLE;
+
 #pragma mark Sending Data
 
 /** For now, this won't work for large files because of RAM limitations */

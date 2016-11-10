@@ -11,9 +11,9 @@ tar zxf "libotr-${LIBOTR_VERSION}.tar.gz"
 
 pushd "libotr-${LIBOTR_VERSION}"
 
-   LDFLAGS="-L${ARCH_BUILT_LIBS_DIR} -fPIE -miphoneos-version-min=${MIN_IOS_VERSION}"
-   CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} -miphoneos-version-min=${MIN_IOS_VERSION}"
-   CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} -miphoneos-version-min=${MIN_IOS_VERSION}"
+   LDFLAGS="-L${ARCH_BUILT_LIBS_DIR} -fPIE ${PLATFORM_VERSION_MIN}"
+   CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
+   CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
 
    if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ];
       then

@@ -18,6 +18,8 @@ DerivedData
 *.xccheckout
 
 OTRKitDependencies/
+OTRKitDependencies-iOS/
+OTRKitDependencies-macOS/
 Pods/
 scripts/build/
 scripts/built/
