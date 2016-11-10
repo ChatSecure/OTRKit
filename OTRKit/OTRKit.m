@@ -101,7 +101,6 @@ NSString * const kOTRKitTrustKey       = @"kOTRKitTrustKey";
 @implementation OTRKit
 @synthesize otrPolicy = _otrPolicy;
 @synthesize callbackQueue = _callbackQueue;
-@synthesize delegate = _delegate;
 
 #pragma mark libotr ui_ops callback functions
 
@@ -594,15 +593,10 @@ static OtrlMessageAppOps ui_ops = {
     }];
 }
 
-/** Not available */
-- (instancetype) init {
-    if ([self = self initWithDataPath:nil]) {
-    }
-    return self;
-}
-
-- (instancetype) initWithDataPath:(NSString *)dataPath {
+- (instancetype) initWithDelegate:(id<OTRKitDelegate>)delegate dataPath:(nullable NSString*)dataPath {
+    NSParameterAssert(delegate != nil);
     if (self = [super init]) {
+        _delegate = delegate;
         _callbackQueue = dispatch_get_main_queue();
         _internalQueue = dispatch_queue_create("OTRKit Internal Queue", 0);
         
@@ -703,20 +697,6 @@ static OtrlMessageAppOps ui_ops = {
         callbackQueue = _callbackQueue;
     }];
     return callbackQueue;
-}
-
-- (id<OTRKitDelegate>) delegate {
-    __block id<OTRKitDelegate> delegate = nil;
-    [self performBlock:^{
-        delegate = _delegate;
-    }];
-    return delegate;
-}
-
-- (void) setDelegate:(id<OTRKitDelegate>)delegate {
-    [self performBlockAsync:^{
-        _delegate = delegate;
-    }];
 }
 
 - (void) messagePoll:(NSTimer*)timer {

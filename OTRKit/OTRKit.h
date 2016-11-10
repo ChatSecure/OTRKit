@@ -96,6 +96,7 @@ extern NSString * const kOTRKitProtocolKey;
 extern NSString * const kOTRKitTrustKey;
 
 @protocol OTRKitDelegate <NSObject>
+#pragma mark Required OTRKitDelegate methods
 @required
 
 /**
@@ -189,7 +190,7 @@ updateMessageState:(OTRKitMessageState)messageState
  *  is called synchronously on the callback queue so be careful.
  *
  *  @param otrKit      reference to shared instance
- *  @param recipient   intended recipient of the message
+ *  @param username   intended recipient of the message
  *  @param accountName your local account name
  *  @param protocol    protocol for account name such as "xmpp"
  *
@@ -266,7 +267,12 @@ handleMessageEvent:(OTRKitMessageEvent)event
            accountName:(NSString*)accountName
               protocol:(NSString*)protocol;
 
+#pragma mark OTRKitDelegate optional methods
 @optional
+
+/** If you'd like to override the TOFU trust mechanism */
+- (BOOL)             otrKit:(OTRKit*)otrKit
+evaluateTrustForFingerprint:(OTRFingerprint*)evaluateTrustForFingerprint;
 
 /**
  *  Called when starting to generate a private key, may take a while.
@@ -295,8 +301,9 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 
 @interface OTRKit : NSObject
 
+#pragma mark Properties
 
-@property (atomic, weak, nullable) id<OTRKitDelegate> delegate;
+@property (nonatomic, weak, readonly) id<OTRKitDelegate> delegate;
 
 /**
  *  Defaults to main queue. All delegate and block callbacks will be done on this queue. Cannot be set to nil.
@@ -338,7 +345,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *
  * @param dataPath This is a path to a folder where private keys, fingerprints, and instance tags will be stored. If a nil dataPath is passed, a default within the documents directory is chosen.
  */
-- (instancetype) initWithDataPath:(nullable NSString*)dataPath NS_DESIGNATED_INITIALIZER;
+- (instancetype) initWithDelegate:(id<OTRKitDelegate>)delegate dataPath:(nullable NSString*)dataPath NS_DESIGNATED_INITIALIZER;
 
 /** Use initWithDataPath: instead. */
 - (instancetype) init NS_UNAVAILABLE;

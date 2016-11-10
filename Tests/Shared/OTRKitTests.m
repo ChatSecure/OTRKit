@@ -45,12 +45,10 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
     XCTAssertTrue(success);
     
     self.callbackQueue = dispatch_queue_create("callback queue", 0);
-    self.otrKitAlice = [[OTRKit alloc] initWithDataPath:path1];
-    self.otrKitAlice.delegate = self;
+    self.otrKitAlice = [[OTRKit alloc] initWithDelegate: self dataPath:path1];
     self.otrKitAlice.otrPolicy = OTRKitPolicyOpportunistic;
     self.otrKitAlice.callbackQueue = self.callbackQueue;
-    self.otrKitBob = [[OTRKit alloc] initWithDataPath:path2];
-    self.otrKitBob.delegate = self;
+    self.otrKitBob = [[OTRKit alloc] initWithDelegate:self dataPath:path2];
     self.otrKitBob.otrPolicy = OTRKitPolicyOpportunistic;
     self.otrKitBob.callbackQueue = self.callbackQueue;
     self.dataHandlerAlice = [[OTRDataHandler alloc] initWithOTRKit:self.otrKitAlice delegate:self];
