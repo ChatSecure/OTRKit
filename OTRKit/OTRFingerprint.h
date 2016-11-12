@@ -9,10 +9,16 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, OTRTrustLevel) {
-    OTRTrustLevelUntrustedNew = 0,
-    OTRTrustLevelUntrusted    = 1,
-    OTRTrustLevelTrustedTofu  = 2,
-    OTRTrustLevelTrustedUser  = 3,
+    /** Trust level is not set */
+    OTRTrustLevelUnknown,
+    /** A new untrusted device. Set for any device after the first. */
+    OTRTrustLevelUntrustedNew,
+    /** Device marked as untrusted by the user */
+    OTRTrustLevelUntrustedUser,
+    /** First device seen is implicitly trusted (TOFU) */
+    OTRTrustLevelTrustedTofu,
+    /** Device marked as trusted by the user */
+    OTRTrustLevelTrustedUser,
 };
 
 NS_ASSUME_NONNULL_BEGIN
@@ -21,20 +27,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly) NSString *username;
 @property (nonatomic, copy, readonly) NSString *accountName;
 @property (nonatomic, copy, readonly) NSString *protocol;
-@property (nonatomic, copy, readonly) NSString *fingerprint;
+@property (nonatomic, copy, readonly) NSData *fingerprint;
 @property (nonatomic, readwrite) OTRTrustLevel trustLevel;
 
 - (instancetype) initWithUsername:(NSString*)username
                       accountName:(NSString*)accountName
                          protocol:(NSString*)protocol
-                      fingerprint:(NSString*)fingerprint
+                      fingerprint:(NSData*)fingerprint
                        trustLevel:(OTRTrustLevel)trustLevel;
 
 /** Returns true if trustLevel = (OTRTrustLevelTrustedTofu || OTRTrustLevelTrustedTofu) */
 - (BOOL) isTrusted;
-
-/** Used internally. Stringified version of trustLevel */
-- (NSString*) trustLavelString;
 
 @end
 NS_ASSUME_NONNULL_END

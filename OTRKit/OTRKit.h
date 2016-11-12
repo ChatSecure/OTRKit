@@ -126,7 +126,7 @@ extern NSString * const kOTRKitTrustKey;
  *
  *  @param otrKit      reference to shared instance
  *  @param encodedMessage     plaintext message
- *  @param wasEncrypted whether or not encodedMessage message is ciphertext, or just plaintext appended with the opportunistic whitespace. This is just a check of the encodedMessage message for a "?OTR" prefix.
+ *  @param wasEncrypted whether or not encodedMessage message is ciphertext, or just plaintext appended with the opportunistic whitespace. This is just a check of the encodedMessage message for a "?OTR" prefix. Nil if error.
  *  @param username      buddy who sent the message
  *  @param accountName your local account name
  *  @param fingerprint fingerprint of contact, if in session
@@ -134,7 +134,7 @@ extern NSString * const kOTRKitTrustKey;
  *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
  */
 - (void) otrKit:(OTRKit*)otrKit
- encodedMessage:(NSString*)encodedMessage
+ encodedMessage:(nullable NSString*)encodedMessage
    wasEncrypted:(BOOL)wasEncrypted
        username:(NSString*)username
     accountName:(NSString*)accountName

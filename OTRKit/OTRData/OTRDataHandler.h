@@ -22,17 +22,21 @@ extern  NSString *const kHTTPHeaderRequestID;
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
            transfer:(OTRDataTransfer*)transfer
+        fingerprint:(OTRFingerprint*)fingerprint
               error:(NSError*)error;
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
-    offeredTransfer:(OTRDataIncomingTransfer*)transfer;
+    offeredTransfer:(OTRDataIncomingTransfer*)transfer
+        fingerprint:(OTRFingerprint*)fingerprint;
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
            transfer:(OTRDataTransfer*)transfer
-           progress:(float)progress;
+           progress:(float)progress
+        fingerprint:(OTRFingerprint*)fingerprint;
 
 - (void)dataHandler:(OTRDataHandler*)dataHandler
-   transferComplete:(OTRDataTransfer*)transfer;
+   transferComplete:(OTRDataTransfer*)transfer
+        fingerprint:(OTRFingerprint*)fingerprint;
 
 @end
 

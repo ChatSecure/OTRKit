@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "OTRFingerprint.h"
 
 @class OTRTLV;
 
@@ -27,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
           username:(NSString*)username
        accountName:(NSString*)accountName
           protocol:(NSString*)protocol
+       fingerprint:(OTRFingerprint*)fingerprint
                tag:(nullable id)tag;
 
 /**

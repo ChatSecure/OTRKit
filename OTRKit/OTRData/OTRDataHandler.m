@@ -98,7 +98,7 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
     return url;
 }
 
-- (void) handleIncomingRequestData:(NSData *)requestData username:(NSString *)username accountName:(NSString *)accountName protocol:(NSString *)protocol tag:(id)tag {
+- (void) handleIncomingRequestData:(NSData *)requestData username:(NSString *)username accountName:(NSString *)accountName protocol:(NSString *)protocol fingerprint:fingerprint tag:(id)tag {
     dispatch_async(self.internalQueue, ^{
         NSError *error = nil;
         OTRHTTPMessage *request = [[OTRHTTPMessage alloc] initEmptyRequest];
@@ -139,7 +139,7 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
             [self.incomingTransfers setObject:transfer forKey:url];
             // notify delegate of new offered transfer
             dispatch_async(self.callbackQueue, ^{
-                [self.delegate dataHandler:self offeredTransfer:transfer];
+                [self.delegate dataHandler:self offeredTransfer:transfer fingerprint:fingerprint];
             });
         } else if ([requestMethod isEqualToString:@"GET"]) {
             OTRDataOutgoingTransfer *transfer = [self.outgoingTransfers objectForKey:url];
@@ -184,13 +184,13 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
             float percentageComplete = (float)transfer.bytesTransferred / (float)transfer.fileData.length;
             
             dispatch_async(self.callbackQueue, ^{
-                [self.delegate dataHandler:self transfer:transfer progress:percentageComplete];
+                [self.delegate dataHandler:self transfer:transfer progress:percentageComplete fingerprint:fingerprint];
             });
             
             if (transfer.bytesTransferred == transfer.fileData.length) {
                 [self.outgoingTransfers removeObjectForKey:url];
                 dispatch_async(self.callbackQueue, ^{
-                    [self.delegate dataHandler:self transferComplete:transfer];
+                    [self.delegate dataHandler:self transferComplete:transfer fingerprint:fingerprint];
                 });
             }
             
@@ -199,7 +199,7 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
     });
 }
 
-- (void) handleIncomingResponseData:(NSData *)responseData username:(NSString *)username accountName:(NSString *)accountName protocol:(NSString *)protocol tag:(id)tag {
+- (void) handleIncomingResponseData:(NSData *)responseData username:(NSString *)username accountName:(NSString *)accountName protocol:(NSString *)protocol fingerprint:(OTRFingerprint*)fingerprint tag:(id)tag {
     dispatch_async(self.internalQueue, ^{
         OTRHTTPMessage *incomingResponse = [[OTRHTTPMessage alloc] initEmptyRequest];
         [incomingResponse appendData:responseData];
@@ -237,18 +237,18 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
             NSString *fileHashString = [fileHash otr_hexString];
             if ([transfer.fileHash isEqualToString:fileHashString]) {
                 dispatch_async(self.callbackQueue, ^{
-                    [self.delegate dataHandler:self transferComplete:transfer];
+                    [self.delegate dataHandler:self transferComplete:transfer fingerprint:fingerprint];
                 });
             } else {
                 dispatch_async(self.callbackQueue, ^{
-                    [self.delegate dataHandler:self transfer:transfer error:[NSError errorWithDomain:kOTRDataErrorDomain code:102 userInfo:@{NSLocalizedDescriptionKey: @"Bad SHA hash"}]];
+                    [self.delegate dataHandler:self transfer:transfer fingerprint:fingerprint error:[NSError errorWithDomain:kOTRDataErrorDomain code:102 userInfo:@{NSLocalizedDescriptionKey: @"Bad SHA hash"}]];
                 });
             }
             
         } else {
             float progress = (float)transfer.bytesTransferred / (float)transfer.fileLength;
             dispatch_async(self.callbackQueue, ^{
-                [self.delegate dataHandler:self transfer:transfer progress:progress];
+                [self.delegate dataHandler:self transfer:transfer progress:progress fingerprint:fingerprint];
             });
             //[self processOutstandingRequestsForIncomingTransfer:transfer];
         }
@@ -408,11 +408,12 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
           username:(NSString*)username
        accountName:(NSString*)accountName
           protocol:(NSString*)protocol
+       fingerprint:(OTRFingerprint*)fingerprint
                tag:(id)tag {
     if (tlv.type == OTRTLVTypeDataRequest) {
-        [self handleIncomingRequestData:tlv.data username:username accountName:accountName protocol:protocol tag:tag];
+        [self handleIncomingRequestData:tlv.data username:username accountName:accountName protocol:protocol fingerprint:fingerprint tag:tag];
     } else if (tlv.type == OTRTLVTypeDataResponse) {
-        [self handleIncomingResponseData:tlv.data username:username accountName:accountName protocol:protocol tag:tag];
+        [self handleIncomingResponseData:tlv.data username:username accountName:accountName protocol:protocol fingerprint:fingerprint tag:tag];
     }
 }
 
