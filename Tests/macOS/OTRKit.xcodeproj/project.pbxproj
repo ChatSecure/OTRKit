@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		C080A3F187599AE8D717241F /* Pods_OTRKitTestsMac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328293020A936BCFB215E168 /* Pods_OTRKitTestsMac.framework */; };
+		D963F2051DD785690070A1D3 /* OTRKitSessionBase.m in Sources */ = {isa = PBXBuildFile; fileRef = D963F2041DD785690070A1D3 /* OTRKitSessionBase.m */; };
+		D963F2081DD79C1F0070A1D3 /* OTRKitFingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D963F2071DD79C1F0070A1D3 /* OTRKitFingerprintTests.m */; };
 		D9EA1C3E1DD4FEE200055E75 /* OTRUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */; };
 		D9EA1C3F1DD4FEE400055E75 /* OTRKitUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */; };
 		D9EA1C401DD4FEE700055E75 /* OTRKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */; };
@@ -21,6 +23,10 @@
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D955143D1A6896F600C1A45D /* test_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = test_image.jpg; path = ../../Shared/test_image.jpg; sourceTree = "<group>"; };
 		D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRKitUnitTests.m; path = ../../Shared/OTRKitUnitTests.m; sourceTree = "<group>"; };
+		D963F2011DD785140070A1D3 /* OTRKitTestsMac-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OTRKitTestsMac-Bridging-Header.h"; sourceTree = "<group>"; };
+		D963F2041DD785690070A1D3 /* OTRKitSessionBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRKitSessionBase.m; path = ../../Shared/OTRKitSessionBase.m; sourceTree = "<group>"; };
+		D963F2061DD785820070A1D3 /* OTRKitSessionBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OTRKitSessionBase.h; path = ../../Shared/OTRKitSessionBase.h; sourceTree = "<group>"; };
+		D963F2071DD79C1F0070A1D3 /* OTRKitFingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRKitFingerprintTests.m; path = ../../Shared/OTRKitFingerprintTests.m; sourceTree = "<group>"; };
 		D98B9D3018C93739008C8D1C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		D9A9404E197E423300EEADD4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D9A94052197E423300EEADD4 /* OTRKitTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OTRKitTests-Prefix.pch"; sourceTree = "<group>"; };
@@ -85,10 +91,14 @@
 		D9A9404A197E423200EEADD4 /* OTRKitTests */ = {
 			isa = PBXGroup;
 			children = (
+				D963F2041DD785690070A1D3 /* OTRKitSessionBase.m */,
+				D963F2061DD785820070A1D3 /* OTRKitSessionBase.h */,
+				D963F2071DD79C1F0070A1D3 /* OTRKitFingerprintTests.m */,
 				D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */,
 				D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */,
 				63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */,
 				D9A9404B197E423200EEADD4 /* Supporting Files */,
+				D963F2011DD785140070A1D3 /* OTRKitTestsMac-Bridging-Header.h */,
 			);
 			path = OTRKitTests;
 			sourceTree = "<group>";
@@ -144,6 +154,7 @@
 				TargetAttributes = {
 					D9EA1C351DD4FED500055E75 = {
 						CreatedOnToolsVersion = 8.1;
+						LastSwiftMigration = 0810;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -235,8 +246,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D963F2081DD79C1F0070A1D3 /* OTRKitFingerprintTests.m in Sources */,
 				D9EA1C401DD4FEE700055E75 /* OTRKitTests.m in Sources */,
 				D9EA1C3E1DD4FEE200055E75 /* OTRUtilityTests.m in Sources */,
+				D963F2051DD785690070A1D3 /* OTRKitSessionBase.m in Sources */,
 				D9EA1C3F1DD4FEE400055E75 /* OTRKitUnitTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -361,6 +374,9 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.chatsecure.OTRKitTestsMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "OTRKitTests/OTRKitTestsMac-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -387,6 +403,8 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = org.chatsecure.OTRKitTestsMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "OTRKitTests/OTRKitTestsMac-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

@@ -91,7 +91,6 @@
 @property (nonatomic, readonly) NSInteger HTTPStatusCode;
 
 /*!
- @method allHTTPHeaderFields
  @abstract Returns a dictionary containing all the HTTP header fields
  of the receiver.
  @result a dictionary containing all the HTTP header fields of the
@@ -124,11 +123,9 @@
 - (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
 
 /*!
- @method HTTPBody:
  @abstract Sets the request body data of the receiver.
  @discussion This data is sent as the message body of the request, as
  in done in an HTTP POST request.
- @param data the new request body data for the receiver.
  */
 @property (nonatomic, copy, readwrite) NSData *HTTPBody;
 

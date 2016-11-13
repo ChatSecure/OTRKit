@@ -89,12 +89,6 @@ typedef NS_ENUM(NSUInteger, OTRKitMessageEvent) {
 };
 
 NS_ASSUME_NONNULL_BEGIN
-extern NSString * const kOTRKitUsernameKey;
-extern NSString * const kOTRKitAccountNameKey;
-extern NSString * const kOTRKitFingerprintKey;
-extern NSString * const kOTRKitProtocolKey;
-extern NSString * const kOTRKitTrustKey;
-
 @protocol OTRKitDelegate <NSObject>
 #pragma mark Required OTRKitDelegate methods
 @required
@@ -120,9 +114,13 @@ extern NSString * const kOTRKitTrustKey;
     fingerprint:(nullable OTRFingerprint*)fingerprint
             tag:(nullable id)tag;
 
+#pragma mark OTRKitDelegate optional methods
+@optional
+
 /**
  *  All outgoing messages should be sent to the OTRKit encodeMessage method before being
  *  sent over the network.
+ *  @note This method won't be called if you use the block-based completion version of encodeMessage.
  *
  *  @param otrKit      reference to shared instance
  *  @param encodedMessage     plaintext message
@@ -147,6 +145,7 @@ extern NSString * const kOTRKitTrustKey;
 /**
  *  All incoming messages should be sent to the OTRKit decodeMessage method before being
  *  processed by your application. You should only display the messages coming from this delegate method.
+ *  @note This method won't be called if you use the block-based completion version of decodeMessage.
  *
  *  @param otrKit      reference to shared instance
  *  @param decodedMessage plaintext message to display to the user. May be nil if other party is sending raw TLVs without messages attached.
@@ -160,13 +159,31 @@ extern NSString * const kOTRKitTrustKey;
  */
 - (void) otrKit:(OTRKit*)otrKit
  decodedMessage:(nullable NSString*)decodedMessage
-   wasEncrypted:(BOOL)wasEncrypted
            tlvs:(NSArray<OTRTLV*>*)tlvs
+   wasEncrypted:(BOOL)wasEncrypted
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
     fingerprint:(nullable OTRFingerprint*)fingerprint
-            tag:(nullable id)tag;
+            tag:(nullable id)tag
+          error:(nullable NSError*)error;
+
+/**
+ *  libotr likes to know if buddies are still "online". This method
+ *  is called synchronously on the callback queue so be careful.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param username   intended recipient of the message
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ *
+ *  @return online status of recipient
+ */
+- (BOOL)       otrKit:(OTRKit*)otrKit
+   isUsernameLoggedIn:(NSString*)username
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol;
+
 
 /**
  *  When the encryption status changes this method is called
@@ -184,22 +201,6 @@ updateMessageState:(OTRKitMessageState)messageState
        accountName:(NSString*)accountName
           protocol:(NSString*)protocol
        fingerprint:(OTRFingerprint*)fingerprint;
-
-/**
- *  libotr likes to know if buddies are still "online". This method
- *  is called synchronously on the callback queue so be careful.
- *
- *  @param otrKit      reference to shared instance
- *  @param username   intended recipient of the message
- *  @param accountName your local account name
- *  @param protocol    protocol for account name such as "xmpp"
- *
- *  @return online status of recipient
- */
-- (BOOL)       otrKit:(OTRKit*)otrKit
-   isUsernameLoggedIn:(NSString*)username
-          accountName:(NSString*)accountName
-             protocol:(NSString*)protocol;
 
 /**
  *  Show a dialog here so the user can confirm when a user's fingerprint changes.
@@ -267,10 +268,10 @@ handleMessageEvent:(OTRKitMessageEvent)event
            accountName:(NSString*)accountName
               protocol:(NSString*)protocol;
 
-#pragma mark OTRKitDelegate optional methods
-@optional
-
-/** If you'd like to override the TOFU trust mechanism */
+/** 
+ * If you'd like to override the TOFU trust mechanism.
+ * This method is called synchronously on the callback queue so be careful.
+ */
 - (BOOL)             otrKit:(OTRKit*)otrKit
 evaluateTrustForFingerprint:(OTRFingerprint*)evaluateTrustForFingerprint;
 
@@ -308,7 +309,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 /**
  *  Defaults to main queue. All delegate and block callbacks will be done on this queue. Cannot be set to nil.
  */
-@property (atomic, strong, readwrite) dispatch_queue_t callbackQueue;
+@property (atomic, strong, readwrite) NSOperationQueue *callbackQueue;
 
 /** 
  * By default uses `OTRKitPolicyDefault`
@@ -373,7 +374,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  */
 - (void) generatePrivateKeyForAccountName:(NSString*)accountName
                                  protocol:(NSString*)protocol
-                               completion:(void (^)(OTRFingerprint *_Nullable fingerprint, NSError * _Nullable error))completionBlock;
+                               completion:(void (^)(OTRFingerprint *_Nullable fingerprint, NSError * _Nullable error))completion;
 
 
 #pragma mark Messaging
@@ -399,10 +400,34 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
                   tag:(nullable id)tag;
 
 /**
+ * Encodes a message and optional array of OTRTLVs, splits it into fragments,
+ * then injects the encoded data via the injectMessage: delegate method.
+ * @note when using this method, you must implement the encodedMessage: delegate method.
+ *
+ * @param message The message to be encoded. May be nil if only sending TLVs.
+ * @param tlvs Array of OTRTLVs, the data length of each TLV must be smaller than UINT16_MAX or it will be ignored. May be nil if only sending message.
+ * @param username The intended recipient of the message
+ * @param accountName Your account name
+ * @param protocol the protocol of accountName, such as @"xmpp"
+ * @param tag optional tag to attach additional application-specific data to message. Only used locally.
+ * @param async If async is false, it will block the current thread until complete so you can synchronously capture values in the block.
+ * @param completion if completion is nil, the encodedMessage: delegate method will be called instead.
+ */
+- (void)encodeMessage:(nullable NSString*)message
+                 tlvs:(nullable NSArray<OTRTLV*>*)tlvs
+             username:(NSString*)username
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol
+                  tag:(nullable id)tag
+                async:(BOOL)async
+           completion:(nullable void (^)(NSString* _Nullable encodedMessage, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion;
+
+/**
  *  All messages should be sent through here before being processed by your program.
+ * @note when using this method, you must implement the decodedMessage: delegate method.
  *
  *  @param message     Encoded or plaintext incoming message
- *  @param sender      account name of buddy who sent the message
+ *  @param username      account name of buddy who sent the message
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
@@ -412,6 +437,26 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol
                   tag:(nullable id)tag;
+
+/**
+ *  All messages should be sent through here before being processed by your program.
+ *
+ *  @param message     Encoded or plaintext incoming message
+ *  @param username      account name of buddy who sent the message
+ *  @param accountName your account name
+ *  @param protocol    the protocol of accountName, such as @"xmpp"
+ *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
+ * @param async If async is false, it will block the current thread until complete so you can synchronously capture values in the block.
+ * @param completion if completion is nil, the decodedMessage: delegate method will be called instead.
+ */
+- (void)decodeMessage:(NSString*)message
+             username:(NSString*)username
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol
+                  tag:(nullable id)tag
+                async:(BOOL)async
+           completion:(nullable void (^)(NSString* _Nullable decodedMessage, NSArray<OTRTLV*>* tlvs, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion;
+
 
 /**
  *  You can use this method to determine whether or not OTRKit is currently generating a private key.
@@ -427,7 +472,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 /**
  *  Shortcut for injecting a "?OTRv23?" message.
  *
- *  @param recipient   name of buddy you'd like to start OTR conversation
+ *  @param username   name of buddy you'd like to start OTR conversation
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  */
@@ -439,7 +484,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  Disable encryption and inform buddy you no longer wish to communicate
  *  privately.
  *
- *  @param recipient   name of buddy you'd like to end OTR conversation
+ *  @param username   name of buddy you'd like to end OTR conversation
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  */
@@ -453,7 +498,6 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @param username    username of remote buddy
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
- *  @param completion current encryption state, called on callbackQueue
  */
 - (OTRKitMessageState)messageStateForUsername:(NSString*)username
                                   accountName:(NSString*)accountName
@@ -518,7 +562,8 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  *  @param use         integer tag describing the use of the key
  *  @param useData     any extra data that may be required to use the key
- *  @param completion Symmetric key ready to be used externally, or error.
+ *  @param error Symmetric key ready to be used externally, or error.
+ *  @return Symmetric key ready to be used externally, or nil for error.
  */
 
 - (nullable NSData*) requestSymmetricKeyForUsername:(NSString*)username

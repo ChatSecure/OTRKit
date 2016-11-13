@@ -42,8 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) OTRTLVType type;
 
 /**
- * @param type: TLV type
- * @param data: this data must be of length shorter than UINT16_MAX bytes
+ * @param type TLV type
+ * @param data this data must be of length shorter than UINT16_MAX bytes
  */
 - (nullable instancetype) initWithType:(OTRTLVType)type data:(NSData*)data;
 

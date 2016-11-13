@@ -6,24 +6,22 @@
 //
 //
 
-#import <XCTest/XCTest.h>
-@import OTRKit;
+#import "OTRKitSessionBase.h"
 
 static NSString * const kOTRTestMessage = @"Hello World";
-static NSString * const kOTRTestAccountAlice = @"alice@example.com";
-static NSString * const kOTRTestAccountBob = @"bob@example.com";
-static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 
-@interface OTRKitTestsiOS : XCTestCase <OTRKitDelegate, OTRDataHandlerDelegate>
-@property (nonatomic, strong) OTRKit *otrKitAlice;
-@property (nonatomic, strong) OTRKit *otrKitBob;
+@interface OTRKitTestsiOS : OTRKitSessionBase <OTRDataHandlerDelegate>
+
 @property (nonatomic, strong) OTRDataHandler *dataHandlerAlice;
 @property (nonatomic, strong) OTRDataHandler *dataHandlerBob;
 @property (nonatomic, strong) NSData *testFileData;
 
 
 @property (nonatomic, strong) XCTestExpectation *aliceExp;
+@property (nonatomic, strong) XCTestExpectation *aliceDecodedExp;
 @property (nonatomic, strong) XCTestExpectation *bobExp;
+@property (nonatomic, strong) XCTestExpectation *bobDecodedExp;
+
 @property (nonatomic, strong) XCTestExpectation *fileTransferExp;
 
 @property (nonatomic, strong) XCTestExpectation *tofuExp;
@@ -35,37 +33,15 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 - (void)setUp
 {
     [super setUp];
-    NSString *dirName1 = [NSUUID UUID].UUIDString;
-    NSString *dirName2 = [NSUUID UUID].UUIDString;
-    NSString *path1 = [NSTemporaryDirectory() stringByAppendingPathComponent:dirName1];
-    NSString *path2 = [NSTemporaryDirectory() stringByAppendingPathComponent:dirName2];
-    NSError *error = nil;
-    [[NSFileManager defaultManager] createDirectoryAtPath:path1 withIntermediateDirectories:YES attributes:nil error:&error];
-    XCTAssertNil(error);
-    [[NSFileManager defaultManager] createDirectoryAtPath:path2 withIntermediateDirectories:YES attributes:nil error:&error];
-    XCTAssertNil(error);
     
-    self.otrKitAlice = [[OTRKit alloc] initWithDelegate: self dataPath:path1];
-    self.otrKitAlice.otrPolicy = OTRKitPolicyOpportunistic;
-    self.otrKitBob = [[OTRKit alloc] initWithDelegate:self dataPath:path2];
-    self.otrKitBob.otrPolicy = OTRKitPolicyOpportunistic;
     self.dataHandlerAlice = [[OTRDataHandler alloc] initWithOTRKit:self.otrKitAlice delegate:self];
     self.dataHandlerBob = [[OTRDataHandler alloc] initWithOTRKit:self.otrKitBob delegate:self];
-    XCTAssertNotNil(self.otrKitAlice, "otrKitAlice failed to initialize");
-    XCTAssertNotNil(self.otrKitBob, "otrKitBob failed to initialize");
+
 }
 
 - (void)tearDown
 {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
-    NSError *error = nil;
-    [[NSFileManager defaultManager] removeItemAtPath:self.otrKitAlice.dataPath error:&error];
-    XCTAssertNil(error);
-    [[NSFileManager defaultManager] removeItemAtPath:self.otrKitBob.dataPath error:&error];
-    XCTAssertNil(error);
-    self.otrKitAlice = nil;
-    self.otrKitBob = nil;
 }
 
 - (void)testMessaging
@@ -73,6 +49,9 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
     self.aliceExp = [self expectationWithDescription:@"testMessaging alice"];
     self.bobExp = [self expectationWithDescription:@"testMessaging bob"];
     self.tofuExp = [self expectationWithDescription:@"tofu test"];
+    self.bobDecodedExp = [self expectationWithDescription:@"bob decoded"];
+    self.aliceDecodedExp = [self expectationWithDescription:@"alice  decoded"];
+
 
     [self.otrKitAlice initiateEncryptionWithUsername:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP];
 
@@ -85,25 +64,7 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 
 #pragma mark OTRKitDelegate
 
-- (void) otrKit:(OTRKit*)otrKit
-  injectMessage:(NSString*)message
-       username:(NSString*)username
-    accountName:(NSString*)accountName
-       protocol:(NSString*)protocol
-    fingerprint:(nullable OTRFingerprint*)fingerprint
-            tag:(nullable id)tag {
-    XCTAssertNotNil(otrKit);
-    NSLog(@"%@ send message: %d %@->%@ tag: %@", otrKit, [OTRKit stringStartsWithOTRPrefix:message], accountName, username, tag);
-    NSLog(@"%@ receive message: %d %@->%@ tag: %@", otrKit, [OTRKit stringStartsWithOTRPrefix:message], username, accountName, tag);
 
-    if (otrKit == self.otrKitAlice) { // coming from alice's otrkit
-        // "send" message to bob's otrkit
-        [self.otrKitBob decodeMessage:message username:kOTRTestAccountAlice accountName:kOTRTestAccountBob protocol:kOTRTestProtocolXMPP tag:tag];
-    } else if (otrKit == self.otrKitBob) { // coming from bob's otrkit
-        // "send" message to bob's otrkit
-        [self.otrKitAlice decodeMessage:message username:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP tag:tag];
-    }
-}
 
 - (void) otrKit:(OTRKit*)otrKit
  encodedMessage:(nullable NSString*)encodedMessage
@@ -122,7 +83,10 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
     }
     
     if (fingerprint.trustLevel == OTRTrustLevelTrustedTofu) {
-        [self.tofuExp fulfill];
+        if (self.tofuExp) {
+            [self.tofuExp fulfill];
+            self.tofuExp = nil;
+        }
     }
     
     if (otrKit == self.otrKitAlice) { // coming from alice's otrkit
@@ -137,18 +101,31 @@ static NSString * const kOTRTestProtocolXMPP = @"xmpp";
 
 - (void) otrKit:(OTRKit*)otrKit
  decodedMessage:(nullable NSString*)decodedMessage
-   wasEncrypted:(BOOL)wasEncrypted
            tlvs:(NSArray<OTRTLV*>*)tlvs
+   wasEncrypted:(BOOL)wasEncrypted
        username:(NSString*)username
     accountName:(NSString*)accountName
        protocol:(NSString*)protocol
     fingerprint:(nullable OTRFingerprint*)fingerprint
-            tag:(nullable id)tag {
+            tag:(nullable id)tag
+          error:(nullable NSError *)error{
     XCTAssertNotNil(otrKit);
-    NSLog(@"%@ decodedMessage(%d): %@ username: %@ accountName: %@ tag: %@", otrKit, wasEncrypted, decodedMessage, username, accountName, tag);
+    if (error) {
+        NSLog(@"%@ decodedMessageError(%d): %@ username: %@ accountName: %@ tag: %@ %@", otrKit, wasEncrypted, decodedMessage, username, accountName, tag, error);
+    } else {
+        NSLog(@"%@ decodedMessage(%d): %@ username: %@ accountName: %@ tag: %@", otrKit, wasEncrypted, decodedMessage, username, accountName, tag);
+    }
     if (otrKit == self.otrKitAlice) {
         // decoded message from bob
+        if (self.aliceDecodedExp) {
+            [self.aliceDecodedExp fulfill];
+            self.aliceDecodedExp = nil;
+        }
     } else if (otrKit == self.otrKitBob) {
+        if (self.bobDecodedExp) {
+            [self.bobDecodedExp fulfill];
+            self.bobDecodedExp = nil;
+        }
         // decoded message from alice
         //XCTAssertEqualObjects(decodedMessage, kOTRTestMessage);
         if ([decodedMessage isEqualToString:kOTRTestMessage] && wasEncrypted) {
