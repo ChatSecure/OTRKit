@@ -124,9 +124,9 @@ static void create_privkey_cb(void *opdata, const char *accountname,
     NSString *accountNameString = [NSString stringWithUTF8String:accountname];
     NSString *protocolString = [NSString stringWithUTF8String:protocol];
     if ([otrKit.delegate respondsToSelector:@selector(otrKit:willStartGeneratingPrivateKeyForAccountName:protocol:)]) {
-        [otrKit.callbackQueue addOperationWithBlock:^{
+        dispatch_async(otrKit.callbackQueue, ^{
             [otrKit.delegate otrKit:otrKit willStartGeneratingPrivateKeyForAccountName:accountNameString   protocol:protocolString];
-        }];
+        });
     }
     void *newkeyp;
     gcry_error_t generateError = otrl_privkey_generate_start(otrKit.userState, accountname, protocol, &newkeyp);
@@ -137,16 +137,16 @@ static void create_privkey_cb(void *opdata, const char *accountname,
             otrl_privkey_generate_calculate(newkeyp);
             otrl_privkey_generate_finish_FILEp(otrKit.userState, newkeyp, privf);
             if ([otrKit.delegate respondsToSelector:@selector(otrKit:didFinishGeneratingPrivateKeyForAccountName:protocol:error:)]) {
-                [otrKit.callbackQueue addOperationWithBlock:^{
+                dispatch_async(otrKit.callbackQueue, ^{
                     [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:nil];
-                }];
+                });
             }
     } else {
         NSError *error = [OTRErrorUtility errorForGPGError:generateError];
         if ([otrKit.delegate respondsToSelector:@selector(otrKit:didFinishGeneratingPrivateKeyForAccountName:protocol:error:)]) {
-            [otrKit.callbackQueue addOperationWithBlock:^{
+            dispatch_async(otrKit.callbackQueue, ^{
                 [otrKit.delegate otrKit:otrKit didFinishGeneratingPrivateKeyForAccountName:accountNameString protocol:protocolString error:error];
-            }];
+            });
         }
     }
     fclose(privf);
@@ -161,13 +161,12 @@ static int is_logged_in_cb(void *opdata, const char *accountname,
         return -1;
     }
     __block BOOL loggedIn = NO;
-    NSBlockOperation *block = [NSBlockOperation blockOperationWithBlock:^{
+    dispatch_sync(otrKit.callbackQueue, ^{
         loggedIn = [otrKit.delegate otrKit:otrKit
                         isUsernameLoggedIn:[NSString stringWithUTF8String:recipient]
                                accountName:[NSString stringWithUTF8String:accountname]
                                   protocol:[NSString stringWithUTF8String:protocol]];
-    }];
-    [otrKit.callbackQueue addOperations:@[block] waitUntilFinished:YES];
+    });
     return loggedIn;
 }
 
@@ -186,9 +185,9 @@ static void inject_message_cb(void *opdata, const char *accountname,
     
     id tag = data.tag;
     OTRFingerprint *fingerprint = [otrKit activeFingerprintForUsername:usernameString accountName:accountNameString protocol:protocolString];
-    [otrKit.callbackQueue addOperationWithBlock:^{
+    dispatch_async(otrKit.callbackQueue, ^{
         [otrKit.delegate otrKit:otrKit injectMessage:messageString username:usernameString accountName:accountNameString protocol:protocolString fingerprint:fingerprint tag:tag];
-    }];
+    });
 }
 
 static void update_context_list_cb(void *opdata)
@@ -221,9 +220,9 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
     NSString *accountNameString = [NSString stringWithUTF8String:accountname];
     NSString *usernameString = [NSString stringWithUTF8String:username];
     NSString *protocolString = [NSString stringWithUTF8String:protocol];
-    [otrKit.callbackQueue addOperationWithBlock:^{
+    dispatch_async(otrKit.callbackQueue, ^{
         [otrKit.delegate otrKit:otrKit showFingerprintConfirmationForTheirHash:theirHash ourHash:ourHash username:usernameString accountName:accountNameString protocol:protocolString];
-    }];
+    });
 }
 
 static void write_fingerprints_cb(void *opdata)
@@ -411,9 +410,9 @@ static void handle_smp_event_cb(void *opdata, OtrlSMPEvent smp_event,
     NSString *accountName = [NSString stringWithUTF8String:context->accountname];
     NSString *protocol = [NSString stringWithUTF8String:context->protocol];
     
-    [otrKit.callbackQueue addOperationWithBlock:^{
+    dispatch_async(otrKit.callbackQueue, ^{
         [otrKit.delegate otrKit:otrKit handleSMPEvent:event progress:progress question:questionString username:username accountName:accountName protocol:protocol];
-    }];
+    });
 }
 
 static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
@@ -493,9 +492,9 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
     NSString *protocol = [NSString stringWithUTF8String:context->protocol];
     
     id tag = data.tag;
-    [otrKit.callbackQueue addOperationWithBlock:^{
+    dispatch_async(otrKit.callbackQueue, ^{
         [otrKit.delegate otrKit:otrKit handleMessageEvent:event message:messageString username:username accountName:accountName protocol:protocol tag:tag error:error];
-    }];
+    });
 }
 
 static void create_instag_cb(void *opdata, const char *accountname,
@@ -549,9 +548,9 @@ static void received_symkey_cb(void *opdata, ConnContext *context,
     NSString *accountName = [NSString stringWithUTF8String:context->accountname];
     NSString *protocol = [NSString stringWithUTF8String:context->protocol];
     
-    [otrKit.callbackQueue addOperationWithBlock:^{
+    dispatch_async(otrKit.callbackQueue, ^{
         [otrKit.delegate otrKit:otrKit receivedSymmetricKey:symmetricKey forUse:use useData:useDescriptionData username:username accountName:accountName protocol:protocol];
-    }];
+    });
 }
 
 static OtrlMessageAppOps ui_ops = {
@@ -595,8 +594,7 @@ static OtrlMessageAppOps ui_ops = {
     NSParameterAssert(delegate != nil);
     if (self = [super init]) {
         _delegate = delegate;
-        _callbackQueue = [NSOperationQueue mainQueue];
-        _callbackQueue.maxConcurrentOperationCount = 1;
+        _callbackQueue = dispatch_get_main_queue();
         _internalQueue = dispatch_queue_create("OTRKit Internal Queue", 0);
         
         // For safe usage of dispatch_sync
@@ -744,9 +742,9 @@ static OtrlMessageAppOps ui_ops = {
         NSParameterAssert(fingerprint != nil);
 
         if (completionBlock) {
-            [self.callbackQueue addOperationWithBlock:^{
+            dispatch_async(self.callbackQueue, ^{
                 completionBlock(fingerprint, nil);
-            }];
+            });
         }
     }];
 }
@@ -759,7 +757,20 @@ static OtrlMessageAppOps ui_ops = {
              protocol:(NSString*)protocol
                   tag:(nullable id)tag
 {
-    [self decodeMessage:message username:username accountName:accountName protocol:protocol tag:tag async:YES completion:nil];
+    [self decodeMessage:message username:username accountName:accountName protocol:protocol tag:tag async:YES completion:^(NSString * _Nullable decodedMessage, NSArray<OTRTLV *> * _Nonnull tlvs, BOOL wasEncrypted, OTRFingerprint * _Nullable fingerprint, NSError * _Nullable error) {
+        if ([self.delegate respondsToSelector:@selector(otrKit:decodedMessage:tlvs:wasEncrypted:username:accountName:protocol:fingerprint:tag:error:)]) {
+            [self.delegate otrKit:self
+                   decodedMessage:decodedMessage
+                             tlvs:tlvs
+                     wasEncrypted:wasEncrypted
+                         username:username
+                      accountName:accountName
+                         protocol:protocol
+                      fingerprint:fingerprint
+                              tag:tag
+                            error:error];
+        }
+    }];
 }
 
 - (void)decodeMessage:(NSString*)message
@@ -768,12 +779,13 @@ static OtrlMessageAppOps ui_ops = {
              protocol:(NSString*)protocol
                   tag:(nullable id)tag
                 async:(BOOL)async
-           completion:(nullable void (^)(NSString* _Nullable decodedMessage, NSArray<OTRTLV*>* tlvs, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion {
+           completion:(void (^)(NSString* _Nullable decodedMessage, NSArray<OTRTLV*>* tlvs, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion {
     NSParameterAssert(message.length);
     NSParameterAssert(username.length);
     NSParameterAssert(accountName.length);
     NSParameterAssert(protocol.length);
-    if (![message length] || ![username length] || ![accountName length] || ![protocol length]) {
+    NSParameterAssert(completion != nil);
+    if (![message length] || ![username length] || ![accountName length] || ![protocol length] || !completion) {
         return;
     }
     __block dispatch_block_t finishBlock = nil;
@@ -831,24 +843,10 @@ static OtrlMessageAppOps ui_ops = {
             }
         }
         finishBlock = ^{
-            if (!completion &&
-                [self.delegate respondsToSelector:@selector(otrKit:decodedMessage:tlvs:wasEncrypted:username:accountName:protocol:fingerprint:tag:error:)]) {
-                [self.delegate otrKit:self
-                       decodedMessage:decodedMessage
-                                 tlvs:tlvs
-                         wasEncrypted:wasEncrypted
-                             username:username
-                          accountName:accountName
-                             protocol:protocol
-                          fingerprint:fingerprint
-                                  tag:tag
-                                error:nil];
-            } else if (completion) {
-                completion(decodedMessage, tlvs, wasEncrypted, fingerprint, nil);
-            }
+            completion(decodedMessage, tlvs, wasEncrypted, fingerprint, error);
         };
         if (async) {
-            [self.callbackQueue addOperationWithBlock:finishBlock];
+            dispatch_async(self.callbackQueue, finishBlock);
         }
     };
     
@@ -867,7 +865,11 @@ static OtrlMessageAppOps ui_ops = {
           accountName:(NSString*)accountName
              protocol:(NSString*)protocol
                   tag:(nullable id)tag {
-    [self encodeMessage:message tlvs:tlvs username:username accountName:accountName protocol:protocol tag:tag async:YES completion:nil];
+    [self encodeMessage:message tlvs:tlvs username:username accountName:accountName protocol:protocol tag:tag async:YES completion:^(NSString * _Nullable encodedMessage, BOOL wasEncrypted, OTRFingerprint * _Nullable fingerprint, NSError * _Nullable error) {
+        if ([self.delegate respondsToSelector:@selector(otrKit:encodedMessage:wasEncrypted:username:accountName:protocol:fingerprint:tag:error:)]) {
+            [self.delegate otrKit:self encodedMessage:encodedMessage wasEncrypted:wasEncrypted username:username accountName:accountName protocol:protocol fingerprint:fingerprint tag:tag error:error];
+        }
+    }];
 }
 
 - (void)encodeMessage:(nullable NSString*)message
@@ -877,11 +879,12 @@ static OtrlMessageAppOps ui_ops = {
              protocol:(NSString*)protocol
                   tag:(nullable id)tag
                 async:(BOOL)async
-           completion:(nullable void (^)(NSString* _Nullable encodedMessage, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion {
+           completion:(void (^)(NSString* _Nullable encodedMessage, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion {
     NSParameterAssert(username);
     NSParameterAssert(accountName);
     NSParameterAssert(protocol);
-    if (!username.length || !accountName.length || !protocol.length) {
+    NSParameterAssert(completion);
+    if (!username.length || !accountName.length || !protocol.length || !completion) {
         return;
     }
     // If you meant to send TLVs and message is nil,
@@ -924,15 +927,10 @@ static OtrlMessageAppOps ui_ops = {
             if (!trusted) {
                 NSError *error = [OTRErrorUtility errorForGPGError:GPG_ERR_BAD_PUBKEY];
                 finishBlock = ^{
-                    if (!completion &&
-                        [self.delegate respondsToSelector:@selector(otrKit:encodedMessage:wasEncrypted:username:accountName:protocol:fingerprint:tag:error:)]) {
-                        [self.delegate otrKit:self encodedMessage:nil wasEncrypted:NO username:username accountName:accountName protocol:protocol fingerprint:fingerprint tag:tag error:error];
-                    } else if (completion) {
-                        completion(nil, NO, fingerprint, error);
-                    }
+                    completion(nil, NO, fingerprint, error);
                 };
                 if (async) {
-                    [self.callbackQueue addOperationWithBlock:finishBlock];
+                    dispatch_async(self.callbackQueue, finishBlock);
                 }
                 return;
             }
@@ -966,23 +964,10 @@ static OtrlMessageAppOps ui_ops = {
             encodedMessage = nil;
         }
         finishBlock = ^{
-            if (!completion &&
-                [self.delegate respondsToSelector:@selector(otrKit:encodedMessage:wasEncrypted:username:accountName:protocol:fingerprint:tag:error:)]) {
-                [self.delegate otrKit:self
-                       encodedMessage:encodedMessage
-                         wasEncrypted:wasEncrypted
-                             username:username
-                          accountName:accountName
-                             protocol:protocol
-                          fingerprint:fingerprint
-                                  tag:tag
-                                error:error];
-            } else if (completion) {
-                completion(encodedMessage, wasEncrypted, fingerprint, error);
-            }
+            completion(encodedMessage, wasEncrypted, fingerprint, error);
         };
         if (async) {
-            [self.callbackQueue addOperationWithBlock:finishBlock];
+            dispatch_async(self.callbackQueue, finishBlock);
         }
     };
     
@@ -1020,9 +1005,9 @@ static OtrlMessageAppOps ui_ops = {
 {
     if (!accountName.length || !protocol.length) {
         if (completion) {
-            [self.callbackQueue addOperationWithBlock:^{
+            dispatch_async(self.callbackQueue, ^{
                 completion(NO);
-            }];
+            });
         }
         return;
     }
@@ -1035,9 +1020,9 @@ static OtrlMessageAppOps ui_ops = {
         }
         BOOL keyExists = generateError == gcry_error(GPG_ERR_EEXIST);
         if (completion) {
-            [self.callbackQueue addOperationWithBlock:^{
+            dispatch_async(self.callbackQueue, ^{
                 completion(keyExists);
-            }];
+            });
         }
     }];
 }
@@ -1052,9 +1037,9 @@ static OtrlMessageAppOps ui_ops = {
         OTRFingerprint *fingerprint = [self activeFingerprintForCurrentContext:context];
         OTRKitMessageState messageState =
         [self messageStateForUsername:username accountName:accountName protocol:protocol];
-        [self.callbackQueue addOperationWithBlock:^{
+        dispatch_async(self.callbackQueue, ^{
             [self.delegate otrKit:self updateMessageState:messageState username:username accountName:accountName protocol:protocol fingerprint:fingerprint];
-        }];
+        });
     }
 }
 
@@ -1310,10 +1295,9 @@ static OtrlMessageAppOps ui_ops = {
     if (!fingerprint) { return NO; }
     __block BOOL trust = NO;
     if ([self.delegate respondsToSelector:@selector(otrKit:evaluateTrustForFingerprint:)]) {
-        NSBlockOperation *block = [NSBlockOperation blockOperationWithBlock:^{
+        dispatch_sync(self.callbackQueue, ^{
             trust = [self.delegate otrKit:self evaluateTrustForFingerprint:fingerprint];
-        }];
-        [self.callbackQueue addOperations:@[block] waitUntilFinished:YES];
+        });
     } else {
         trust = fingerprint.isTrusted;
     }

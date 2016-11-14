@@ -309,7 +309,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
 /**
  *  Defaults to main queue. All delegate and block callbacks will be done on this queue. Cannot be set to nil.
  */
-@property (atomic, strong, readwrite) NSOperationQueue *callbackQueue;
+@property (atomic, strong, readwrite) dispatch_queue_t callbackQueue;
 
 /** 
  * By default uses `OTRKitPolicyDefault`
@@ -410,8 +410,8 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  * @param accountName Your account name
  * @param protocol the protocol of accountName, such as @"xmpp"
  * @param tag optional tag to attach additional application-specific data to message. Only used locally.
- * @param async If async is false, it will block the current thread until complete so you can synchronously capture values in the block.
- * @param completion if completion is nil, the encodedMessage: delegate method will be called instead.
+ * @param async If async is false, it will block the current thread until complete so you can synchronously capture values in the block, and the callback will be performed on the current thread instead of the callbackQueue.
+ * @param completion If async, called on callbackQueue, otherwise current queue.
  */
 - (void)encodeMessage:(nullable NSString*)message
                  tlvs:(nullable NSArray<OTRTLV*>*)tlvs
@@ -420,7 +420,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
              protocol:(NSString*)protocol
                   tag:(nullable id)tag
                 async:(BOOL)async
-           completion:(nullable void (^)(NSString* _Nullable encodedMessage, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion;
+           completion:(void (^)(NSString* _Nullable encodedMessage, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion;
 
 /**
  *  All messages should be sent through here before being processed by your program.
@@ -446,8 +446,8 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
  *  @param accountName your account name
  *  @param protocol    the protocol of accountName, such as @"xmpp"
  *  @param tag optional tag to attach additional application-specific data to message. Only used locally.
- * @param async If async is false, it will block the current thread until complete so you can synchronously capture values in the block.
- * @param completion if completion is nil, the decodedMessage: delegate method will be called instead.
+ * @param async If async is false, it will block the current thread until complete so you can synchronously capture values in the block, and the callback will be performed on the current thread instead of the callbackQueue.
+ * @param completion If async, called on callbackQueue, otherwise current queue.
  */
 - (void)decodeMessage:(NSString*)message
              username:(NSString*)username
@@ -455,7 +455,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
              protocol:(NSString*)protocol
                   tag:(nullable id)tag
                 async:(BOOL)async
-           completion:(nullable void (^)(NSString* _Nullable decodedMessage, NSArray<OTRTLV*>* tlvs, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion;
+           completion:(void (^)(NSString* _Nullable decodedMessage, NSArray<OTRTLV*>* tlvs, BOOL wasEncrypted, OTRFingerprint* _Nullable fingerprint, NSError* _Nullable error))completion;
 
 
 /**
