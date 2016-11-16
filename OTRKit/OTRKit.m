@@ -1198,6 +1198,33 @@ static OtrlMessageAppOps ui_ops = {
     return fingerprint;
 }
 
+/** Enumerate all the internal fingerprints attached to the root context of the username/accounName/protocol*/
+- (void)enumerateInternalFingerprintsForUsername:(NSString*)username
+                                     accountName:(NSString*)accountName
+                                        protocol:(NSString*)protocol
+                                           block:(void (^)(Fingerprint *fingerprint, BOOL *stop))block {
+    NSParameterAssert(accountName != nil);
+    NSParameterAssert(protocol != nil);
+    NSParameterAssert(username != nil);
+    NSParameterAssert(block != nil);
+    if (!accountName || !protocol || !username || !block) {
+        return;
+    }
+    
+    [self performBlock:^{
+        ConnContext *context = [self rootContextForContext:[self contextForUsername:username accountName:accountName protocol:protocol]];
+        if(context)
+        {
+            Fingerprint *fingerprint = context->fingerprint_root.next;
+            BOOL stop = NO;
+            while (fingerprint != NULL && !stop) {
+                block(fingerprint,&stop);
+                fingerprint = fingerprint->next;
+            }
+        }
+    }];
+}
+
 /** Synchronously fetches all fingerprints known for a given user */
 - (NSArray<OTRFingerprint*>*) fingerprintsForUsername:(NSString*)username
                                           accountName:(NSString*)accountName
@@ -1209,17 +1236,9 @@ static OtrlMessageAppOps ui_ops = {
         return @[];
     }
     NSMutableArray<OTRFingerprint*> *fingerprintsArray = [[NSMutableArray alloc] init];
-    [self performBlock:^{
-        ConnContext *context = [self rootContextForContext:[self contextForUsername:username accountName:accountName protocol:protocol]];
-        if(context)
-        {
-            Fingerprint *fingerprint = context->fingerprint_root.next;
-            while (fingerprint != NULL) {
-                OTRFingerprint *otrFingerprint = [self fingerprintForInternalFingerprint:fingerprint];
-                [fingerprintsArray addObject:otrFingerprint];
-                fingerprint = fingerprint->next;
-            }
-        }
+    [self enumerateInternalFingerprintsForUsername:username accountName:accountName protocol:protocol block:^(Fingerprint *fingerprint, BOOL *stop) {
+        OTRFingerprint *otrFingerprint = [self fingerprintForInternalFingerprint:fingerprint];
+        [fingerprintsArray addObject:otrFingerprint];
     }];
     return fingerprintsArray;
 }
@@ -1246,8 +1265,9 @@ static OtrlMessageAppOps ui_ops = {
     NSString *username = fingerprint.username;
     NSString *accountName = fingerprint.accountName;
     NSString *protocol = fingerprint.protocol;
+    NSData *fingerprintData = fingerprint.fingerprint;
     [self performBlock:^{
-        Fingerprint * internalFingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
+        Fingerprint * internalFingerprint = [self internalFingerprintForUsername:username accountName:accountName protocol:protocol fingerprintData:fingerprintData];
         NSString *trustLavelString = [[self class] stringForTrustLevel:fingerprint.trustLevel];
         const char * newTrust = [trustLavelString UTF8String];
         if (internalFingerprint)
@@ -1351,6 +1371,22 @@ static OtrlMessageAppOps ui_ops = {
         fingerprint = context->active_fingerprint;
     }
     return fingerprint;
+}
+
+/** 
+ * Enumerates over all fingerprints until it gets to one where teh fingerprint data matches.
+ * Must be called from performBlock/performBlockAsync to schedule on internalQueue 
+ */
+- (nullable Fingerprint *)internalFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol fingerprintData:(NSData *)fingerprintData {
+    __block Fingerprint * finalFingerprint = nil;
+    [self enumerateInternalFingerprintsForUsername:username accountName:accountName protocol:protocol block:^(Fingerprint *fingerprint, BOOL *stop) {
+        NSData *internalData = [NSData dataWithBytes:fingerprint->fingerprint length:kOTRKitFingerprintBytes];
+        if ([internalData isEqual:fingerprintData]) {
+            *stop = YES;
+            finalFingerprint = fingerprint;
+        }
+    }];
+    return finalFingerprint;
 }
 
 /** Must be called from performBlock/performBlockAsync to schedule on internalQueue */
