@@ -108,6 +108,11 @@ updateMessageState:(OTRKitMessageState)messageState
         //Make sure we successfully changed the fingerprint trust level.
         XCTAssertTrue([bobsFingerprintForAlice isEqualToFingerprint:fetchedBobsFingerprintForAlice]);
         
+        NSError *error = nil;
+        [self.otrKitBob deleteFingerprint:fetchedBobsFingerprintForAlice error:&error];
+        XCTAssertNil(error);
+        XCTAssertEqual([self.otrKitBob allFingerprints].count, 0);
+        
         [self.fingerprintExchange fulfill];
         self.fingerprintExchange = nil;
     }

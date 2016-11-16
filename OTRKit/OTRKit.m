@@ -1286,6 +1286,7 @@ static OtrlMessageAppOps ui_ops = {
     NSString *username = fingerprint.username;
     NSString *accountName = fingerprint.accountName;
     NSString *protocol = fingerprint.protocol;
+    NSData *fingerprintData = fingerprint.fingerprint;
     [self performBlock:^{
         ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
         if (!context) {
@@ -1295,18 +1296,7 @@ static OtrlMessageAppOps ui_ops = {
         // Get root context if we're a child context
         context = [self rootContextForContext:context];
         BOOL stop = NO;
-        Fingerprint * targetFingerprint = NULL;
-        Fingerprint * currentFingerprint = context->fingerprint_root.next;
-        while (currentFingerprint && !stop) {
-            NSData *currentFingerprintData = [NSData dataWithBytesNoCopy:currentFingerprint->fingerprint length:kOTRKitFingerprintBytes];
-            if ([currentFingerprintData isEqualToData:fingerprint.fingerprint]) {
-                targetFingerprint = currentFingerprint;
-                stop = YES;
-            }
-            else {
-                currentFingerprint = currentFingerprint->next;
-            }
-        }
+        Fingerprint * targetFingerprint = [self internalFingerprintForUsername:username accountName:accountName protocol:protocol fingerprintData:fingerprintData];
         if (targetFingerprint) {
             //will not delete if it is the active fingerprint;
             otrl_context_forget_fingerprint(targetFingerprint, 0);
