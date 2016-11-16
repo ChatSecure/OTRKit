@@ -39,5 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns true if trustLevel = (OTRTrustLevelTrustedTofu || OTRTrustLevelTrustedTofu) */
 - (BOOL) isTrusted;
 
+- (BOOL) isEqualToFingerprint:(OTRFingerprint*)fingerprint;
+
 @end
 NS_ASSUME_NONNULL_END

@@ -13,7 +13,7 @@
 - (instancetype) initWithUsername:(NSString*)username
                       accountName:(NSString*)accountName
                          protocol:(NSString*)protocol
-                      fingerprint:(NSString*)fingerprint
+                      fingerprint:(NSData*)fingerprint
                        trustLevel:(OTRTrustLevel)trustLevel {
     NSParameterAssert(username != nil);
     NSParameterAssert(accountName != nil);
@@ -33,6 +33,17 @@
 - (BOOL) isTrusted {
     return self.trustLevel == OTRTrustLevelTrustedUser ||
     self.trustLevel == OTRTrustLevelTrustedTofu;
+}
+
+- (BOOL) isEqualToFingerprint:(OTRFingerprint*)fingerprint
+{
+    if (!fingerprint) { return NO; }
+    
+    return [self.username isEqualToString:fingerprint.username] &&
+           [self.accountName isEqualToString:fingerprint.accountName] &&
+           [self.protocol isEqualToString:self.protocol] &&
+           [self.fingerprint isEqualToData:fingerprint.fingerprint] &&
+           self.trustLevel == fingerprint.trustLevel;
 }
 
 @end
