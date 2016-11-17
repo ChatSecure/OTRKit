@@ -795,11 +795,19 @@ static OtrlMessageAppOps ui_ops = {
         ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
         NSParameterAssert(context != NULL);
         if (!context) { return; } // Maybe don't fail silently here
-        OTRFingerprint *fingerprint = [self activeFingerprintForCurrentContext:context];
+        
         OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:tag];
+        
+        OTRFingerprint *fingerprint = [self activeFingerprintForCurrentContext:context];
+        if (fingerprint && fingerprint.trustLevel == OTRTrustLevelUnknown) {
+            fingerprint = [self fixUnknownFingerprint:fingerprint];
+        }
         
         OtrlTLV *otr_tlvs = NULL;
         ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void*)opdata, [accountName UTF8String], [protocol UTF8String], [username UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
+        
+        
+        
         
         // Handle TLVs
         NSArray *tlvs = @[];
@@ -900,28 +908,14 @@ static OtrlMessageAppOps ui_ops = {
         gcry_error_t err;
         char *newmessage = NULL;
         
-        // Pre-existing fingerprints
-        NSArray<OTRFingerprint*> *existingFingerprints = [self fingerprintsForUsername:username accountName:accountName protocol:protocol];
-        
         ConnContext *context = [self contextForUsername:username accountName:accountName protocol:protocol];
         NSParameterAssert(context);
         
         // Check trust
         OTRFingerprint *fingerprint = [self activeFingerprintForCurrentContext:context];
         if (fingerprint) {
-            // Trust if this is the first fingerprint for this user,
-            if (existingFingerprints.count == 1) {
-                OTRFingerprint *existing = [existingFingerprints firstObject];
-                if ([existing.fingerprint isEqualToData:fingerprint.fingerprint] &&
-                    fingerprint.trustLevel == OTRTrustLevelUnknown &&
-                    existing.trustLevel == OTRTrustLevelUnknown) {
-                    fingerprint.trustLevel = OTRTrustLevelTrustedTofu;
-                    [self saveFingerprint:fingerprint];
-                }
-                // If it's not the first fingerprint, mark as new untrusted
-            } else if (existingFingerprints.count > 1 && fingerprint.trustLevel == OTRTrustLevelUnknown) {
-                fingerprint.trustLevel = OTRTrustLevelUntrustedNew;
-                [self saveFingerprint:fingerprint];
+            if (fingerprint.trustLevel == OTRTrustLevelUnknown) {
+                fingerprint = [self fixUnknownFingerprint:fingerprint];
             }
             BOOL trusted = [self checkTrustForFingerprint:fingerprint];
             if (!trusted) {
@@ -1035,8 +1029,10 @@ static OtrlMessageAppOps ui_ops = {
         NSString *accountName = [NSString stringWithUTF8String:context->accountname];
         NSString *protocol = [NSString stringWithUTF8String:context->protocol];
         OTRFingerprint *fingerprint = [self activeFingerprintForCurrentContext:context];
-        OTRKitMessageState messageState =
-        [self messageStateForUsername:username accountName:accountName protocol:protocol];
+        if (fingerprint && fingerprint.trustLevel == OTRTrustLevelUnknown) {
+            fingerprint = [self fixUnknownFingerprint:fingerprint];
+        }
+        OTRKitMessageState messageState = [self messageStateForUsername:username accountName:accountName protocol:protocol];
         dispatch_async(self.callbackQueue, ^{
             [self.delegate otrKit:self updateMessageState:messageState username:username accountName:accountName protocol:protocol fingerprint:fingerprint];
         });
@@ -1194,17 +1190,9 @@ static OtrlMessageAppOps ui_ops = {
         return @[];
     }
     NSMutableArray<OTRFingerprint*> *fingerprintsArray = [[NSMutableArray alloc] init];
-    [self performBlock:^{
-        ConnContext *context = [self rootContextForContext:[self contextForUsername:username accountName:accountName protocol:protocol]];
-        if(context)
-        {
-            Fingerprint *fingerprint = context->fingerprint_root.next;
-            while (fingerprint != NULL) {
-                OTRFingerprint *otrFingerprint = [self fingerprintForInternalFingerprint:fingerprint];
-                [fingerprintsArray addObject:otrFingerprint];
-                fingerprint = fingerprint->next;
-            }
-        }
+    [self enumerateInternalFingerprintsForUsername:username accountName:accountName protocol:protocol block:^(Fingerprint *fingerprint, BOOL *stop) {
+        OTRFingerprint *otrFingerprint = [self fingerprintForInternalFingerprint:fingerprint];
+        [fingerprintsArray addObject:otrFingerprint];
     }];
     return fingerprintsArray;
 }
@@ -1231,8 +1219,9 @@ static OtrlMessageAppOps ui_ops = {
     NSString *username = fingerprint.username;
     NSString *accountName = fingerprint.accountName;
     NSString *protocol = fingerprint.protocol;
+    NSData *fingerprintData = fingerprint.fingerprint;
     [self performBlock:^{
-        Fingerprint * internalFingerprint = [self internalActiveFingerprintForUsername:username accountName:accountName protocol:protocol];
+        Fingerprint * internalFingerprint = [self internalFingerprintForUsername:username accountName:accountName protocol:protocol fingerprintData:fingerprintData];
         NSString *trustLavelString = [[self class] stringForTrustLevel:fingerprint.trustLevel];
         const char * newTrust = [trustLavelString UTF8String];
         if (internalFingerprint)
@@ -1251,6 +1240,7 @@ static OtrlMessageAppOps ui_ops = {
     NSString *username = fingerprint.username;
     NSString *accountName = fingerprint.accountName;
     NSString *protocol = fingerprint.protocol;
+    NSData *fingerprintData = fingerprint.fingerprint;
     [self performBlock:^{
         ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
         if (!context) {
@@ -1259,19 +1249,7 @@ static OtrlMessageAppOps ui_ops = {
         }
         // Get root context if we're a child context
         context = [self rootContextForContext:context];
-        BOOL stop = NO;
-        Fingerprint * targetFingerprint = NULL;
-        Fingerprint * currentFingerprint = context->fingerprint_root.next;
-        while (currentFingerprint && !stop) {
-            NSData *currentFingerprintData = [NSData dataWithBytesNoCopy:currentFingerprint->fingerprint length:kOTRKitFingerprintBytes];
-            if ([currentFingerprintData isEqualToData:fingerprint.fingerprint]) {
-                targetFingerprint = currentFingerprint;
-                stop = YES;
-            }
-            else {
-                currentFingerprint = currentFingerprint->next;
-            }
-        }
+        Fingerprint * targetFingerprint = [self internalFingerprintForUsername:username accountName:accountName protocol:protocol fingerprintData:fingerprintData];
         if (targetFingerprint) {
             //will not delete if it is the active fingerprint;
             otrl_context_forget_fingerprint(targetFingerprint, 0);
@@ -1337,6 +1315,49 @@ static OtrlMessageAppOps ui_ops = {
     return fingerprint;
 }
 
+/** Enumerate all the internal fingerprints attached to the root context of the username/accounName/protocol*/
+- (void)enumerateInternalFingerprintsForUsername:(NSString*)username
+                                     accountName:(NSString*)accountName
+                                        protocol:(NSString*)protocol
+                                           block:(void (^)(Fingerprint *fingerprint, BOOL *stop))block {
+    NSParameterAssert(accountName != nil);
+    NSParameterAssert(protocol != nil);
+    NSParameterAssert(username != nil);
+    NSParameterAssert(block != nil);
+    if (!accountName || !protocol || !username || !block) {
+        return;
+    }
+    
+    [self performBlock:^{
+        ConnContext *context = [self rootContextForContext:[self contextForUsername:username accountName:accountName protocol:protocol]];
+        if(context)
+        {
+            Fingerprint *fingerprint = context->fingerprint_root.next;
+            BOOL stop = NO;
+            while (fingerprint != NULL && !stop) {
+                block(fingerprint,&stop);
+                fingerprint = fingerprint->next;
+            }
+        }
+    }];
+}
+
+/** 
+ * Enumerates over all fingerprints until it gets to one where teh fingerprint data matches.
+ * Must be called from performBlock/performBlockAsync to schedule on internalQueue 
+ */
+- (nullable Fingerprint *)internalFingerprintForUsername:(NSString*)username accountName:(NSString*)accountName protocol:(NSString*) protocol fingerprintData:(NSData *)fingerprintData {
+    __block Fingerprint * finalFingerprint = nil;
+    [self enumerateInternalFingerprintsForUsername:username accountName:accountName protocol:protocol block:^(Fingerprint *fingerprint, BOOL *stop) {
+        NSData *internalData = [NSData dataWithBytes:fingerprint->fingerprint length:kOTRKitFingerprintBytes];
+        if ([internalData isEqual:fingerprintData]) {
+            *stop = YES;
+            finalFingerprint = fingerprint;
+        }
+    }];
+    return finalFingerprint;
+}
+
 /** Must be called from performBlock/performBlockAsync to schedule on internalQueue */
 -(void)writeFingerprints
 {
@@ -1346,6 +1367,28 @@ static OtrlMessageAppOps ui_ops = {
     if (!storef) return;
     otrl_privkey_write_fingerprints_FILEp(_userState, storef);
     fclose(storef);
+}
+
+- (OTRFingerprint *)fixUnknownFingerprint:(OTRFingerprint *)fingerprint {
+    NSArray<OTRFingerprint*> *existingFingerprints = [self fingerprintsForUsername:fingerprint.username accountName:fingerprint.accountName protocol:fingerprint.protocol];
+    // Trust if this is the first fingerprint for this user,
+    if (existingFingerprints.count == 1) {
+        OTRFingerprint *existing = [existingFingerprints firstObject];
+        if ([existing.fingerprint isEqualToData:fingerprint.fingerprint] &&
+            fingerprint.trustLevel == OTRTrustLevelUnknown &&
+            existing.trustLevel == OTRTrustLevelUnknown) {
+            fingerprint.trustLevel = OTRTrustLevelTrustedTofu;
+            [self saveFingerprint:fingerprint];
+        }
+        // If it's not the first fingerprint, mark as new untrusted
+    } else if (existingFingerprints.count > 1 && fingerprint.trustLevel == OTRTrustLevelUnknown) {
+        fingerprint.trustLevel = OTRTrustLevelUntrustedNew;
+        [self saveFingerprint:fingerprint];
+    } else {
+        fingerprint.trustLevel = OTRTrustLevelTrustedTofu;
+        [self saveFingerprint:fingerprint];
+    }
+    return fingerprint;
 }
 
 #pragma mark Symmetric Key

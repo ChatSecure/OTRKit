@@ -42,7 +42,7 @@
 - (void) testFingerprintExchange {
     self.fingerprintExchange = [self expectationWithDescription:@"Fingerprint Exchange"];
     [self.otrKitAlice initiateEncryptionWithUsername:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP];
-    [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
         if (error) {
             NSLog(@"%@",error);
         }
@@ -61,12 +61,17 @@ updateMessageState:(OTRKitMessageState)messageState
     XCTAssertNotNil(username);
     XCTAssertNotNil(accountName);
     XCTAssertNotNil(protocol);
-    XCTAssertNotNil(fingerprint);
+    if (messageState == OTRKitMessageStateEncrypted) {
+        XCTAssertNotNil(fingerprint);
+    }
+    
     NSLog(@"updateMessageState: %@ %@ %@ %@", username, accountName, protocol, fingerprint.fingerprint);
     
     // Testing fingerprint exchange.
     if (self.fingerprintExchange &&
         messageState == OTRKitMessageStateEncrypted) {
+        XCTAssertEqual(fingerprint.trustLevel, OTRTrustLevelTrustedTofu,@"This should be a trust on first use");
+        
         if (otrKit == self.otrKitAlice) {
             self.allAliceFingerprints = [self.otrKitAlice allFingerprints];
             self.aliceFingerprint = [self.otrKitAlice fingerprintForAccountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP];
@@ -83,9 +88,33 @@ updateMessageState:(OTRKitMessageState)messageState
             OTRFingerprint *alicesFingerprintForBob = [self.allAliceFingerprints firstObject];
             XCTAssertEqualObjects(self.aliceFingerprint.fingerprint, bobsFingerprintForAlice.fingerprint);
             XCTAssertEqualObjects(self.bobFingerprint.fingerprint, alicesFingerprintForBob.fingerprint);
-            [self.fingerprintExchange fulfill];
-            self.fingerprintExchange = nil;
+            
+            //Change fingerprint status
+            bobsFingerprintForAlice.trustLevel = OTRTrustLevelUntrustedUser;
+            [self.otrKitBob saveFingerprint:bobsFingerprintForAlice];
+            OTRFingerprint* fetchedBobsFingerprintForAlice = [[self.otrKitBob allFingerprints] firstObject];
+            //Make sure we successfully changed the fingerprint trust level.
+            XCTAssertTrue([bobsFingerprintForAlice isEqualToFingerprint:fetchedBobsFingerprintForAlice]);
+            
+            [self.otrKitBob disableEncryptionWithUsername:kOTRTestAccountAlice accountName:kOTRTestAccountBob protocol:kOTRTestProtocolXMPP];
         }
+    } else if (self.fingerprintExchange && messageState == OTRKitMessageStatePlaintext) {
+        OTRFingerprint *bobsFingerprintForAlice = [self.allBobFingerprints firstObject];
+        
+        //Change fingerprint status
+        bobsFingerprintForAlice.trustLevel = OTRTrustLevelTrustedUser;
+        [self.otrKitBob saveFingerprint:bobsFingerprintForAlice];
+        OTRFingerprint* fetchedBobsFingerprintForAlice = [[self.otrKitBob allFingerprints] firstObject];
+        //Make sure we successfully changed the fingerprint trust level.
+        XCTAssertTrue([bobsFingerprintForAlice isEqualToFingerprint:fetchedBobsFingerprintForAlice]);
+        
+        NSError *error = nil;
+        [self.otrKitBob deleteFingerprint:fetchedBobsFingerprintForAlice error:&error];
+        XCTAssertNil(error);
+        XCTAssertEqual([self.otrKitBob allFingerprints].count, 0);
+        
+        [self.fingerprintExchange fulfill];
+        self.fingerprintExchange = nil;
     }
 }
 
