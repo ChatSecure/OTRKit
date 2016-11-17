@@ -91,12 +91,20 @@ updateMessageState:(OTRKitMessageState)messageState
             XCTAssertEqualObjects(self.aliceFingerprint.fingerprint, bobsFingerprintForAlice.fingerprint);
             XCTAssertEqualObjects(self.bobFingerprint.fingerprint, alicesFingerprintForBob.fingerprint);
             
-            //Change fingerprint status
+            //Change fingerprint status to untrusted
             bobsFingerprintForAlice.trustLevel = OTRTrustLevelUntrustedUser;
             [self.otrKitBob saveFingerprint:bobsFingerprintForAlice];
             OTRFingerprint* fetchedBobsFingerprintForAlice = [[self.otrKitBob allFingerprints] firstObject];
             //Make sure we successfully changed the fingerprint trust level.
             XCTAssertTrue([bobsFingerprintForAlice isEqualToFingerprint:fetchedBobsFingerprintForAlice]);
+            
+            if (otrKit == self.otrKitBob) {
+                [otrKit encodeMessage:@"fake message" tlvs:nil username:kOTRTestAccountAlice accountName:kOTRTestAccountBob protocol:kOTRTestProtocolXMPP tag:nil async:NO completion:^(NSString * _Nullable encodedMessage, BOOL wasEncrypted, OTRFingerprint * _Nullable fingerprint, NSError * _Nullable error) {
+                    XCTAssertEqual(32872, error.code);
+                    XCTAssertNotNil(error);
+                    XCTAssertNil(encodedMessage);
+                }];
+            }
             
             [self.otrKitBob disableEncryptionWithUsername:kOTRTestAccountAlice accountName:kOTRTestAccountBob protocol:kOTRTestProtocolXMPP];
         }
