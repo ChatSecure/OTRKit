@@ -19,8 +19,10 @@ static NSString * const kOTRTestMessage = @"Hello World";
 
 @property (nonatomic, strong) XCTestExpectation *aliceExp;
 @property (nonatomic, strong) XCTestExpectation *aliceDecodedExp;
+@property (nonatomic, strong) XCTestExpectation *aliceSessionEnd;
 @property (nonatomic, strong) XCTestExpectation *bobExp;
 @property (nonatomic, strong) XCTestExpectation *bobDecodedExp;
+@property (nonatomic, strong) XCTestExpectation *bobSessionEnd;
 
 @property (nonatomic, strong) XCTestExpectation *fileTransferExp;
 
@@ -50,12 +52,15 @@ static NSString * const kOTRTestMessage = @"Hello World";
     self.bobExp = [self expectationWithDescription:@"testMessaging bob"];
     self.tofuExp = [self expectationWithDescription:@"tofu test"];
     self.bobDecodedExp = [self expectationWithDescription:@"bob decoded"];
-    self.aliceDecodedExp = [self expectationWithDescription:@"alice  decoded"];
-
+    self.aliceDecodedExp = [self expectationWithDescription:@"alice decoded"];
+    self.aliceSessionEnd = [self expectationWithDescription:@"alice session ended"];
+    self.bobSessionEnd = [self expectationWithDescription:@"bob session ended"];
+    
+    self.fileTransferExp = [self expectationWithDescription:@"File transfer ended"];
 
     [self.otrKitAlice initiateEncryptionWithUsername:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP];
 
-    [self waitForExpectationsWithTimeout:60 handler:^(NSError *error) {
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError *error) {
         if (error) {
             NSLog(@"failed waitForExpectationsWithTimeout: %@", error);
         }
@@ -158,15 +163,22 @@ updateMessageState:(OTRKitMessageState)messageState
     XCTAssertNotNil(username);
     XCTAssertNotNil(accountName);
     XCTAssertNotNil(protocol);
-    XCTAssertNotNil(fingerprint);
+    
     NSLog(@"%s %d %s %s", __FILE__, __LINE__, __PRETTY_FUNCTION__, __FUNCTION__);
     if (messageState == OTRKitMessageStateEncrypted) {
+        XCTAssertNotNil(fingerprint);
         NSLog(@"%@ OTR active for %@ %@ %@", otrKit, username, accountName, protocol);
         if (otrKit == self.otrKitAlice) {
             [self.otrKitAlice encodeMessage:kOTRTestMessage tlvs:nil username:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP tag:kOTRTestMessage];
             [self.aliceExp fulfill];
         } else if (otrKit == self.otrKitBob) {
             [self.bobExp fulfill];
+        }
+    } else if (messageState == OTRKitMessageStatePlaintext) {
+        if (otrKit == self.otrKitAlice) {
+            [self.aliceSessionEnd fulfill];
+        } else if (otrKit == self.otrKitBob) {
+            [self.bobSessionEnd fulfill];
         }
     }
 }
@@ -352,6 +364,7 @@ didFinishGeneratingPrivateKeyForAccountName:(NSString*)accountName
         if ([transfer.fileData isEqualToData:self.testFileData]) {
             [self.fileTransferExp fulfill];
         }
+        [self.otrKitBob disableEncryptionWithUsername:kOTRTestAccountAlice accountName:kOTRTestAccountBob protocol:kOTRTestProtocolXMPP];
     }
 }
 

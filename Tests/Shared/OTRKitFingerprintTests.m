@@ -42,7 +42,7 @@
 - (void) testFingerprintExchange {
     self.fingerprintExchange = [self expectationWithDescription:@"Fingerprint Exchange"];
     [self.otrKitAlice initiateEncryptionWithUsername:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP];
-    [self waitForExpectationsWithTimeout:500 handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
         if (error) {
             NSLog(@"%@",error);
         }
