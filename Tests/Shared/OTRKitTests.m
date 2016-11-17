@@ -60,7 +60,7 @@ static NSString * const kOTRTestMessage = @"Hello World";
 
     [self.otrKitAlice initiateEncryptionWithUsername:kOTRTestAccountBob accountName:kOTRTestAccountAlice protocol:kOTRTestProtocolXMPP];
 
-    [self waitForExpectationsWithTimeout:10 handler:^(NSError *error) {
+    [self waitForExpectationsWithTimeout:600 handler:^(NSError *error) {
         if (error) {
             NSLog(@"failed waitForExpectationsWithTimeout: %@", error);
         }

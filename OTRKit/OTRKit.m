@@ -1264,7 +1264,6 @@ static OtrlMessageAppOps ui_ops = {
         }
         // Get root context if we're a child context
         context = [self rootContextForContext:context];
-        BOOL stop = NO;
         Fingerprint * targetFingerprint = [self internalFingerprintForUsername:username accountName:accountName protocol:protocol fingerprintData:fingerprintData];
         if (targetFingerprint) {
             //will not delete if it is the active fingerprint;
