@@ -1270,27 +1270,6 @@ static OtrlMessageAppOps ui_ops = {
 
 #pragma mark Internal Fingerprint Methods
 
-/** Trust on first use */
-- (void) setTrustLevelForFingerprint:(OTRFingerprint*)fingerprint existingFingerprints:(NSArray<OTRFingerprint*>*)existingFingerprints {
-    NSParameterAssert(fingerprint);
-    NSParameterAssert(existingFingerprints);
-    if (!fingerprint || !existingFingerprints) { return; }
-    // Trust if this is the first fingerprint for this user,
-    if (existingFingerprints.count == 1) {
-        OTRFingerprint *existing = [existingFingerprints firstObject];
-        if ([existing.fingerprint isEqualToData:fingerprint.fingerprint] &&
-            fingerprint.trustLevel == OTRTrustLevelUnknown &&
-            existing.trustLevel == OTRTrustLevelUnknown) {
-            fingerprint.trustLevel = OTRTrustLevelTrustedTofu;
-            [self saveFingerprint:fingerprint];
-        }
-        // If it's not the first fingerprint, mark as new untrusted
-    } else if (existingFingerprints.count > 1 && fingerprint.trustLevel == OTRTrustLevelUnknown) {
-        fingerprint.trustLevel = OTRTrustLevelUntrustedNew;
-        [self saveFingerprint:fingerprint];
-    }
-}
-
 - (BOOL) checkTrustForFingerprint:(OTRFingerprint*)fingerprint {
     NSParameterAssert(fingerprint != nil);
     if (!fingerprint) { return NO; }
