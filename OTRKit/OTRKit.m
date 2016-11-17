@@ -157,7 +157,7 @@ static int is_logged_in_cb(void *opdata, const char *accountname,
 {
     OTROpData *data = (__bridge OTROpData*)opdata;
     OTRKit *otrKit = data.otrKit;
-    if (![otrKit respondsToSelector:@selector(otrKit:isUsernameLoggedIn:accountName:protocol:)]) {
+    if (![otrKit.delegate respondsToSelector:@selector(otrKit:isUsernameLoggedIn:accountName:protocol:)]) {
         return -1;
     }
     __block BOOL loggedIn = NO;
@@ -201,7 +201,7 @@ static void confirm_fingerprint_cb(void *opdata, OtrlUserState us,
     OTROpData *data = (__bridge OTROpData*)opdata;
     OTRKit *otrKit = data.otrKit;
     NSCParameterAssert(otrKit);
-    if (![otrKit respondsToSelector:@selector(otrKit:showFingerprintConfirmationForTheirHash:ourHash:username:accountName:protocol:)]) {
+    if (![otrKit.delegate respondsToSelector:@selector(otrKit:showFingerprintConfirmationForTheirHash:ourHash:username:accountName:protocol:)]) {
         return;
     }
     char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN], their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
@@ -363,7 +363,7 @@ static void handle_smp_event_cb(void *opdata, OtrlSMPEvent smp_event,
     OTROpData *data = (__bridge OTROpData*)opdata;
     OTRKit *otrKit = data.otrKit;
     NSCParameterAssert(otrKit);
-    if (![otrKit respondsToSelector:@selector(otrKit:handleSMPEvent:progress:question:username:accountName:protocol:)]) {
+    if (![otrKit.delegate respondsToSelector:@selector(otrKit:handleSMPEvent:progress:question:username:accountName:protocol:)]) {
         return;
     }
     OTRKitSMPEvent event = OTRKitSMPEventNone;
@@ -424,7 +424,7 @@ static void handle_msg_event_cb(void *opdata, OtrlMessageEvent msg_event,
     OTROpData *data = (__bridge OTROpData*)opdata;
     OTRKit *otrKit = data.otrKit;
     NSCParameterAssert(otrKit);
-    if (![otrKit respondsToSelector:@selector(otrKit:handleMessageEvent:message:username:accountName:protocol:tag:error:)]) {
+    if (![otrKit.delegate respondsToSelector:@selector(otrKit:handleMessageEvent:message:username:accountName:protocol:tag:error:)]) {
         return;
     }
     
@@ -538,7 +538,7 @@ static void received_symkey_cb(void *opdata, ConnContext *context,
     OTROpData *data = (__bridge OTROpData*)opdata;
     OTRKit *otrKit = data.otrKit;
     NSCParameterAssert(otrKit);
-    if (![otrKit respondsToSelector:@selector(otrKit:receivedSymmetricKey:forUse:useData:username:accountName:protocol:)]) {
+    if (![otrKit.delegate respondsToSelector:@selector(otrKit:receivedSymmetricKey:forUse:useData:username:accountName:protocol:)]) {
         return;
     }
     NSData *symmetricKey = [[NSData alloc] initWithBytes:symkey length:OTRL_EXTRAKEY_BYTES];

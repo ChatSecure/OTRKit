@@ -70,4 +70,23 @@ NSString * const kOTRTestProtocolXMPP = @"xmpp";
     }
 }
 
+/**
+ *  libotr likes to know if buddies are still "online". This method
+ *  is called synchronously on the callback queue so be careful.
+ *
+ *  @param otrKit      reference to shared instance
+ *  @param username   intended recipient of the message
+ *  @param accountName your local account name
+ *  @param protocol    protocol for account name such as "xmpp"
+ *
+ *  @return online status of recipient
+ */
+- (BOOL)       otrKit:(OTRKit*)otrKit
+   isUsernameLoggedIn:(NSString*)username
+          accountName:(NSString*)accountName
+             protocol:(NSString*)protocol {
+    XCTAssertNotNil(otrKit);
+    return YES;
+}
+
 @end
