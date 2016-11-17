@@ -84,8 +84,10 @@ updateMessageState:(OTRKitMessageState)messageState
         if (self.allBobFingerprints && self.allAliceFingerprints) {
             XCTAssert(self.allAliceFingerprints.count == 1);
             XCTAssert(self.allBobFingerprints.count == 1);
+            
             OTRFingerprint *bobsFingerprintForAlice = [self.allBobFingerprints firstObject];
             OTRFingerprint *alicesFingerprintForBob = [self.allAliceFingerprints firstObject];
+            
             XCTAssertEqualObjects(self.aliceFingerprint.fingerprint, bobsFingerprintForAlice.fingerprint);
             XCTAssertEqualObjects(self.bobFingerprint.fingerprint, alicesFingerprintForBob.fingerprint);
             
