@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4672416DB61B75CFEF2D1E9A /* Pods_OTRKitTestsiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF18814F904F556BDA9C001A /* Pods_OTRKitTestsiOS.framework */; };
 		63547DE81DA30B1100E4E24D /* OTRUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */; };
+		D93C48721E1CAFDB000D0C89 /* OTRKitSessionBase.m in Sources */ = {isa = PBXBuildFile; fileRef = D93C48711E1CAFDB000D0C89 /* OTRKitSessionBase.m */; };
 		D955143E1A6896F600C1A45D /* test_image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D955143D1A6896F600C1A45D /* test_image.jpg */; };
 		D95514401A6897C500C1A45D /* OTRKitUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */; };
 		D9A94047197E423200EEADD4 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98B9D3018C93739008C8D1C /* XCTest.framework */; };
@@ -24,6 +25,8 @@
 		83F6598AE0D6A8CDD18E78B6 /* Pods-OTRKitTestsiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTRKitTestsiOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OTRKitTestsiOS/Pods-OTRKitTestsiOS.debug.xcconfig"; sourceTree = "<group>"; };
 		CF18814F904F556BDA9C001A /* Pods_OTRKitTestsiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTRKitTestsiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D905CFCD155B2B0000654181 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D93C48701E1CAFDB000D0C89 /* OTRKitSessionBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OTRKitSessionBase.h; path = ../../Shared/OTRKitSessionBase.h; sourceTree = "<group>"; };
+		D93C48711E1CAFDB000D0C89 /* OTRKitSessionBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRKitSessionBase.m; path = ../../Shared/OTRKitSessionBase.m; sourceTree = "<group>"; };
 		D955143D1A6896F600C1A45D /* test_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = test_image.jpg; path = ../../Shared/test_image.jpg; sourceTree = "<group>"; };
 		D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRKitUnitTests.m; path = ../../Shared/OTRKitUnitTests.m; sourceTree = "<group>"; };
 		D98B9D3018C93739008C8D1C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -90,6 +93,8 @@
 		D9A9404A197E423200EEADD4 /* OTRKitTests */ = {
 			isa = PBXGroup;
 			children = (
+				D93C48701E1CAFDB000D0C89 /* OTRKitSessionBase.h */,
+				D93C48711E1CAFDB000D0C89 /* OTRKitSessionBase.m */,
 				D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */,
 				D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */,
 				63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */,
@@ -229,6 +234,7 @@
 			files = (
 				63547DE81DA30B1100E4E24D /* OTRUtilityTests.m in Sources */,
 				D95514401A6897C500C1A45D /* OTRKitUnitTests.m in Sources */,
+				D93C48721E1CAFDB000D0C89 /* OTRKitSessionBase.m in Sources */,
 				D9A9406B197E42BE00EEADD4 /* OTRKitTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
