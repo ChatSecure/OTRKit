@@ -26,11 +26,6 @@ pushd "libgpg-error-${LIBGPG_ERROR_VERSION}"
       fi
 	fi
 
-   # Copy over syscfg files
-
-   cp "${TOPDIR}/patches/lock-obj-pub.i386-apple-darwin.h" ./src/syscfg/
-   cp "${TOPDIR}/patches/lock-obj-pub.x86_64-apple-darwin.h" ./src/syscfg/
-
    ./configure --disable-shared --enable-static --with-pic --enable-threads=posix ${EXTRA_CONFIG} \
    --with-sysroot="${SDK_PATH}" \
    --prefix="${ROOTDIR}" \
