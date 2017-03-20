@@ -1074,7 +1074,7 @@ static OtrlMessageAppOps ui_ops = {
 
 #pragma mark Internal Messing Methods
 
-- (ConnContext*) rootContextForContext:(ConnContext*)context {
+- (nullable ConnContext*) rootContextForContext:(ConnContext*)context {
     // Get root context so fingerprint fetching is more useful
     NSParameterAssert(context != nil);
     if (!context) { return NULL; }
@@ -1088,10 +1088,20 @@ static OtrlMessageAppOps ui_ops = {
     NSParameterAssert(username.length);
     NSParameterAssert(accountName.length);
     NSParameterAssert(protocol.length);
-    if (!username.length || !accountName.length || !protocol.length) {
+    NSParameterAssert(_userState);
+    if (!username.length || !accountName.length || !protocol.length || !_userState) {
         return NULL;
     }
-    ConnContext *context = otrl_context_find(_userState, [username UTF8String], [accountName UTF8String], [protocol UTF8String], OTRL_INSTAG_BEST, YES, NULL, NULL, NULL);
+    const char *username_str = [username UTF8String];
+    const char *account_str = [accountName UTF8String];
+    const char *protocol_str = [protocol UTF8String];
+    NSParameterAssert(username_str != NULL);
+    NSParameterAssert(account_str != NULL);
+    NSParameterAssert(protocol_str != NULL);
+    if (!username_str || !account_str || !protocol_str) {
+        return NULL;
+    }
+    ConnContext *context = otrl_context_find(_userState, username_str, account_str, protocol_str, OTRL_INSTAG_BEST, YES, NULL, NULL, NULL);
     NSParameterAssert(context != NULL);
     return context;
 }
