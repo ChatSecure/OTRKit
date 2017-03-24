@@ -681,14 +681,14 @@ static OtrlMessageAppOps ui_ops = {
     }];
 }
 
-- (void) setCallbackQueue:(NSOperationQueue*)callbackQueue {
+- (void) setCallbackQueue:(dispatch_queue_t)callbackQueue {
     if (!callbackQueue) { return; }
     [self performBlockAsync:^{
         _callbackQueue = callbackQueue;
     }];
 }
 
-- (NSOperationQueue*) callbackQueue {
+- (dispatch_queue_t) callbackQueue {
     __block NSOperationQueue* callbackQueue = nil;
     [self performBlock:^{
         callbackQueue = _callbackQueue;
