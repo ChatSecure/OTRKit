@@ -689,7 +689,7 @@ static OtrlMessageAppOps ui_ops = {
 }
 
 - (dispatch_queue_t) callbackQueue {
-    __block NSOperationQueue* callbackQueue = nil;
+    __block dispatch_queue_t callbackQueue = nil;
     [self performBlock:^{
         callbackQueue = _callbackQueue;
     }];
