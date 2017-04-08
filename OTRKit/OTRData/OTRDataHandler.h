@@ -15,6 +15,7 @@
 @class OTRDataHandler;
 
 NS_ASSUME_NONNULL_BEGIN
+extern  NSString* OTRKitGetMimeTypeForExtension(NSString* extension);
 extern  NSString *const kHTTPHeaderRange;
 extern  NSString *const kHTTPHeaderRequestID;
 
