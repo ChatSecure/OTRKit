@@ -12,9 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OTRCryptoData : NSObject <NSCopying>
 
 /** Encrypted data */
-@property (nonatomic, readonly, copy) NSData *data;
+@property (nonatomic, readonly, strong) NSData *data;
 /** GCM auth tags should be 16 bytes */
-@property (nonatomic, readonly, copy) NSData *authTag;
+@property (nonatomic, readonly, strong) NSData *authTag;
 
 /** Data to be decrypted. Auth tag is required for GCM mode. */
 - (instancetype) initWithData:(NSData*)data
@@ -31,11 +31,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OTRCryptoUtility : NSObject
 
 /**
- Encrypt data with key and IV using AES-128-GCM.
+ Encrypt data with key and IV using AES-128-GCM or AES-256-GCM.
  
  @param data The data to be encrypted.
  @param iv The initialization vector. Must be 16 bytes in length.
- @param key The symmetric key. Must be 16 bytes in length.
+ @param key The symmetric key. Must be 16 or 32 bytes in length.
  @param error Any errors that result.
  
  @return The encrypted data.
@@ -43,11 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable OTRCryptoData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error;
 
 /**
- Decrypt data with key and IV using AES-128-GCM.
+ Decrypt data with key and IV using AES-128-GCM or AES-256-GCM.
  
  @param data The data to be decrypted.
  @param iv The initialization vector. Must be 16 bytes in length.
- @param key The symmetric key. Must be 16 bytes in length.
+ @param key The symmetric key. Must be 16 or 32 bytes in length.
  @param error Any errors that result.
  
  @return The decrypted data.
