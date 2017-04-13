@@ -31,8 +31,8 @@
     NSMutableData *keyData = [NSMutableData dataWithLength:16];
     int err = SecRandomCopyBytes(kSecRandomDefault, 16, [keyData mutableBytes]);
     XCTAssert(err == 0);
-    NSMutableData *ivData = [NSMutableData dataWithLength:17];
-    err = SecRandomCopyBytes(kSecRandomDefault, 17, [ivData mutableBytes]);
+    NSMutableData *ivData = [NSMutableData dataWithLength:16];
+    err = SecRandomCopyBytes(kSecRandomDefault, 16, [ivData mutableBytes]);
     XCTAssert(err == 0);
     
     NSError *error = nil;
