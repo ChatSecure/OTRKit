@@ -51,7 +51,7 @@ typedef NS_ENUM(NSUInteger, OTRCryptoMode) {
 
 @implementation OTRCryptoUtility
 
-+ (nullable OTRCryptoData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
++ (nullable OTRCryptoData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError * __autoreleasing *)error {
     /** Encrypt in place */
     OTRCryptoData *cryptoData = [[OTRCryptoData alloc] initWithData:data authTag:[NSData data]];
     BOOL success = [self processCryptoData:cryptoData mode:OTRCryptoModeEncrypt key:key iv:iv error:error];
@@ -61,7 +61,7 @@ typedef NS_ENUM(NSUInteger, OTRCryptoMode) {
     return nil;
 }
 
-+ (nullable NSData *)decryptAESGCMData:(OTRCryptoData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
++ (nullable NSData *)decryptAESGCMData:(OTRCryptoData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError * __autoreleasing *)error {
     OTRCryptoData *outData = [data copy];
     BOOL success = [self processCryptoData:outData mode:OTRCryptoModeDecrypt key:key iv:iv error:error];
     if (success) {
@@ -71,7 +71,7 @@ typedef NS_ENUM(NSUInteger, OTRCryptoMode) {
 }
 
 /** Returns YES on success, NO on failure */
-+ (BOOL)processCryptoData:(OTRCryptoData*)cryptoData mode:(OTRCryptoMode)mode key:(NSData *)key iv:(NSData *)iv error:(NSError **)error {
++ (BOOL)processCryptoData:(OTRCryptoData*)cryptoData mode:(OTRCryptoMode)mode key:(NSData *)key iv:(NSData *)iv error:(NSError * __autoreleasing *)error {
     NSParameterAssert(cryptoData);
     //NSParameterAssert(cryptoData.data.length != 0);
     NSParameterAssert(key.length == 16 || key.length == 32);

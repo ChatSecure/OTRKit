@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return The encrypted data.
  */
-+ (nullable OTRCryptoData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error;
++ (nullable OTRCryptoData *)encryptAESGCMData:(NSData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError * __autoreleasing *)error;
 
 /**
  Decrypt data with key and IV using AES-128-GCM or AES-256-GCM.
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return The decrypted data.
  */
-+ (nullable NSData *)decryptAESGCMData:(OTRCryptoData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError **)error;
++ (nullable NSData *)decryptAESGCMData:(OTRCryptoData *)data key:(NSData *)key iv:(NSData *)iv error:(NSError * __autoreleasing *)error;
 
 @end
 NS_ASSUME_NONNULL_END
