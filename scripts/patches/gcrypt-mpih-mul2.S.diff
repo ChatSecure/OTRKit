@@ -1,0 +1,17 @@
+--- mpih-mul2.S.orig	2016-03-23 04:59:34.000000000 -0700
++++ mpih-mul2.S	2017-09-29 13:53:43.000000000 -0700
+@@ -34,7 +34,7 @@
+ .text
+ 
+ .globl _gcry_mpih_addmul_1
+-.type  _gcry_mpih_addmul_1,%function
++// .type  _gcry_mpih_addmul_1,%function
+ _gcry_mpih_addmul_1:
+ 	and	x5, x2, #3;
+ 	mov	x6, xzr;
+@@ -105,4 +105,4 @@
+ .Lend:
+ 	mov	x0, x6;
+ 	ret;
+-.size _gcry_mpih_addmul_1,.-_gcry_mpih_addmul_1;
++// .size _gcry_mpih_addmul_1,.-_gcry_mpih_addmul_1;

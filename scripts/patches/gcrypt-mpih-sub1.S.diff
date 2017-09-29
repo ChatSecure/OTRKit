@@ -1,0 +1,17 @@
+--- mpih-sub1.S.orig	2016-03-23 04:59:34.000000000 -0700
++++ mpih-sub1.S	2017-09-29 13:55:22.000000000 -0700
+@@ -34,7 +34,7 @@
+ .text
+ 
+ .globl _gcry_mpih_sub_n
+-.type  _gcry_mpih_sub_n,%function
++// .type  _gcry_mpih_sub_n,%function
+ _gcry_mpih_sub_n:
+ 	and	x5, x3, #3;
+ 	subs	xzr, xzr, xzr; /* prepare carry flag for sub */
+@@ -68,4 +68,4 @@
+ .Lend:
+ 	cset	x0, cc;
+ 	ret;
+-.size _gcry_mpih_sub_n,.-_gcry_mpih_sub_n;
++// .size _gcry_mpih_sub_n,.-_gcry_mpih_sub_n;

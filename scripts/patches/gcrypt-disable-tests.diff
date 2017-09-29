@@ -1,0 +1,13 @@
+--- Makefile.in.orig	2017-08-27 00:25:38.000000000 -0700
++++ Makefile.in	2017-09-29 13:20:24.000000000 -0700
+@@ -394,8 +394,8 @@
+ GITLOG_TO_CHANGELOG = gitlog-to-changelog
+ @BUILD_DOC_FALSE@doc = 
+ @BUILD_DOC_TRUE@doc = doc
+-DIST_SUBDIRS = m4 compat mpi cipher random src doc tests
+-SUBDIRS = compat mpi cipher random src $(doc) tests
++DIST_SUBDIRS = m4 compat mpi cipher random src doc
++SUBDIRS = compat mpi cipher random src $(doc)
+ EXTRA_DIST = autogen.sh autogen.rc README.GIT LICENSES      	           \
+              ChangeLog-2011 build-aux/ChangeLog-2011 doc/ChangeLog-2011    \
+              m4/ChangeLog-2011 cipher/ChangeLog-2011 src/ChangeLog-2011    \

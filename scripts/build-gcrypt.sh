@@ -11,6 +11,15 @@ tar zxf "libgcrypt-${LIBGCRYPT_VERSION}.tar.bz2"
 
 pushd "libgcrypt-${LIBGCRYPT_VERSION}"
 
+   # Apply patches
+   patch < "${TOPDIR}/patches/gcrypt-disable-tests.diff" Makefile.in
+   # The below patches attempt to fix the arm64 assembly compilation with Xcode 9, but do not work
+   # patch < "${TOPDIR}/patches/gcrypt-mpih-add1.S.diff" mpi/aarch64/mpih-add1.S
+   # patch < "${TOPDIR}/patches/gcrypt-mpih-mul1.S.diff" mpi/aarch64/mpih-mul1.S
+   # patch < "${TOPDIR}/patches/gcrypt-mpih-mul2.S.diff" mpi/aarch64/mpih-mul2.S
+   # patch < "${TOPDIR}/patches/gcrypt-mpih-mul3.S.diff" mpi/aarch64/mpih-mul3.S
+   # patch < "${TOPDIR}/patches/gcrypt-mpih-sub1.S.diff" mpi/aarch64/mpih-sub1.S
+
    LDFLAGS="-L${ARCH_BUILT_LIBS_DIR} -fPIE ${PLATFORM_VERSION_MIN}"
    CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
    CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
@@ -20,7 +29,8 @@ pushd "libgcrypt-${LIBGCRYPT_VERSION}"
       EXTRA_CONFIG="--host ${ARCH}-apple-darwin"
    else
       if [ "${ARCH}" == "arm64" ] ; then
-            EXTRA_CONFIG="--host aarch64-apple-darwin"
+            # We must disable arm64 assembly with Xcode 9
+            EXTRA_CONFIG="--host aarch64-apple-darwin --disable-asm"
       else
             EXTRA_CONFIG="--host arm-apple-darwin"
       fi
