@@ -24,6 +24,11 @@ typedef NS_ENUM(NSUInteger, OTRCryptoMode) {
 
 @implementation OTRCryptoData
 
++ (void) initialize {
+    // This is needed to suppress the initialization warning
+    gcry_check_version(NULL);
+}
+
 - (instancetype) init {
     NSAssert(NO, @"Use designated initializer");
     return nil;

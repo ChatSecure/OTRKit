@@ -582,6 +582,11 @@ static OtrlMessageAppOps ui_ops = {
 
 #pragma mark Initialization
 
++ (void) initialize {
+    // This is needed to suppress the initialization warning
+    gcry_check_version(NULL);
+}
+
 - (void) dealloc {
     [self.pollTimer invalidate];
     [self performBlock:^{
