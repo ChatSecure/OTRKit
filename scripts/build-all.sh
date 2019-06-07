@@ -5,7 +5,7 @@
 # ARCHS : i386 x86_64 armv7 arm64
 # LIBRARIES: gpg-error gcrypt otr
 # USE_BUILD_LOG: true false
-# PLATFORM_TARGET: iOS macOS
+# PLATFORM_TARGET: iOS macOS iOSMac
 
 
 
@@ -21,7 +21,9 @@ SDK=$1
 if [ "${SDK}" == "" ]
 then
   SDK_PREFIX="iphoneos"
-  if [ "$PLATFORM_TARGET" == "macOS" ]; then
+  if [ "$PLATFORM_TARGET" == "iOS" ]; then
+    SDK_PREFIX="iphoneos"
+  else
     SDK_PREFIX="macosx"
   fi
   AVAIL_SDKS=`xcodebuild -showsdks | grep "$SDK_PREFIX"`
@@ -41,6 +43,8 @@ if [ -n "${ARCHS}" ]; then
 else
   if [ "$PLATFORM_TARGET" == "iOS" ]; then
     ARCHS="i386 x86_64 armv7 arm64"
+  elif [ "$PLATFORM_TARGET" == "iOSMac" ]; then
+    ARCHS="x86_64"
   else
     ARCHS="i386 x86_64"
   fi
@@ -55,8 +59,13 @@ else
 fi
 
 # Versions
-export MIN_IOS_VERSION="8.0"
-export MIN_OSX_VERSION="10.10"
+if [ "$PLATFORM_TARGET" == "iOSMac" ]; then
+  export MIN_OSX_VERSION="10.15"
+  export MIN_IOS_VERSION="13.0"
+else
+  export MIN_IOS_VERSION="8.0"
+  export MIN_OSX_VERSION="10.10"
+fi
 export LIBGPG_ERROR_VERSION="1.27"
 export LIBGCRYPT_VERSION="1.8.1"
 export LIBOTR_VERSION="4.1.1"
@@ -105,7 +114,12 @@ do
     else
       PLATFORM="MacOSX"
       PLATFORM_SDK="macosx${SDK}"
-      export PLATFORM_VERSION_MIN="-mmacosx-version-min=${MIN_OSX_VERSION}"
+      # Fix build when cross-compiling for UIKit for Mac
+      if [ "${PLATFORM_TARGET}" == "iOSMac" ] ; then
+        export PLATFORM_VERSION_MIN="-target x86_64-apple-ios-macabi -miphoneos-version-min=${MIN_IOS_VERSION}"
+      else
+        export PLATFORM_VERSION_MIN="-mmacosx-version-min=${MIN_OSX_VERSION}"
+      fi
     fi
     ROOTDIR="${BUILD_DIR}/${PLATFORM}-${SDK}-${ARCH}"
     rm -rf "${ROOTDIR}"
