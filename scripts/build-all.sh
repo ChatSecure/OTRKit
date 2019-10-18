@@ -2,12 +2,10 @@
 
 # User variables
 # VARIABLE : valid options
-# ARCHS : i386 x86_64 armv7 arm64
+# ARCHS : i386 x86_64 x86_64-maccatalyst armv7 arm64
 # LIBRARIES: gpg-error gcrypt otr
 # USE_BUILD_LOG: true false
-# PLATFORM_TARGET: iOS macOS iOSMac
-
-
+# PLATFORM_TARGET: iOS macOS
 
 set -e
 
@@ -42,9 +40,7 @@ if [ -n "${ARCHS}" ]; then
   echo "Building user-defined architectures: ${ARCHS}"
 else
   if [ "$PLATFORM_TARGET" == "iOS" ]; then
-    ARCHS="i386 x86_64 armv7 arm64"
-  elif [ "$PLATFORM_TARGET" == "iOSMac" ]; then
-    ARCHS="x86_64"
+    ARCHS="i386 x86_64 x86_64-maccatalyst armv7 arm64"
   else
     ARCHS="i386 x86_64"
   fi
@@ -59,13 +55,7 @@ else
 fi
 
 # Versions
-if [ "$PLATFORM_TARGET" == "iOSMac" ]; then
-  export MIN_OSX_VERSION="10.15"
-  export MIN_IOS_VERSION="13.0"
-else
-  export MIN_IOS_VERSION="8.0"
-  export MIN_OSX_VERSION="10.10"
-fi
+export MIN_OSX_VERSION="10.10"
 export LIBGPG_ERROR_VERSION="1.27"
 export LIBGCRYPT_VERSION="1.8.1"
 export LIBOTR_VERSION="4.1.1"
@@ -93,7 +83,7 @@ if [ ! -d "${FINAL_BUILT_DIR}" ]; then
   mkdir -p "${FINAL_BUILT_DIR}/include"
 else
   echo "Final product directory OTRKitDependencies-${PLATFORM_TARGET} found, skipping build..."
-  exit 0
+  # exit 0
 fi
 
 cd ${BUILD_DIR}
@@ -110,16 +100,20 @@ do
           PLATFORM="iPhoneOS"
           PLATFORM_SDK="iphoneos${SDK}"
       fi
-      export PLATFORM_VERSION_MIN="-miphoneos-version-min=${MIN_IOS_VERSION}"
+
+      if [ "${ARCH}" == "x86_64-maccatalyst" ]; then
+        MIN_IOS_VERSION="13.0"
+        PLATFORM="MacOSX"
+        PLATFORM_SDK="macosx10.15"
+        export PLATFORM_VERSION_MIN="-target x86_64-apple-ios-macabi -miphoneos-version-min=${MIN_IOS_VERSION}"
+      else
+        MIN_IOS_VERSION="8.0"
+        export PLATFORM_VERSION_MIN="-miphoneos-version-min=${MIN_IOS_VERSION}"
+      fi
     else
       PLATFORM="MacOSX"
       PLATFORM_SDK="macosx${SDK}"
-      # Fix build when cross-compiling for UIKit for Mac
-      if [ "${PLATFORM_TARGET}" == "iOSMac" ] ; then
-        export PLATFORM_VERSION_MIN="-target x86_64-apple-ios-macabi -miphoneos-version-min=${MIN_IOS_VERSION}"
-      else
-        export PLATFORM_VERSION_MIN="-mmacosx-version-min=${MIN_OSX_VERSION}"
-      fi
+      export PLATFORM_VERSION_MIN="-mmacosx-version-min=${MIN_OSX_VERSION}"
     fi
     ROOTDIR="${BUILD_DIR}/${PLATFORM}-${SDK}-${ARCH}"
     rm -rf "${ROOTDIR}"
@@ -145,6 +139,13 @@ do
       mkdir "${ARCH_BUILT_BIN_DIR}"
     fi
 
+    REAL_ARCH="${ARCH}"
+    if [ "${ARCH}" == "x86_64-maccatalyst" ]; then
+      ARCH="x86_64"
+    else
+      ARCH="${ARCH}"
+    fi
+
     export TOPDIR="${TOPDIR}"
     export ARCH_BUILT_HEADERS_DIR="${ARCH_BUILT_HEADERS_DIR}"
     export ARCH_BUILT_LIBS_DIR="${ARCH_BUILT_LIBS_DIR}"
@@ -167,6 +168,8 @@ do
     
     # Remove junk
     rm -rf "${ROOTDIR}"
+
+    ARCH="${REAL_ARCH}"
   done
   BUILT_ARCHS+=("${ARCH}")
 done
@@ -206,7 +209,7 @@ for ARCH in ${BUILT_ARCHS[@]}; do
 done
 
 # Final cleanups
-rm -rf "${BUILT_DIR}"
-rm -rf "${BUILD_DIR}"
+# rm -rf "${BUILT_DIR}"
+# rm -rf "${BUILD_DIR}"
 
 echo "Success! Finished building ${LIBRARIES} for ${ARCHS}."
