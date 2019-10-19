@@ -1,0 +1,735 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 52;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D96A69F3235BB49E006FF925 /* OTRKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D5235BB49E006FF925 /* OTRKit.m */; };
+		D96A69F4235BB49E006FF925 /* OTRTLV.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D6235BB49E006FF925 /* OTRTLV.m */; };
+		D96A69F5235BB49E006FF925 /* OTRFingerprint.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D7235BB49E006FF925 /* OTRFingerprint.h */; };
+		D96A69F6235BB49E006FF925 /* OTRTLVHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D8235BB49E006FF925 /* OTRTLVHandler.h */; };
+		D96A69F7235BB49E006FF925 /* OTRKit.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D9235BB49E006FF925 /* OTRKit.h */; };
+		D96A69F8235BB49E006FF925 /* OTRHTTPMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DB235BB49E006FF925 /* OTRHTTPMessage.m */; };
+		D96A69F9235BB49E006FF925 /* OTRDataIncomingTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DC235BB49E006FF925 /* OTRDataIncomingTransfer.m */; };
+		D96A69FA235BB49E006FF925 /* NSData+OTRDATA.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DD235BB49E006FF925 /* NSData+OTRDATA.m */; };
+		D96A69FB235BB49E006FF925 /* OTRDataOutgoingTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DE235BB49E006FF925 /* OTRDataOutgoingTransfer.m */; };
+		D96A69FC235BB49E006FF925 /* OTRDataTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DF235BB49E006FF925 /* OTRDataTransfer.m */; };
+		D96A69FD235BB49E006FF925 /* OTRDataHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E0235BB49E006FF925 /* OTRDataHandler.h */; };
+		D96A69FE235BB49E006FF925 /* OTRDataRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E1235BB49E006FF925 /* OTRDataRequest.h */; };
+		D96A69FF235BB49E006FF925 /* OTRDataGetOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E2235BB49E006FF925 /* OTRDataGetOperation.h */; };
+		D96A6A00235BB49E006FF925 /* NSData+OTRDATA.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E3235BB49E006FF925 /* NSData+OTRDATA.h */; };
+		D96A6A01235BB49E006FF925 /* OTRDataIncomingTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E4235BB49E006FF925 /* OTRDataIncomingTransfer.h */; };
+		D96A6A02235BB49E006FF925 /* OTRHTTPMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E5235BB49E006FF925 /* OTRHTTPMessage.h */; };
+		D96A6A03235BB49E006FF925 /* OTRDataHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69E6235BB49E006FF925 /* OTRDataHandler.m */; };
+		D96A6A04235BB49E006FF925 /* OTRDataTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E7235BB49E006FF925 /* OTRDataTransfer.h */; };
+		D96A6A05235BB49E006FF925 /* OTRDataOutgoingTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E8235BB49E006FF925 /* OTRDataOutgoingTransfer.h */; };
+		D96A6A06235BB49E006FF925 /* OTRDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69E9235BB49E006FF925 /* OTRDataRequest.m */; };
+		D96A6A07235BB49E006FF925 /* OTRDataGetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EA235BB49E006FF925 /* OTRDataGetOperation.m */; };
+		D96A6A09235BB49E006FF925 /* OTRFingerprint.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EC235BB49E006FF925 /* OTRFingerprint.m */; };
+		D96A6A0A235BB49E006FF925 /* OTRTLV.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69ED235BB49E006FF925 /* OTRTLV.h */; };
+		D96A6A0B235BB49E006FF925 /* OTRCryptoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EF235BB49E006FF925 /* OTRCryptoUtility.m */; };
+		D96A6A0C235BB49E006FF925 /* OTRErrorUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69F0235BB49E006FF925 /* OTRErrorUtility.h */; };
+		D96A6A0D235BB49E006FF925 /* OTRCryptoUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69F1235BB49E006FF925 /* OTRCryptoUtility.h */; };
+		D96A6A0E235BB49E006FF925 /* OTRErrorUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69F2235BB49E006FF925 /* OTRErrorUtility.m */; };
+		D96A6A13235BB83B006FF925 /* OTRDataOutgoingTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E8235BB49E006FF925 /* OTRDataOutgoingTransfer.h */; };
+		D96A6A14235BB83B006FF925 /* OTRTLVHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D8235BB49E006FF925 /* OTRTLVHandler.h */; };
+		D96A6A15235BB83B006FF925 /* OTRErrorUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69F0235BB49E006FF925 /* OTRErrorUtility.h */; };
+		D96A6A16235BB83B006FF925 /* OTRDataGetOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E2235BB49E006FF925 /* OTRDataGetOperation.h */; };
+		D96A6A17235BB83B006FF925 /* OTRFingerprint.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D7235BB49E006FF925 /* OTRFingerprint.h */; };
+		D96A6A18235BB83B006FF925 /* OTRKit.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D9235BB49E006FF925 /* OTRKit.h */; };
+		D96A6A19235BB83B006FF925 /* NSData+OTRDATA.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E3235BB49E006FF925 /* NSData+OTRDATA.h */; };
+		D96A6A1A235BB83B006FF925 /* OTRDataRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E1235BB49E006FF925 /* OTRDataRequest.h */; };
+		D96A6A1B235BB83B006FF925 /* OTRCryptoUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69F1235BB49E006FF925 /* OTRCryptoUtility.h */; };
+		D96A6A1C235BB83B006FF925 /* OTRHTTPMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E5235BB49E006FF925 /* OTRHTTPMessage.h */; };
+		D96A6A1D235BB83B006FF925 /* OTRDataHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E0235BB49E006FF925 /* OTRDataHandler.h */; };
+		D96A6A1E235BB83B006FF925 /* OTRTLV.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69ED235BB49E006FF925 /* OTRTLV.h */; };
+		D96A6A1F235BB83B006FF925 /* OTRDataIncomingTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E4235BB49E006FF925 /* OTRDataIncomingTransfer.h */; };
+		D96A6A20235BB83B006FF925 /* OTRDataTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E7235BB49E006FF925 /* OTRDataTransfer.h */; };
+		D96A6A22235BB83B006FF925 /* OTRDataHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69E6235BB49E006FF925 /* OTRDataHandler.m */; };
+		D96A6A23235BB83B006FF925 /* OTRFingerprint.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EC235BB49E006FF925 /* OTRFingerprint.m */; };
+		D96A6A24235BB83B006FF925 /* OTRDataOutgoingTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DE235BB49E006FF925 /* OTRDataOutgoingTransfer.m */; };
+		D96A6A25235BB83B006FF925 /* OTRDataIncomingTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DC235BB49E006FF925 /* OTRDataIncomingTransfer.m */; };
+		D96A6A26235BB83B006FF925 /* OTRTLV.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D6235BB49E006FF925 /* OTRTLV.m */; };
+		D96A6A27235BB83B006FF925 /* OTRHTTPMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DB235BB49E006FF925 /* OTRHTTPMessage.m */; };
+		D96A6A28235BB83B006FF925 /* NSData+OTRDATA.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DD235BB49E006FF925 /* NSData+OTRDATA.m */; };
+		D96A6A29235BB83B006FF925 /* OTRCryptoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EF235BB49E006FF925 /* OTRCryptoUtility.m */; };
+		D96A6A2A235BB83B006FF925 /* OTRDataGetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EA235BB49E006FF925 /* OTRDataGetOperation.m */; };
+		D96A6A2B235BB83B006FF925 /* OTRDataTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DF235BB49E006FF925 /* OTRDataTransfer.m */; };
+		D96A6A2C235BB83B006FF925 /* OTRKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D5235BB49E006FF925 /* OTRKit.m */; };
+		D96A6A2D235BB83B006FF925 /* OTRErrorUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69F2235BB49E006FF925 /* OTRErrorUtility.m */; };
+		D96A6A2E235BB83B006FF925 /* OTRDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69E9235BB49E006FF925 /* OTRDataRequest.m */; };
+		D96A6A3B235BBE54006FF925 /* libotrkit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D96A6A3A235BBE54006FF925 /* libotrkit.xcframework */; };
+		D96A6A3C235BBE54006FF925 /* libotrkit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D96A6A3A235BBE54006FF925 /* libotrkit.xcframework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		D96A69CC235BB43E006FF925 /* OTRKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OTRKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D96A69D5235BB49E006FF925 /* OTRKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKit.m; sourceTree = "<group>"; };
+		D96A69D6235BB49E006FF925 /* OTRTLV.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRTLV.m; sourceTree = "<group>"; };
+		D96A69D7235BB49E006FF925 /* OTRFingerprint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRFingerprint.h; sourceTree = "<group>"; };
+		D96A69D8235BB49E006FF925 /* OTRTLVHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRTLVHandler.h; sourceTree = "<group>"; };
+		D96A69D9235BB49E006FF925 /* OTRKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRKit.h; sourceTree = "<group>"; };
+		D96A69DB235BB49E006FF925 /* OTRHTTPMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRHTTPMessage.m; sourceTree = "<group>"; };
+		D96A69DC235BB49E006FF925 /* OTRDataIncomingTransfer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRDataIncomingTransfer.m; sourceTree = "<group>"; };
+		D96A69DD235BB49E006FF925 /* NSData+OTRDATA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+OTRDATA.m"; sourceTree = "<group>"; };
+		D96A69DE235BB49E006FF925 /* OTRDataOutgoingTransfer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRDataOutgoingTransfer.m; sourceTree = "<group>"; };
+		D96A69DF235BB49E006FF925 /* OTRDataTransfer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRDataTransfer.m; sourceTree = "<group>"; };
+		D96A69E0235BB49E006FF925 /* OTRDataHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRDataHandler.h; sourceTree = "<group>"; };
+		D96A69E1235BB49E006FF925 /* OTRDataRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRDataRequest.h; sourceTree = "<group>"; };
+		D96A69E2235BB49E006FF925 /* OTRDataGetOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRDataGetOperation.h; sourceTree = "<group>"; };
+		D96A69E3235BB49E006FF925 /* NSData+OTRDATA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+OTRDATA.h"; sourceTree = "<group>"; };
+		D96A69E4235BB49E006FF925 /* OTRDataIncomingTransfer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRDataIncomingTransfer.h; sourceTree = "<group>"; };
+		D96A69E5235BB49E006FF925 /* OTRHTTPMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRHTTPMessage.h; sourceTree = "<group>"; };
+		D96A69E6235BB49E006FF925 /* OTRDataHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRDataHandler.m; sourceTree = "<group>"; };
+		D96A69E7235BB49E006FF925 /* OTRDataTransfer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRDataTransfer.h; sourceTree = "<group>"; };
+		D96A69E8235BB49E006FF925 /* OTRDataOutgoingTransfer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRDataOutgoingTransfer.h; sourceTree = "<group>"; };
+		D96A69E9235BB49E006FF925 /* OTRDataRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRDataRequest.m; sourceTree = "<group>"; };
+		D96A69EA235BB49E006FF925 /* OTRDataGetOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRDataGetOperation.m; sourceTree = "<group>"; };
+		D96A69EB235BB49E006FF925 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D96A69EC235BB49E006FF925 /* OTRFingerprint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRFingerprint.m; sourceTree = "<group>"; };
+		D96A69ED235BB49E006FF925 /* OTRTLV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRTLV.h; sourceTree = "<group>"; };
+		D96A69EF235BB49E006FF925 /* OTRCryptoUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRCryptoUtility.m; sourceTree = "<group>"; };
+		D96A69F0235BB49E006FF925 /* OTRErrorUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRErrorUtility.h; sourceTree = "<group>"; };
+		D96A69F1235BB49E006FF925 /* OTRCryptoUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTRCryptoUtility.h; sourceTree = "<group>"; };
+		D96A69F2235BB49E006FF925 /* OTRErrorUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRErrorUtility.m; sourceTree = "<group>"; };
+		D96A6A35235BB83B006FF925 /* OTRKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OTRKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D96A6A3A235BBE54006FF925 /* libotrkit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libotrkit.xcframework; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D96A69C9235BB43E006FF925 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D96A6A3B235BBE54006FF925 /* libotrkit.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D96A6A2F235BB83B006FF925 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D96A6A3C235BBE54006FF925 /* libotrkit.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D905CF58155B010A00654181 = {
+			isa = PBXGroup;
+			children = (
+				D96A6A35235BB83B006FF925 /* OTRKit.framework */,
+				D96A69CC235BB43E006FF925 /* OTRKit.framework */,
+				D96A6A39235BBE54006FF925 /* OTRKitDependencies */,
+				D96A69D4235BB49E006FF925 /* OTRKit */,
+			);
+			sourceTree = "<group>";
+		};
+		D96A69D4235BB49E006FF925 /* OTRKit */ = {
+			isa = PBXGroup;
+			children = (
+				D96A69D5235BB49E006FF925 /* OTRKit.m */,
+				D96A69D6235BB49E006FF925 /* OTRTLV.m */,
+				D96A69D7235BB49E006FF925 /* OTRFingerprint.h */,
+				D96A69D8235BB49E006FF925 /* OTRTLVHandler.h */,
+				D96A69D9235BB49E006FF925 /* OTRKit.h */,
+				D96A69DA235BB49E006FF925 /* OTRData */,
+				D96A69EB235BB49E006FF925 /* Info.plist */,
+				D96A69EC235BB49E006FF925 /* OTRFingerprint.m */,
+				D96A69ED235BB49E006FF925 /* OTRTLV.h */,
+				D96A69EE235BB49E006FF925 /* Utility */,
+			);
+			path = OTRKit;
+			sourceTree = "<group>";
+		};
+		D96A69DA235BB49E006FF925 /* OTRData */ = {
+			isa = PBXGroup;
+			children = (
+				D96A69DB235BB49E006FF925 /* OTRHTTPMessage.m */,
+				D96A69DC235BB49E006FF925 /* OTRDataIncomingTransfer.m */,
+				D96A69DD235BB49E006FF925 /* NSData+OTRDATA.m */,
+				D96A69DE235BB49E006FF925 /* OTRDataOutgoingTransfer.m */,
+				D96A69DF235BB49E006FF925 /* OTRDataTransfer.m */,
+				D96A69E0235BB49E006FF925 /* OTRDataHandler.h */,
+				D96A69E1235BB49E006FF925 /* OTRDataRequest.h */,
+				D96A69E2235BB49E006FF925 /* OTRDataGetOperation.h */,
+				D96A69E3235BB49E006FF925 /* NSData+OTRDATA.h */,
+				D96A69E4235BB49E006FF925 /* OTRDataIncomingTransfer.h */,
+				D96A69E5235BB49E006FF925 /* OTRHTTPMessage.h */,
+				D96A69E6235BB49E006FF925 /* OTRDataHandler.m */,
+				D96A69E7235BB49E006FF925 /* OTRDataTransfer.h */,
+				D96A69E8235BB49E006FF925 /* OTRDataOutgoingTransfer.h */,
+				D96A69E9235BB49E006FF925 /* OTRDataRequest.m */,
+				D96A69EA235BB49E006FF925 /* OTRDataGetOperation.m */,
+			);
+			path = OTRData;
+			sourceTree = "<group>";
+		};
+		D96A69EE235BB49E006FF925 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				D96A69EF235BB49E006FF925 /* OTRCryptoUtility.m */,
+				D96A69F0235BB49E006FF925 /* OTRErrorUtility.h */,
+				D96A69F1235BB49E006FF925 /* OTRCryptoUtility.h */,
+				D96A69F2235BB49E006FF925 /* OTRErrorUtility.m */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
+		D96A6A39235BBE54006FF925 /* OTRKitDependencies */ = {
+			isa = PBXGroup;
+			children = (
+				D96A6A3A235BBE54006FF925 /* libotrkit.xcframework */,
+			);
+			path = OTRKitDependencies;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D96A69C7235BB43E006FF925 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D96A6A05235BB49E006FF925 /* OTRDataOutgoingTransfer.h in Headers */,
+				D96A69F6235BB49E006FF925 /* OTRTLVHandler.h in Headers */,
+				D96A6A0C235BB49E006FF925 /* OTRErrorUtility.h in Headers */,
+				D96A69FF235BB49E006FF925 /* OTRDataGetOperation.h in Headers */,
+				D96A69F5235BB49E006FF925 /* OTRFingerprint.h in Headers */,
+				D96A69F7235BB49E006FF925 /* OTRKit.h in Headers */,
+				D96A6A00235BB49E006FF925 /* NSData+OTRDATA.h in Headers */,
+				D96A69FE235BB49E006FF925 /* OTRDataRequest.h in Headers */,
+				D96A6A0D235BB49E006FF925 /* OTRCryptoUtility.h in Headers */,
+				D96A6A02235BB49E006FF925 /* OTRHTTPMessage.h in Headers */,
+				D96A69FD235BB49E006FF925 /* OTRDataHandler.h in Headers */,
+				D96A6A0A235BB49E006FF925 /* OTRTLV.h in Headers */,
+				D96A6A01235BB49E006FF925 /* OTRDataIncomingTransfer.h in Headers */,
+				D96A6A04235BB49E006FF925 /* OTRDataTransfer.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D96A6A12235BB83B006FF925 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D96A6A13235BB83B006FF925 /* OTRDataOutgoingTransfer.h in Headers */,
+				D96A6A14235BB83B006FF925 /* OTRTLVHandler.h in Headers */,
+				D96A6A15235BB83B006FF925 /* OTRErrorUtility.h in Headers */,
+				D96A6A16235BB83B006FF925 /* OTRDataGetOperation.h in Headers */,
+				D96A6A17235BB83B006FF925 /* OTRFingerprint.h in Headers */,
+				D96A6A18235BB83B006FF925 /* OTRKit.h in Headers */,
+				D96A6A19235BB83B006FF925 /* NSData+OTRDATA.h in Headers */,
+				D96A6A1A235BB83B006FF925 /* OTRDataRequest.h in Headers */,
+				D96A6A1B235BB83B006FF925 /* OTRCryptoUtility.h in Headers */,
+				D96A6A1C235BB83B006FF925 /* OTRHTTPMessage.h in Headers */,
+				D96A6A1D235BB83B006FF925 /* OTRDataHandler.h in Headers */,
+				D96A6A1E235BB83B006FF925 /* OTRTLV.h in Headers */,
+				D96A6A1F235BB83B006FF925 /* OTRDataIncomingTransfer.h in Headers */,
+				D96A6A20235BB83B006FF925 /* OTRDataTransfer.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D96A69CB235BB43E006FF925 /* OTRKit (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D96A69D1235BB43E006FF925 /* Build configuration list for PBXNativeTarget "OTRKit (macOS)" */;
+			buildPhases = (
+				D96A69C7235BB43E006FF925 /* Headers */,
+				D96A69C8235BB43E006FF925 /* Sources */,
+				D96A69C9235BB43E006FF925 /* Frameworks */,
+				D96A69CA235BB43E006FF925 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "OTRKit (macOS)";
+			productName = OTRKit;
+			productReference = D96A69CC235BB43E006FF925 /* OTRKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		D96A6A11235BB83B006FF925 /* OTRKit (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D96A6A32235BB83B006FF925 /* Build configuration list for PBXNativeTarget "OTRKit (iOS)" */;
+			buildPhases = (
+				D96A6A12235BB83B006FF925 /* Headers */,
+				D96A6A21235BB83B006FF925 /* Sources */,
+				D96A6A2F235BB83B006FF925 /* Frameworks */,
+				D96A6A31235BB83B006FF925 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "OTRKit (iOS)";
+			productName = OTRKit;
+			productReference = D96A6A35235BB83B006FF925 /* OTRKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D905CF5A155B010A00654181 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1110;
+				TargetAttributes = {
+					D96A69CB235BB43E006FF925 = {
+						CreatedOnToolsVersion = 11.1;
+					};
+				};
+			};
+			buildConfigurationList = D905CF5D155B010A00654181 /* Build configuration list for PBXProject "OTRKit" */;
+			compatibilityVersion = "Xcode 11.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				bo,
+				"ru-RU",
+				ru,
+				it,
+				vi,
+				ar,
+				Base,
+			);
+			mainGroup = D905CF58155B010A00654181;
+			productRefGroup = D905CF58155B010A00654181;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D96A69CB235BB43E006FF925 /* OTRKit (macOS) */,
+				D96A6A11235BB83B006FF925 /* OTRKit (iOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D96A69CA235BB43E006FF925 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D96A6A31235BB83B006FF925 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D96A69C8235BB43E006FF925 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D96A6A03235BB49E006FF925 /* OTRDataHandler.m in Sources */,
+				D96A6A09235BB49E006FF925 /* OTRFingerprint.m in Sources */,
+				D96A69FB235BB49E006FF925 /* OTRDataOutgoingTransfer.m in Sources */,
+				D96A69F9235BB49E006FF925 /* OTRDataIncomingTransfer.m in Sources */,
+				D96A69F4235BB49E006FF925 /* OTRTLV.m in Sources */,
+				D96A69F8235BB49E006FF925 /* OTRHTTPMessage.m in Sources */,
+				D96A69FA235BB49E006FF925 /* NSData+OTRDATA.m in Sources */,
+				D96A6A0B235BB49E006FF925 /* OTRCryptoUtility.m in Sources */,
+				D96A6A07235BB49E006FF925 /* OTRDataGetOperation.m in Sources */,
+				D96A69FC235BB49E006FF925 /* OTRDataTransfer.m in Sources */,
+				D96A69F3235BB49E006FF925 /* OTRKit.m in Sources */,
+				D96A6A0E235BB49E006FF925 /* OTRErrorUtility.m in Sources */,
+				D96A6A06235BB49E006FF925 /* OTRDataRequest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D96A6A21235BB83B006FF925 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D96A6A22235BB83B006FF925 /* OTRDataHandler.m in Sources */,
+				D96A6A23235BB83B006FF925 /* OTRFingerprint.m in Sources */,
+				D96A6A24235BB83B006FF925 /* OTRDataOutgoingTransfer.m in Sources */,
+				D96A6A25235BB83B006FF925 /* OTRDataIncomingTransfer.m in Sources */,
+				D96A6A26235BB83B006FF925 /* OTRTLV.m in Sources */,
+				D96A6A27235BB83B006FF925 /* OTRHTTPMessage.m in Sources */,
+				D96A6A28235BB83B006FF925 /* NSData+OTRDATA.m in Sources */,
+				D96A6A29235BB83B006FF925 /* OTRCryptoUtility.m in Sources */,
+				D96A6A2A235BB83B006FF925 /* OTRDataGetOperation.m in Sources */,
+				D96A6A2B235BB83B006FF925 /* OTRDataTransfer.m in Sources */,
+				D96A6A2C235BB83B006FF925 /* OTRKit.m in Sources */,
+				D96A6A2D235BB83B006FF925 /* OTRErrorUtility.m in Sources */,
+				D96A6A2E235BB83B006FF925 /* OTRDataRequest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		D905CF70155B010B00654181 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					_GCRYPT_IN_LIBGCRYPT,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LLVM_LTO = NO;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Debug;
+		};
+		D905CF71155B010B00654181 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = _GCRYPT_IN_LIBGCRYPT;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LLVM_LTO = YES;
+				SDKROOT = macosx;
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D96A69D2235BB43E006FF925 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = OTRKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.chatsecure.OTRKit;
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		D96A69D3235BB43E006FF925 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = OTRKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.chatsecure.OTRKit;
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		D96A6A33235BB83B006FF925 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = OTRKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.chatsecure.OTRKit;
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		D96A6A34235BB83B006FF925 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = OTRKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.chatsecure.OTRKit;
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D905CF5D155B010A00654181 /* Build configuration list for PBXProject "OTRKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D905CF70155B010B00654181 /* Debug */,
+				D905CF71155B010B00654181 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D96A69D1235BB43E006FF925 /* Build configuration list for PBXNativeTarget "OTRKit (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D96A69D2235BB43E006FF925 /* Debug */,
+				D96A69D3235BB43E006FF925 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D96A6A32235BB83B006FF925 /* Build configuration list for PBXNativeTarget "OTRKit (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D96A6A33235BB83B006FF925 /* Debug */,
+				D96A6A34235BB83B006FF925 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D905CF5A155B010A00654181 /* Project object */;
+}

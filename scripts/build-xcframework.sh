@@ -9,6 +9,16 @@ set -e
 cd "`dirname \"$0\"`"
 TOPDIR=$(pwd)
 
+# Combine build results of different archs into one
+export FINAL_BUILT_DIR="${TOPDIR}/../OTRKitDependencies/"
+mkdir -p "${FINAL_BUILT_DIR}"
+export LIBOTRKIT_XCFRAMEWORK="${FINAL_BUILT_DIR}/libotrkit.xcframework"
+
+if [ -d "${LIBOTRKIT_XCFRAMEWORK}" ]; then
+  echo "Final libotrkit.xcframework found, skipping build..."
+  exit 0
+fi
+
 BUILT_DIR="${TOPDIR}/built"
 if [ ! -d "${BUILT_DIR}" ]; then
   mkdir -p "${BUILT_DIR}"
@@ -40,8 +50,6 @@ for ARCH in ${ARCHS}; do
   xcrun libtool -static -o "${LIBOTRKIT}" "${LIB_DIR}/libgpg-error.a" "${LIB_DIR}/libgcrypt.a" "${LIB_DIR}/libotr.a"
   XCFRAMEWORK_INPUTS+="-library ${LIBOTRKIT} -headers ${ARCH_DIR}/include "
 done
-
-echo "XCFRAMEWORK_INPUTS ${XCFRAMEWORK_INPUTS}"
 
 FINAL_BUILT_DIR="${TOPDIR}/../OTRKitDependencies"
 mkdir -p "${FINAL_BUILT_DIR}"

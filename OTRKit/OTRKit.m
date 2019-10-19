@@ -36,10 +36,10 @@
 
 #import "OTRKit.h"
 #import "OTRTLV.h"
-#import "proto.h"
-#import "message.h"
-#import "privkey.h"
-#import "proto.h"
+#import <libotr/proto.h>
+#import <libotr/message.h>
+#import <libotr/privkey.h>
+#import <libotr/proto.h>
 #import "OTRDataHandler.h"
 #import "OTRErrorUtility.h"
 
@@ -590,8 +590,8 @@ static OtrlMessageAppOps ui_ops = {
 - (void) dealloc {
     [self.pollTimer invalidate];
     [self performBlock:^{
-        otrl_userstate_free(_userState);
-        _userState = NULL;
+        otrl_userstate_free(self->_userState);
+        self->_userState = NULL;
     }];
 }
 
@@ -638,7 +638,7 @@ static OtrlMessageAppOps ui_ops = {
         NSString *path = [self privateKeyPath];
         privf = fopen([path UTF8String], "rb");
         if(privf) {
-            otrl_privkey_read_FILEp(_userState, privf);
+            otrl_privkey_read_FILEp(self->_userState, privf);
             fclose(privf);
         }
         
@@ -646,7 +646,7 @@ static OtrlMessageAppOps ui_ops = {
         path = [self fingerprintsPath];
         storef = fopen([path UTF8String], "rb");
         if (storef) {
-            otrl_privkey_read_fingerprints_FILEp(_userState, storef, NULL, NULL);
+            otrl_privkey_read_fingerprints_FILEp(self->_userState, storef, NULL, NULL);
             fclose(storef);
         }
         
@@ -654,7 +654,7 @@ static OtrlMessageAppOps ui_ops = {
         path = [self instanceTagsPath];
         tagf = fopen([path UTF8String], "rb");
         if (tagf) {
-            otrl_instag_read_FILEp(_userState, tagf);
+            otrl_instag_read_FILEp(self->_userState, tagf);
             fclose(tagf);
         }
     }];
@@ -689,14 +689,14 @@ static OtrlMessageAppOps ui_ops = {
 - (void) setCallbackQueue:(dispatch_queue_t)callbackQueue {
     if (!callbackQueue) { return; }
     [self performBlockAsync:^{
-        _callbackQueue = callbackQueue;
+        self->_callbackQueue = callbackQueue;
     }];
 }
 
 - (dispatch_queue_t) callbackQueue {
     __block dispatch_queue_t callbackQueue = nil;
     [self performBlock:^{
-        callbackQueue = _callbackQueue;
+        callbackQueue = self->_callbackQueue;
     }];
     return callbackQueue;
 }
@@ -705,7 +705,7 @@ static OtrlMessageAppOps ui_ops = {
     [self performBlockAsync:^{
         if (self.userState) {
             OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:nil];
-            otrl_message_poll(_userState, &ui_ops, (__bridge void *)(opdata));
+            otrl_message_poll(self->_userState, &ui_ops, (__bridge void *)(opdata));
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [timer invalidate];
@@ -724,7 +724,7 @@ static OtrlMessageAppOps ui_ops = {
  *
  *  @param accountName Your account name
  *  @param protocol the protocol of accountName, such as @"xmpp"
- *  @param completion optional.
+ *  @param completionBlock optional.
  */
 - (void) generatePrivateKeyForAccountName:(NSString*)accountName
                                  protocol:(NSString*)protocol
@@ -809,7 +809,7 @@ static OtrlMessageAppOps ui_ops = {
         }
         
         OtrlTLV *otr_tlvs = NULL;
-        ignore_message = otrl_message_receiving(_userState, &ui_ops, (__bridge void*)opdata, [accountName UTF8String], [protocol UTF8String], [username UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
+        ignore_message = otrl_message_receiving(self->_userState, &ui_ops, (__bridge void*)opdata, [accountName UTF8String], [protocol UTF8String], [username UTF8String], [message UTF8String], &newmessage, &otr_tlvs, &context, NULL, NULL);
         
         
         
@@ -938,7 +938,7 @@ static OtrlMessageAppOps ui_ops = {
         OtrlTLV *otr_tlvs = [[self class] tlvChainForTLVs:tlvs];
         OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:tag];
         
-        err = otrl_message_sending(_userState, &ui_ops, (__bridge void *)(opdata),
+        err = otrl_message_sending(self->_userState, &ui_ops, (__bridge void *)(opdata),
                                    [accountName UTF8String], [protocol UTF8String], [username UTF8String], OTRL_INSTAG_BEST, [message UTF8String], otr_tlvs, &newmessage, OTRL_FRAGMENT_SEND_SKIP, &context,
                                    NULL, NULL);
         if (otr_tlvs) {
@@ -995,7 +995,7 @@ static OtrlMessageAppOps ui_ops = {
                              protocol:(NSString*)protocol {
     [self performBlockAsync:^{
         OTROpData *opdata = [[OTROpData alloc] initWithOTRKit:self tag:nil];
-        otrl_message_disconnect_all_instances(_userState, &ui_ops, (__bridge void *)(opdata), [accountName UTF8String], [protocol UTF8String], [recipient UTF8String]);
+        otrl_message_disconnect_all_instances(self->_userState, &ui_ops, (__bridge void *)(opdata), [accountName UTF8String], [protocol UTF8String], [recipient UTF8String]);
         [self updateEncryptionStatusWithContext:[self contextForUsername:recipient accountName:accountName protocol:protocol]];
     }];
 }
@@ -1013,9 +1013,9 @@ static OtrlMessageAppOps ui_ops = {
     [self performBlockAsync:^{
         __block void *newkeyp;
         __block gcry_error_t generateError;
-        generateError = otrl_privkey_generate_start(_userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
+        generateError = otrl_privkey_generate_start(self->_userState,[accountName UTF8String],[protocol UTF8String],&newkeyp);
         if (!generateError) {
-            otrl_privkey_generate_cancelled(_userState, newkeyp);
+            otrl_privkey_generate_cancelled(self->_userState, newkeyp);
         }
         BOOL keyExists = generateError == gcry_error(GPG_ERR_EEXIST);
         if (completion) {
@@ -1116,14 +1116,14 @@ static OtrlMessageAppOps ui_ops = {
 -(OTRKitPolicy)otrPolicy {
     __block OTRKitPolicy otrPolicy = OTRKitPolicyDefault;
     [self performBlock:^{
-        otrPolicy = _otrPolicy;
+        otrPolicy = self->_otrPolicy;
     }];
     return otrPolicy;
 }
 
 - (void) setOtrPolicy:(OTRKitPolicy)otrPolicy {
     [self performBlockAsync:^{
-        _otrPolicy = otrPolicy;
+        self->_otrPolicy = otrPolicy;
     }];
 }
 
@@ -1155,7 +1155,7 @@ static OtrlMessageAppOps ui_ops = {
 - (NSArray<OTRFingerprint*>*) allFingerprints {
     NSMutableArray<OTRFingerprint*> *allFingerprints = [NSMutableArray array];
     [self performBlock:^{
-        ConnContext * context = _userState->context_root;
+        ConnContext * context = self->_userState->context_root;
         while (context) {
             Fingerprint * fingerprint = context->fingerprint_root.next;
             while (fingerprint) {
@@ -1183,7 +1183,7 @@ static OtrlMessageAppOps ui_ops = {
         if (!fingerprintDataBuffer) {
             return;
         }
-        unsigned char *fingerprint = otrl_privkey_fingerprint_raw(_userState, fingerprintDataBuffer.mutableBytes, [accountName UTF8String], [protocol UTF8String]);
+        unsigned char *fingerprint = otrl_privkey_fingerprint_raw(self->_userState, fingerprintDataBuffer.mutableBytes, [accountName UTF8String], [protocol UTF8String]);
         if (!fingerprint) {
             return;
         }

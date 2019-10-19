@@ -20,9 +20,9 @@ pushd "libgcrypt-${LIBGCRYPT_VERSION}"
    # patch < "${TOPDIR}/patches/gcrypt-mpih-mul3.S.diff" mpi/aarch64/mpih-mul3.S
    # patch < "${TOPDIR}/patches/gcrypt-mpih-sub1.S.diff" mpi/aarch64/mpih-sub1.S
 
-   LDFLAGS="-L${ARCH_BUILT_LIBS_DIR} -fPIE ${PLATFORM_VERSION_MIN}"
-   CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
-   CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
+   LDFLAGS="-L${ARCH_BUILT_LIBS_DIR} -fPIE ${PLATFORM_VERSION_MIN} -fembed-bitcode"
+   CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN} -fembed-bitcode"
+   CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN} -fembed-bitcode"
 
    if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ];
       then

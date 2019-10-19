@@ -398,7 +398,7 @@ NSString* OTRKitGetMimeTypeForExtension(NSString* extension) {
  *  Process OTRTLV.
  *  @see OTRTLV
  *
- *  @param tlvs        array of OTRTLV objects
+ *  @param tlv        array of OTRTLV objects
  *  @param username The intended recipient of the message
  *  @param accountName Your account name
  *  @param protocol the protocol of accountName, such as @"xmpp"

@@ -8,9 +8,7 @@ Pod::Spec.new do |s|
   s.license = { :type => 'LGPL', :file => 'LICENSE' }
   s.source          = { :git => "https://github.com/ChatSecure/OTRKit.git", :tag => s.version.to_s }
   s.prepare_command = <<-CMD
-    PLATFORM_TARGET="macOS" ./scripts/build-all.sh
-    PLATFORM_TARGET="iOS" ./scripts/build-all.sh
-    ./scripts/build-xcframework.sh
+    ./scripts/build-all.sh
   CMD
 
   s.ios.deployment_target = "8.0"
