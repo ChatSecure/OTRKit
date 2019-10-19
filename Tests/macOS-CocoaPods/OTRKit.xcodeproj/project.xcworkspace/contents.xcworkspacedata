@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:OTRKit.xcodeproj">
+      location = "self:OTRKit.xcodeproj">
    </FileRef>
 </Workspace>
