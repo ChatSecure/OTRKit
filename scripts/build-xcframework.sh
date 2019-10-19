@@ -38,8 +38,6 @@ BINS+=(libotr.a)
 
 NUMBER_OF_BUILT_ARCHS=${#ARCHS[@]}
 
-# xcrun libtool -static -o libotrkit.a built/arm64/lib/libgcrypt.a /Users/chrisbal/Documents/ChatSecure/ChatSecure-iOS/Submodules/OTRKit/scripts/built/arm64/lib/libgpg-error.a /Users/chrisbal/Documents/ChatSecure/ChatSecure-iOS/Submodules/OTRKit/scripts/built/arm64/lib/libotr.a 
-
 XCFRAMEWORK_INPUTS=""
 
 
