@@ -37,10 +37,8 @@ pushd "libgpg-error-${LIBGPG_ERROR_VERSION}"
    make install
 
    # Copy the build results
-   mkdir -p "${ARCH_BUILT_HEADERS_DIR}/libgpg-error/"
-   
    cp "${ROOTDIR}/lib/libgpg-error.a" "${ARCH_BUILT_LIBS_DIR}/libgpg-error.a"
-   cp -R ${ROOTDIR}/include/* "${ARCH_BUILT_HEADERS_DIR}/libgpg-error/"
+   cp -R ${ROOTDIR}/include/* "${ARCH_BUILT_HEADERS_DIR}"
    cp -R ${ROOTDIR}/bin/* "${ARCH_BUILT_BIN_DIR}"
 
 popd

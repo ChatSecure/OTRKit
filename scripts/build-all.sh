@@ -76,14 +76,13 @@ if [ ! -d "${BUILD_DIR}" ]; then
 fi
 
 # Combine build results of different archs into one
-export FINAL_BUILT_DIR="${TOPDIR}/../OTRKitDependencies-${PLATFORM_TARGET}"
-if [ ! -d "${FINAL_BUILT_DIR}" ]; then
-  mkdir -p "${FINAL_BUILT_DIR}"
-  mkdir -p "${FINAL_BUILT_DIR}/lib"
-  mkdir -p "${FINAL_BUILT_DIR}/include"
-else
-  echo "Final product directory OTRKitDependencies-${PLATFORM_TARGET} found, skipping build..."
-  # exit 0
+export FINAL_BUILT_DIR="${TOPDIR}/../OTRKitDependencies/"
+mkdir -p "${FINAL_BUILT_DIR}"
+export LIBOTRKIT_XCFRAMEWORK="${FINAL_BUILT_DIR}/libotrkit.xcframework"
+
+if [ -d "${LIBOTRKIT_XCFRAMEWORK}" ]; then
+  echo "Final libotrkit.xcframework found, skipping build..."
+  exit 0
 fi
 
 cd ${BUILD_DIR}
@@ -183,33 +182,7 @@ BINS+=(libotr.a)
 
 NUMBER_OF_BUILT_ARCHS=${#BUILT_ARCHS[@]}
 
-echo "Lipoing built libraries together..."
-for BIN in ${BINS[@]}; do
-  FILE_ARCH_PATHS=( "${BUILT_ARCHS[@]/#/${BUILT_DIR}/}" )
-  FILE_ARCH_PATHS=( "${FILE_ARCH_PATHS[@]/%//lib/${BIN}}" )
-  if [ "${NUMBER_OF_BUILT_ARCHS}" == "1" ]; then
-    for FILE_ARCH_PATH in ${FILE_ARCH_PATHS[@]}; do
-      echo "${BIN} only built for (${BUILT_ARCHS}), skipping lipo and copying to ${FINAL_BUILT_DIR}/lib/${BIN}"
-      cp "${FILE_ARCH_PATH}" "${FINAL_BUILT_DIR}/lib/${BIN}"
-    done
-  else
-    xcrun -sdk iphoneos lipo ${FILE_ARCH_PATHS[@]} -create -output "${FINAL_BUILT_DIR}/lib/${BIN}"
-  fi
-done
-
-echo "Copying headers..."
-for ARCH in ${BUILT_ARCHS[@]}; do
-  cp -R ${BUILT_DIR}/${ARCH}/include/* ${FINAL_BUILT_DIR}/include/
-  if [ $? == "0" ]; then
-    echo "Copied headers for ${ARCH} to ${FINAL_BUILT_DIR}/include/"
-    # We only need to copy the headers over once. (So break out of forloop
-    # once we get first success.)
-    break
-  fi
-done
-
 # Final cleanups
-# rm -rf "${BUILT_DIR}"
-# rm -rf "${BUILD_DIR}"
+rm -rf "${BUILD_DIR}"
 
 echo "Success! Finished building ${LIBRARIES} for ${ARCHS}."
