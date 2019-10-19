@@ -10,7 +10,7 @@
 		C080A3F187599AE8D717241F /* Pods_OTRKitTestsMac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328293020A936BCFB215E168 /* Pods_OTRKitTestsMac.framework */; };
 		D963F2051DD785690070A1D3 /* OTRKitSessionBase.m in Sources */ = {isa = PBXBuildFile; fileRef = D963F2041DD785690070A1D3 /* OTRKitSessionBase.m */; };
 		D963F2081DD79C1F0070A1D3 /* OTRKitFingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D963F2071DD79C1F0070A1D3 /* OTRKitFingerprintTests.m */; };
-		D96A6A3E235BCF7F006FF925 /* OTRKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D96A6A3D235BCF7F006FF925 /* OTRKit.xcframework */; };
+		D96A6A57235BD5FF006FF925 /* OTRKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D96A6A3D235BCF7F006FF925 /* OTRKit.xcframework */; };
 		D9EA1C3E1DD4FEE200055E75 /* OTRUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */; };
 		D9EA1C3F1DD4FEE400055E75 /* OTRKitUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */; };
 		D9EA1C401DD4FEE700055E75 /* OTRKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */; };
@@ -44,7 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D96A6A3E235BCF7F006FF925 /* OTRKit.xcframework in Frameworks */,
+				D96A6A57235BD5FF006FF925 /* OTRKit.xcframework in Frameworks */,
 				C080A3F187599AE8D717241F /* Pods_OTRKitTestsMac.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -136,6 +136,7 @@
 				D9EA1C321DD4FED500055E75 /* Sources */,
 				D9EA1C331DD4FED500055E75 /* Frameworks */,
 				D9EA1C341DD4FED500055E75 /* Resources */,
+				137F58E72192C5CFBBB8A80D /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -197,6 +198,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		137F58E72192C5CFBBB8A80D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		E95B12A3CDA252EB38C87E3E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
