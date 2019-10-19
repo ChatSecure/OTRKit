@@ -63,6 +63,8 @@
 		D96A6A2E235BB83B006FF925 /* OTRDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69E9235BB49E006FF925 /* OTRDataRequest.m */; };
 		D96A6A3B235BBE54006FF925 /* libotrkit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D96A6A3A235BBE54006FF925 /* libotrkit.xcframework */; };
 		D96A6A3C235BBE54006FF925 /* libotrkit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D96A6A3A235BBE54006FF925 /* libotrkit.xcframework */; };
+		D96A6A55235BD095006FF925 /* OTRKit_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A6A3F235BCFCB006FF925 /* OTRKit_Public.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D96A6A56235BD095006FF925 /* OTRKit_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A6A3F235BCFCB006FF925 /* OTRKit_Public.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -97,6 +99,7 @@
 		D96A69F2235BB49E006FF925 /* OTRErrorUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRErrorUtility.m; sourceTree = "<group>"; };
 		D96A6A35235BB83B006FF925 /* OTRKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OTRKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D96A6A3A235BBE54006FF925 /* libotrkit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libotrkit.xcframework; sourceTree = "<group>"; };
+		D96A6A3F235BCFCB006FF925 /* OTRKit_Public.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OTRKit_Public.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				D96A69D9235BB49E006FF925 /* OTRKit.h */,
+				D96A6A3F235BCFCB006FF925 /* OTRKit_Public.h */,
 				D96A69D5235BB49E006FF925 /* OTRKit.m */,
 				D96A69D6235BB49E006FF925 /* OTRTLV.m */,
 				D96A69D7235BB49E006FF925 /* OTRFingerprint.h */,
@@ -203,6 +207,7 @@
 				D96A69F7235BB49E006FF925 /* OTRKit.h in Headers */,
 				D96A6A00235BB49E006FF925 /* NSData+OTRDATA.h in Headers */,
 				D96A69FE235BB49E006FF925 /* OTRDataRequest.h in Headers */,
+				D96A6A55235BD095006FF925 /* OTRKit_Public.h in Headers */,
 				D96A6A0D235BB49E006FF925 /* OTRCryptoUtility.h in Headers */,
 				D96A6A02235BB49E006FF925 /* OTRHTTPMessage.h in Headers */,
 				D96A69FD235BB49E006FF925 /* OTRDataHandler.h in Headers */,
@@ -224,6 +229,7 @@
 				D96A6A18235BB83B006FF925 /* OTRKit.h in Headers */,
 				D96A6A19235BB83B006FF925 /* NSData+OTRDATA.h in Headers */,
 				D96A6A1A235BB83B006FF925 /* OTRDataRequest.h in Headers */,
+				D96A6A56235BD095006FF925 /* OTRKit_Public.h in Headers */,
 				D96A6A1B235BB83B006FF925 /* OTRCryptoUtility.h in Headers */,
 				D96A6A1C235BB83B006FF925 /* OTRHTTPMessage.h in Headers */,
 				D96A6A1D235BB83B006FF925 /* OTRDataHandler.h in Headers */,

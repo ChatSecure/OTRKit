@@ -11,18 +11,12 @@ Pod::Spec.new do |s|
     ./scripts/build-all.sh
   CMD
 
-  s.ios.deployment_target = "8.0"
-  s.ios.source_files = "OTRKit/**/*.{h,m}"
-  s.ios.vendored_frameworks  = "OTRKitDependencies/libotrkit.xcframework"
-  s.osx.frameworks = 'Security', 'MobileCoreServices', 'libotrkit'
+  s.ios.deployment_target = "12.0"
+  s.ios.vendored_frameworks  = "OTRKitDependencies/OTRKit.xcframework"
 
   s.osx.deployment_target = "10.10"
-  s.osx.source_files = "OTRKit/**/*.{h,m}"
-  s.osx.vendored_frameworks  = "OTRKitDependencies/libotrkit.xcframework"
-  s.osx.frameworks = 'Security', 'CoreServices', 'libotrkit'
+  s.osx.vendored_frameworks  = "OTRKitDependencies/OTRKit.xcframework"
 
-  s.public_header_files = "OTRKit/**/*.h"
   s.preserve_paths  = "COPYING.LGPLv2.1", "COPYING.MPLv2"
   s.requires_arc = true
-
 end

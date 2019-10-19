@@ -10,6 +10,7 @@
 		C080A3F187599AE8D717241F /* Pods_OTRKitTestsMac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328293020A936BCFB215E168 /* Pods_OTRKitTestsMac.framework */; };
 		D963F2051DD785690070A1D3 /* OTRKitSessionBase.m in Sources */ = {isa = PBXBuildFile; fileRef = D963F2041DD785690070A1D3 /* OTRKitSessionBase.m */; };
 		D963F2081DD79C1F0070A1D3 /* OTRKitFingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D963F2071DD79C1F0070A1D3 /* OTRKitFingerprintTests.m */; };
+		D96A6A3E235BCF7F006FF925 /* OTRKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D96A6A3D235BCF7F006FF925 /* OTRKit.xcframework */; };
 		D9EA1C3E1DD4FEE200055E75 /* OTRUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63547DE71DA30B1100E4E24D /* OTRUtilityTests.m */; };
 		D9EA1C3F1DD4FEE400055E75 /* OTRKitUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D955143F1A6897C500C1A45D /* OTRKitUnitTests.m */; };
 		D9EA1C401DD4FEE700055E75 /* OTRKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D9A9406A197E42BE00EEADD4 /* OTRKitTests.m */; };
@@ -27,6 +28,7 @@
 		D963F2041DD785690070A1D3 /* OTRKitSessionBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRKitSessionBase.m; path = ../../Shared/OTRKitSessionBase.m; sourceTree = "<group>"; };
 		D963F2061DD785820070A1D3 /* OTRKitSessionBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OTRKitSessionBase.h; path = ../../Shared/OTRKitSessionBase.h; sourceTree = "<group>"; };
 		D963F2071DD79C1F0070A1D3 /* OTRKitFingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OTRKitFingerprintTests.m; path = ../../Shared/OTRKitFingerprintTests.m; sourceTree = "<group>"; };
+		D96A6A3D235BCF7F006FF925 /* OTRKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = OTRKit.xcframework; path = ../../OTRKitDependencies/OTRKit.xcframework; sourceTree = "<group>"; };
 		D98B9D3018C93739008C8D1C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		D9A9404E197E423300EEADD4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D9A94052197E423300EEADD4 /* OTRKitTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OTRKitTests-Prefix.pch"; sourceTree = "<group>"; };
@@ -42,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D96A6A3E235BCF7F006FF925 /* OTRKit.xcframework in Frameworks */,
 				C080A3F187599AE8D717241F /* Pods_OTRKitTestsMac.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -80,6 +83,7 @@
 		D905CFCC155B2B0000654181 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D96A6A3D235BCF7F006FF925 /* OTRKit.xcframework */,
 				D9EA1C301DD4FC2600055E75 /* OTRKit.framework */,
 				D905CFCD155B2B0000654181 /* Foundation.framework */,
 				D98B9D3018C93739008C8D1C /* XCTest.framework */,
@@ -132,7 +136,6 @@
 				D9EA1C321DD4FED500055E75 /* Sources */,
 				D9EA1C331DD4FED500055E75 /* Frameworks */,
 				D9EA1C341DD4FED500055E75 /* Resources */,
-				47C48C87A77573665BD56EBE /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -149,7 +152,7 @@
 		D905CF5A155B010A00654181 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 1110;
 				TargetAttributes = {
 					D9EA1C351DD4FED500055E75 = {
 						CreatedOnToolsVersion = 8.1;
@@ -160,10 +163,9 @@
 			};
 			buildConfigurationList = D905CF5D155B010A00654181 /* Build configuration list for PBXProject "OTRKit" */;
 			compatibilityVersion = "Xcode 11.0";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				bo,
 				"ru-RU",
@@ -171,6 +173,7 @@
 				it,
 				vi,
 				ar,
+				Base,
 			);
 			mainGroup = D905CF58155B010A00654181;
 			productRefGroup = D905CF68155B010B00654181 /* Products */;
@@ -194,23 +197,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		47C48C87A77573665BD56EBE /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OTRKitTestsMac/Pods-OTRKitTestsMac-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		E95B12A3CDA252EB38C87E3E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -264,12 +250,20 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -308,12 +302,20 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
