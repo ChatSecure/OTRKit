@@ -2,7 +2,7 @@
 
 # User variables
 # VARIABLE : valid options
-# ARCHS : i386 x86_64 x86_64-maccatalyst armv7 arm64
+# ARCHS : x86_64 x86_64-simulator x86_64-maccatalyst arm64
 # LIBRARIES: gpg-error gcrypt otr
 # USE_BUILD_LOG: true false
 # PLATFORM_TARGET: iOS macOS
@@ -22,7 +22,7 @@ then
   if [ "$PLATFORM_TARGET" == "iOS" ]; then
     SDK_PREFIX="iphoneos"
   else
-    SDK_PREFIX="macosx"
+    SDK_PREFIX="macosx10.15"
   fi
   AVAIL_SDKS=`xcodebuild -showsdks | grep "$SDK_PREFIX"`
   FIRST_SDK=`echo "$AVAIL_SDKS" | head -n1`
@@ -40,9 +40,9 @@ if [ -n "${ARCHS}" ]; then
   echo "Building user-defined architectures: ${ARCHS}"
 else
   if [ "$PLATFORM_TARGET" == "iOS" ]; then
-    ARCHS="i386 x86_64 x86_64-maccatalyst armv7 arm64"
+    ARCHS="x86_64-simulator x86_64-maccatalyst arm64"
   else
-    ARCHS="i386 x86_64"
+    ARCHS="x86_64"
   fi
   echo "Building architectures: ${ARCHS}"
 fi
@@ -93,7 +93,7 @@ do
   for LIBRARY in ${LIBRARIES}
   do
     if [ "$PLATFORM_TARGET" == "iOS" ]; then
-      if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ]; then
+      if [ "${ARCH}" == "x86_64-simulator" ]; then
           PLATFORM="iPhoneSimulator"
           PLATFORM_SDK="iphonesimulator${SDK}"
       else
@@ -140,7 +140,7 @@ do
     fi
 
     REAL_ARCH="${ARCH}"
-    if [ "${ARCH}" == "x86_64-maccatalyst" ]; then
+    if [ "${ARCH}" == "x86_64-maccatalyst" ] || [ "${ARCH}" == "x86_64-simulator" ] ; then
       ARCH="x86_64"
     else
       ARCH="${ARCH}"

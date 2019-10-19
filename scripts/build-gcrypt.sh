@@ -21,8 +21,8 @@ pushd "libgcrypt-${LIBGCRYPT_VERSION}"
    # patch < "${TOPDIR}/patches/gcrypt-mpih-sub1.S.diff" mpi/aarch64/mpih-sub1.S
 
    LDFLAGS="-L${ARCH_BUILT_LIBS_DIR} -fPIE ${PLATFORM_VERSION_MIN}"
-   CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
-   CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
+   CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR}/libgpg-error ${PLATFORM_VERSION_MIN}"
+   CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR}/libgpg-error ${PLATFORM_VERSION_MIN}"
 
    if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ];
       then
@@ -51,8 +51,10 @@ pushd "libgcrypt-${LIBGCRYPT_VERSION}"
    make install
 
    # Copy the build results        
+   mkdir -p "${ARCH_BUILT_HEADERS_DIR}/libgcrypt/"
+
    cp "${ROOTDIR}/lib/libgcrypt.a" "${ARCH_BUILT_LIBS_DIR}"
-   cp -R ${ROOTDIR}/include/* "${ARCH_BUILT_HEADERS_DIR}"
+   cp -R ${ROOTDIR}/include/* "${ARCH_BUILT_HEADERS_DIR}/libgcrypt/"
    cp -R ${ROOTDIR}/bin/* "${ARCH_BUILT_BIN_DIR}"
 
 popd

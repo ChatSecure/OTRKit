@@ -12,8 +12,8 @@ tar zxf "libotr-${LIBOTR_VERSION}.tar.gz"
 pushd "libotr-${LIBOTR_VERSION}"
 
    LDFLAGS="-L${ARCH_BUILT_LIBS_DIR} -fPIE ${PLATFORM_VERSION_MIN}"
-   CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
-   CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR} ${PLATFORM_VERSION_MIN}"
+   CFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR}/libgcrypt -I${ARCH_BUILT_HEADERS_DIR}/libgpg-error ${PLATFORM_VERSION_MIN}"
+   CPPFLAGS=" -arch ${ARCH} -fPIE -isysroot ${SDK_PATH} -I${ARCH_BUILT_HEADERS_DIR}/libgcrypt -I${ARCH_BUILT_HEADERS_DIR}/libgpg-error ${PLATFORM_VERSION_MIN}"
 
    if [ "${ARCH}" == "i386" ] || [ "${ARCH}" == "x86_64" ];
       then
@@ -34,8 +34,10 @@ pushd "libotr-${LIBOTR_VERSION}"
    make install
 
    # Copy the build results        
+   mkdir -p "${ARCH_BUILT_HEADERS_DIR}/libotr/"
+
    cp "${ROOTDIR}/lib/libotr.a" "${ARCH_BUILT_LIBS_DIR}"
-   cp -R ${ROOTDIR}/include/* "${ARCH_BUILT_HEADERS_DIR}"
+   cp -R ${ROOTDIR}/include/* "${ARCH_BUILT_HEADERS_DIR}/libotr/"
    cp -R ${ROOTDIR}/bin/* "${ARCH_BUILT_BIN_DIR}"
 
 popd
