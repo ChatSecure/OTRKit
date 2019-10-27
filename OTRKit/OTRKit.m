@@ -289,7 +289,7 @@ static int max_message_size_cb(void *opdata, ConnContext *context)
         return 0;
     }
     NSNumber *maxMessageSize = [otrKit.protocolMaxSize objectForKey:protocol];
-    if (maxMessageSize) {
+    if (maxMessageSize != nil) {
         return maxMessageSize.intValue;
     }
     return 0;
@@ -1259,13 +1259,6 @@ static OtrlMessageAppOps ui_ops = {
     NSString *protocol = fingerprint.protocol;
     NSData *fingerprintData = fingerprint.fingerprint;
     [self performBlock:^{
-        ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
-        if (!context) {
-            outError = [OTRErrorUtility errorForGPGError:GPG_ERR_INV_PARAMETER];
-            return;
-        }
-        // Get root context if we're a child context
-        context = [self rootContextForContext:context];
         Fingerprint * targetFingerprint = [self internalFingerprintForUsername:username accountName:accountName protocol:protocol fingerprintData:fingerprintData];
         if (targetFingerprint) {
             //will not delete if it is the active fingerprint;
@@ -1430,7 +1423,6 @@ static OtrlMessageAppOps ui_ops = {
     __block NSError *outError = nil;
     [self performBlock:^{
         ConnContext * context = [self contextForUsername:username accountName:accountName protocol:protocol];
-        NSError *outError = nil;
         if (context) {
             NSMutableData *symKey = [NSMutableData dataWithLength:OTRL_EXTRAKEY_BYTES];
             gcry_error_t err = otrl_message_symkey(self.userState, &ui_ops, NULL, context, (unsigned int)use, useData.bytes, useData.length, symKey.mutableBytes);
