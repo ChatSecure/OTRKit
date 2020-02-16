@@ -80,7 +80,7 @@ typedef NS_ENUM(NSUInteger, OTRCryptoMode) {
     NSParameterAssert(cryptoData);
     //NSParameterAssert(cryptoData.data.length != 0);
     NSParameterAssert(key.length == 16 || key.length == 32);
-    NSParameterAssert(iv.length == 16);
+    NSParameterAssert(iv.length > 0);
     
     if ([key length] == 0 || [iv length] == 0) {
         if (error) {
