@@ -14,16 +14,16 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D96A69CB235BB43E006FF925"
+               BlueprintIdentifier = "D96A6A11235BB83B006FF925"
                BuildableName = "OTRKit.framework"
-               BlueprintName = "OTRKit (macOS)"
+               BlueprintName = "OTRKit (iOS)"
                ReferencedContainer = "container:OTRKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
-      buildConfiguration = "macOS_Debug"
+      buildConfiguration = "iOS_Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
@@ -31,7 +31,7 @@
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "macOS_Debug"
+      buildConfiguration = "iOS_Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -42,7 +42,7 @@
       allowLocationSimulation = "YES">
    </LaunchAction>
    <ProfileAction
-      buildConfiguration = "macOS_Release"
+      buildConfiguration = "iOS_Release"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
@@ -50,18 +50,18 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D96A69CB235BB43E006FF925"
+            BlueprintIdentifier = "D96A6A11235BB83B006FF925"
             BuildableName = "OTRKit.framework"
-            BlueprintName = "OTRKit (macOS)"
+            BlueprintName = "OTRKit (iOS)"
             ReferencedContainer = "container:OTRKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
-      buildConfiguration = "macOS_Debug">
+      buildConfiguration = "iOS_Debug">
    </AnalyzeAction>
    <ArchiveAction
-      buildConfiguration = "macOS_Release"
+      buildConfiguration = "iOS_Release"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>

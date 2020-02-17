@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D96A69CB235BB43E006FF925"
-               BuildableName = "OTRKit.framework"
-               BlueprintName = "OTRKit (macOS)"
+               BlueprintIdentifier = "D9108AEE23FA40CD00B1280D"
+               BuildableName = "libOTRKit.a"
+               BlueprintName = "OTRKit Static (macOS)"
                ReferencedContainer = "container:OTRKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -50,9 +50,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D96A69CB235BB43E006FF925"
-            BuildableName = "OTRKit.framework"
-            BlueprintName = "OTRKit (macOS)"
+            BlueprintIdentifier = "D9108AEE23FA40CD00B1280D"
+            BuildableName = "libOTRKit.a"
+            BlueprintName = "OTRKit Static (macOS)"
             ReferencedContainer = "container:OTRKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

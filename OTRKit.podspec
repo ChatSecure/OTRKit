@@ -15,6 +15,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = "10.10"
 
   s.module_name = 'OTRKitPod'
+  s.vendored_framework = 'OTRKitDependencies/OTRKit.xcframework'
 
   s.preserve_paths  = "COPYING.LGPLv2.1", "COPYING.MPLv2"
   s.requires_arc = true

@@ -15,7 +15,7 @@ To compile libotr and dependencies for iOS, run the included script, `build-all.
 
     $ bash build-all.sh
 
-### Cocoapods
+### CocoaPods
 
 We now support Cocoapods but haven't pushed `OTRKit.podspec` to the public repository yet. Feel free to use the one in this repo in the meantime, but the public API may change slightly before release.
 

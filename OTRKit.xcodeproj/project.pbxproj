@@ -7,6 +7,64 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D9108AE023FA405A00B1280D /* libotrkit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D96A6A3A235BBE54006FF925 /* libotrkit.xcframework */; };
+		D9108AE123FA408200B1280D /* OTRKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D5235BB49E006FF925 /* OTRKit.m */; };
+		D9108AE223FA408200B1280D /* OTRTLV.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D6235BB49E006FF925 /* OTRTLV.m */; };
+		D9108AE323FA408200B1280D /* OTRHTTPMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DB235BB49E006FF925 /* OTRHTTPMessage.m */; };
+		D9108AE423FA408200B1280D /* OTRDataIncomingTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DC235BB49E006FF925 /* OTRDataIncomingTransfer.m */; };
+		D9108AE523FA408200B1280D /* NSData+OTRDATA.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DD235BB49E006FF925 /* NSData+OTRDATA.m */; };
+		D9108AE623FA408200B1280D /* OTRDataOutgoingTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DE235BB49E006FF925 /* OTRDataOutgoingTransfer.m */; };
+		D9108AE723FA408200B1280D /* OTRDataTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DF235BB49E006FF925 /* OTRDataTransfer.m */; };
+		D9108AE823FA408200B1280D /* OTRDataHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69E6235BB49E006FF925 /* OTRDataHandler.m */; };
+		D9108AE923FA408200B1280D /* OTRDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69E9235BB49E006FF925 /* OTRDataRequest.m */; };
+		D9108AEA23FA408200B1280D /* OTRDataGetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EA235BB49E006FF925 /* OTRDataGetOperation.m */; };
+		D9108AEB23FA408200B1280D /* OTRFingerprint.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EC235BB49E006FF925 /* OTRFingerprint.m */; };
+		D9108AEC23FA408200B1280D /* OTRCryptoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EF235BB49E006FF925 /* OTRCryptoUtility.m */; };
+		D9108AED23FA408200B1280D /* OTRErrorUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69F2235BB49E006FF925 /* OTRErrorUtility.m */; };
+		D9108AF023FA40CD00B1280D /* OTRFingerprint.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EC235BB49E006FF925 /* OTRFingerprint.m */; };
+		D9108AF123FA40CD00B1280D /* OTRDataTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DF235BB49E006FF925 /* OTRDataTransfer.m */; };
+		D9108AF223FA40CD00B1280D /* OTRKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D5235BB49E006FF925 /* OTRKit.m */; };
+		D9108AF323FA40CD00B1280D /* OTRHTTPMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DB235BB49E006FF925 /* OTRHTTPMessage.m */; };
+		D9108AF423FA40CD00B1280D /* OTRCryptoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EF235BB49E006FF925 /* OTRCryptoUtility.m */; };
+		D9108AF523FA40CD00B1280D /* OTRDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69E9235BB49E006FF925 /* OTRDataRequest.m */; };
+		D9108AF623FA40CD00B1280D /* OTRDataHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69E6235BB49E006FF925 /* OTRDataHandler.m */; };
+		D9108AF723FA40CD00B1280D /* OTRDataIncomingTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DC235BB49E006FF925 /* OTRDataIncomingTransfer.m */; };
+		D9108AF823FA40CD00B1280D /* OTRTLV.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D6235BB49E006FF925 /* OTRTLV.m */; };
+		D9108AF923FA40CD00B1280D /* NSData+OTRDATA.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DD235BB49E006FF925 /* NSData+OTRDATA.m */; };
+		D9108AFA23FA40CD00B1280D /* OTRDataGetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69EA235BB49E006FF925 /* OTRDataGetOperation.m */; };
+		D9108AFB23FA40CD00B1280D /* OTRDataOutgoingTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69DE235BB49E006FF925 /* OTRDataOutgoingTransfer.m */; };
+		D9108AFD23FA40CD00B1280D /* OTRErrorUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69F2235BB49E006FF925 /* OTRErrorUtility.m */; };
+		D9108B0823FA410200B1280D /* libotrkit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D96A6A3A235BBE54006FF925 /* libotrkit.xcframework */; };
+		D9108B4523FA436700B1280D /* OTRKit.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D9235BB49E006FF925 /* OTRKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4623FA436700B1280D /* OTRKit_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A6A3F235BCFCB006FF925 /* OTRKit_Public.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4723FA436700B1280D /* OTRFingerprint.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D7235BB49E006FF925 /* OTRFingerprint.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4823FA436700B1280D /* OTRTLVHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D8235BB49E006FF925 /* OTRTLVHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4923FA436700B1280D /* OTRDataHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E0235BB49E006FF925 /* OTRDataHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4A23FA436700B1280D /* OTRDataRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E1235BB49E006FF925 /* OTRDataRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4B23FA436700B1280D /* OTRDataGetOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E2235BB49E006FF925 /* OTRDataGetOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4C23FA436700B1280D /* NSData+OTRDATA.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E3235BB49E006FF925 /* NSData+OTRDATA.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4D23FA436700B1280D /* OTRDataIncomingTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E4235BB49E006FF925 /* OTRDataIncomingTransfer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4E23FA436700B1280D /* OTRHTTPMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E5235BB49E006FF925 /* OTRHTTPMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B4F23FA436700B1280D /* OTRDataTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E7235BB49E006FF925 /* OTRDataTransfer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5023FA436700B1280D /* OTRDataOutgoingTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E8235BB49E006FF925 /* OTRDataOutgoingTransfer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5123FA436700B1280D /* OTRTLV.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69ED235BB49E006FF925 /* OTRTLV.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5223FA436700B1280D /* OTRErrorUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69F0235BB49E006FF925 /* OTRErrorUtility.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5323FA436700B1280D /* OTRCryptoUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69F1235BB49E006FF925 /* OTRCryptoUtility.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5523FA467400B1280D /* OTRKit.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D9235BB49E006FF925 /* OTRKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5623FA467400B1280D /* OTRKit_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A6A3F235BCFCB006FF925 /* OTRKit_Public.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5723FA467400B1280D /* OTRFingerprint.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D7235BB49E006FF925 /* OTRFingerprint.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5823FA467400B1280D /* OTRTLVHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D8235BB49E006FF925 /* OTRTLVHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5923FA467400B1280D /* OTRDataHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E0235BB49E006FF925 /* OTRDataHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5A23FA467400B1280D /* OTRDataRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E1235BB49E006FF925 /* OTRDataRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5B23FA467400B1280D /* OTRDataGetOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E2235BB49E006FF925 /* OTRDataGetOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5C23FA467400B1280D /* NSData+OTRDATA.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E3235BB49E006FF925 /* NSData+OTRDATA.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5D23FA467400B1280D /* OTRDataIncomingTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E4235BB49E006FF925 /* OTRDataIncomingTransfer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5E23FA467400B1280D /* OTRHTTPMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E5235BB49E006FF925 /* OTRHTTPMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B5F23FA467400B1280D /* OTRDataTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E7235BB49E006FF925 /* OTRDataTransfer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B6023FA467400B1280D /* OTRDataOutgoingTransfer.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69E8235BB49E006FF925 /* OTRDataOutgoingTransfer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B6123FA467400B1280D /* OTRTLV.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69ED235BB49E006FF925 /* OTRTLV.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B6223FA467400B1280D /* OTRErrorUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69F0235BB49E006FF925 /* OTRErrorUtility.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9108B6323FA467400B1280D /* OTRCryptoUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69F1235BB49E006FF925 /* OTRCryptoUtility.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D96A69F3235BB49E006FF925 /* OTRKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D5235BB49E006FF925 /* OTRKit.m */; };
 		D96A69F4235BB49E006FF925 /* OTRTLV.m in Sources */ = {isa = PBXBuildFile; fileRef = D96A69D6235BB49E006FF925 /* OTRTLV.m */; };
 		D96A69F5235BB49E006FF925 /* OTRFingerprint.h in Headers */ = {isa = PBXBuildFile; fileRef = D96A69D7235BB49E006FF925 /* OTRFingerprint.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -68,6 +126,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D9108AD423FA3FBB00B1280D /* libOTRKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOTRKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9108B0723FA40CD00B1280D /* libOTRKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOTRKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D96A69CC235BB43E006FF925 /* OTRKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OTRKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D96A69D5235BB49E006FF925 /* OTRKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRKit.m; sourceTree = "<group>"; };
 		D96A69D6235BB49E006FF925 /* OTRTLV.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRTLV.m; sourceTree = "<group>"; };
@@ -103,6 +163,22 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		D9108AD123FA3FBB00B1280D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9108AE023FA405A00B1280D /* libotrkit.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9108AFE23FA40CD00B1280D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9108B0823FA410200B1280D /* libotrkit.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D96A69C9235BB43E006FF925 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -129,7 +205,17 @@
 				D96A69CC235BB43E006FF925 /* OTRKit.framework */,
 				D96A6A39235BBE54006FF925 /* OTRKitDependencies */,
 				D96A69D4235BB49E006FF925 /* OTRKit */,
+				D9108AD423FA3FBB00B1280D /* libOTRKit.a */,
+				D9108ADF23FA405A00B1280D /* Frameworks */,
+				D9108B0723FA40CD00B1280D /* libOTRKit.a */,
 			);
+			sourceTree = "<group>";
+		};
+		D9108ADF23FA405A00B1280D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		D96A69D4235BB49E006FF925 /* OTRKit */ = {
@@ -195,6 +281,50 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		D9108B4423FA436300B1280D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9108B4523FA436700B1280D /* OTRKit.h in Headers */,
+				D9108B4623FA436700B1280D /* OTRKit_Public.h in Headers */,
+				D9108B4723FA436700B1280D /* OTRFingerprint.h in Headers */,
+				D9108B4823FA436700B1280D /* OTRTLVHandler.h in Headers */,
+				D9108B4923FA436700B1280D /* OTRDataHandler.h in Headers */,
+				D9108B4A23FA436700B1280D /* OTRDataRequest.h in Headers */,
+				D9108B4B23FA436700B1280D /* OTRDataGetOperation.h in Headers */,
+				D9108B4C23FA436700B1280D /* NSData+OTRDATA.h in Headers */,
+				D9108B4D23FA436700B1280D /* OTRDataIncomingTransfer.h in Headers */,
+				D9108B4E23FA436700B1280D /* OTRHTTPMessage.h in Headers */,
+				D9108B4F23FA436700B1280D /* OTRDataTransfer.h in Headers */,
+				D9108B5023FA436700B1280D /* OTRDataOutgoingTransfer.h in Headers */,
+				D9108B5123FA436700B1280D /* OTRTLV.h in Headers */,
+				D9108B5223FA436700B1280D /* OTRErrorUtility.h in Headers */,
+				D9108B5323FA436700B1280D /* OTRCryptoUtility.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9108B5423FA466500B1280D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9108B5523FA467400B1280D /* OTRKit.h in Headers */,
+				D9108B5623FA467400B1280D /* OTRKit_Public.h in Headers */,
+				D9108B5723FA467400B1280D /* OTRFingerprint.h in Headers */,
+				D9108B5823FA467400B1280D /* OTRTLVHandler.h in Headers */,
+				D9108B5923FA467400B1280D /* OTRDataHandler.h in Headers */,
+				D9108B5A23FA467400B1280D /* OTRDataRequest.h in Headers */,
+				D9108B5B23FA467400B1280D /* OTRDataGetOperation.h in Headers */,
+				D9108B5C23FA467400B1280D /* NSData+OTRDATA.h in Headers */,
+				D9108B5D23FA467400B1280D /* OTRDataIncomingTransfer.h in Headers */,
+				D9108B5E23FA467400B1280D /* OTRHTTPMessage.h in Headers */,
+				D9108B5F23FA467400B1280D /* OTRDataTransfer.h in Headers */,
+				D9108B6023FA467400B1280D /* OTRDataOutgoingTransfer.h in Headers */,
+				D9108B6123FA467400B1280D /* OTRTLV.h in Headers */,
+				D9108B6223FA467400B1280D /* OTRErrorUtility.h in Headers */,
+				D9108B6323FA467400B1280D /* OTRCryptoUtility.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D96A69C7235BB43E006FF925 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -242,6 +372,40 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		D9108AD323FA3FBB00B1280D /* OTRKit Static (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D9108ADE23FA3FBB00B1280D /* Build configuration list for PBXNativeTarget "OTRKit Static (iOS)" */;
+			buildPhases = (
+				D9108B5423FA466500B1280D /* Headers */,
+				D9108AD023FA3FBB00B1280D /* Sources */,
+				D9108AD123FA3FBB00B1280D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "OTRKit Static (iOS)";
+			productName = OTRKitLib;
+			productReference = D9108AD423FA3FBB00B1280D /* libOTRKit.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D9108AEE23FA40CD00B1280D /* OTRKit Static (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D9108B0223FA40CD00B1280D /* Build configuration list for PBXNativeTarget "OTRKit Static (macOS)" */;
+			buildPhases = (
+				D9108B4423FA436300B1280D /* Headers */,
+				D9108AEF23FA40CD00B1280D /* Sources */,
+				D9108AFE23FA40CD00B1280D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "OTRKit Static (macOS)";
+			productName = OTRKitLib;
+			productReference = D9108B0723FA40CD00B1280D /* libOTRKit.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		D96A69CB235BB43E006FF925 /* OTRKit (macOS) */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D96A69D1235BB43E006FF925 /* Build configuration list for PBXNativeTarget "OTRKit (macOS)" */;
@@ -286,6 +450,9 @@
 			attributes = {
 				LastUpgradeCheck = 1110;
 				TargetAttributes = {
+					D9108AD323FA3FBB00B1280D = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
 					D96A69CB235BB43E006FF925 = {
 						CreatedOnToolsVersion = 11.1;
 					};
@@ -312,6 +479,8 @@
 			targets = (
 				D96A69CB235BB43E006FF925 /* OTRKit (macOS) */,
 				D96A6A11235BB83B006FF925 /* OTRKit (iOS) */,
+				D9108AD323FA3FBB00B1280D /* OTRKit Static (iOS) */,
+				D9108AEE23FA40CD00B1280D /* OTRKit Static (macOS) */,
 			);
 		};
 /* End PBXProject section */
@@ -334,6 +503,46 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		D9108AD023FA3FBB00B1280D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9108AEB23FA408200B1280D /* OTRFingerprint.m in Sources */,
+				D9108AE723FA408200B1280D /* OTRDataTransfer.m in Sources */,
+				D9108AE123FA408200B1280D /* OTRKit.m in Sources */,
+				D9108AE323FA408200B1280D /* OTRHTTPMessage.m in Sources */,
+				D9108AEC23FA408200B1280D /* OTRCryptoUtility.m in Sources */,
+				D9108AE923FA408200B1280D /* OTRDataRequest.m in Sources */,
+				D9108AE823FA408200B1280D /* OTRDataHandler.m in Sources */,
+				D9108AE423FA408200B1280D /* OTRDataIncomingTransfer.m in Sources */,
+				D9108AE223FA408200B1280D /* OTRTLV.m in Sources */,
+				D9108AE523FA408200B1280D /* NSData+OTRDATA.m in Sources */,
+				D9108AEA23FA408200B1280D /* OTRDataGetOperation.m in Sources */,
+				D9108AE623FA408200B1280D /* OTRDataOutgoingTransfer.m in Sources */,
+				D9108AED23FA408200B1280D /* OTRErrorUtility.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9108AEF23FA40CD00B1280D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9108AF023FA40CD00B1280D /* OTRFingerprint.m in Sources */,
+				D9108AF123FA40CD00B1280D /* OTRDataTransfer.m in Sources */,
+				D9108AF223FA40CD00B1280D /* OTRKit.m in Sources */,
+				D9108AF323FA40CD00B1280D /* OTRHTTPMessage.m in Sources */,
+				D9108AF423FA40CD00B1280D /* OTRCryptoUtility.m in Sources */,
+				D9108AF523FA40CD00B1280D /* OTRDataRequest.m in Sources */,
+				D9108AF623FA40CD00B1280D /* OTRDataHandler.m in Sources */,
+				D9108AF723FA40CD00B1280D /* OTRDataIncomingTransfer.m in Sources */,
+				D9108AF823FA40CD00B1280D /* OTRTLV.m in Sources */,
+				D9108AF923FA40CD00B1280D /* NSData+OTRDATA.m in Sources */,
+				D9108AFA23FA40CD00B1280D /* OTRDataGetOperation.m in Sources */,
+				D9108AFB23FA40CD00B1280D /* OTRDataOutgoingTransfer.m in Sources */,
+				D9108AFD23FA40CD00B1280D /* OTRErrorUtility.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D96A69C8235BB43E006FF925 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -471,6 +680,474 @@
 			};
 			name = iOS_Release;
 		};
+		D9108ADA23FA3FBB00B1280D /* iOS_Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = iOS_Debug;
+		};
+		D9108ADB23FA3FBB00B1280D /* macOS_Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = macOS_Debug;
+		};
+		D9108ADC23FA3FBB00B1280D /* iOS_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = iOS_Release;
+		};
+		D9108ADD23FA3FBB00B1280D /* macOS_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = macOS_Release;
+		};
+		D9108B0323FA40CD00B1280D /* iOS_Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = iOS_Debug;
+		};
+		D9108B0423FA40CD00B1280D /* macOS_Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = macOS_Debug;
+		};
+		D9108B0523FA40CD00B1280D /* iOS_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = iOS_Release;
+		};
+		D9108B0623FA40CD00B1280D /* macOS_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = macOS_Release;
+		};
 		D9638A1923A3369E00C0CDF7 /* macOS_Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -556,7 +1233,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACH_O_TYPE = staticlib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -613,7 +1289,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACH_O_TYPE = staticlib;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -724,7 +1399,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACH_O_TYPE = staticlib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -784,7 +1458,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACH_O_TYPE = staticlib;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -844,7 +1517,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACH_O_TYPE = staticlib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -900,7 +1572,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACH_O_TYPE = staticlib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -960,7 +1631,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACH_O_TYPE = staticlib;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1018,7 +1688,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACH_O_TYPE = staticlib;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -1043,6 +1712,28 @@
 				D9638A1C23A336A600C0CDF7 /* macOS_Debug */,
 				D905CF71155B010B00654181 /* iOS_Release */,
 				D9638A1923A3369E00C0CDF7 /* macOS_Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = iOS_Release;
+		};
+		D9108ADE23FA3FBB00B1280D /* Build configuration list for PBXNativeTarget "OTRKit Static (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D9108ADA23FA3FBB00B1280D /* iOS_Debug */,
+				D9108ADB23FA3FBB00B1280D /* macOS_Debug */,
+				D9108ADC23FA3FBB00B1280D /* iOS_Release */,
+				D9108ADD23FA3FBB00B1280D /* macOS_Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = iOS_Release;
+		};
+		D9108B0223FA40CD00B1280D /* Build configuration list for PBXNativeTarget "OTRKit Static (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D9108B0323FA40CD00B1280D /* iOS_Debug */,
+				D9108B0423FA40CD00B1280D /* macOS_Debug */,
+				D9108B0523FA40CD00B1280D /* iOS_Release */,
+				D9108B0623FA40CD00B1280D /* macOS_Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = iOS_Release;
