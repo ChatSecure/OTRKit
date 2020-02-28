@@ -1293,8 +1293,14 @@ static OtrlMessageAppOps ui_ops = {
 }
 
 - (nullable OTRFingerprint*)fingerprintForInternalFingerprint:(Fingerprint*)fingerprint {
-    if (!fingerprint) { return nil; }
-    if (!fingerprint->context) { return nil; }
+    if (!fingerprint ||
+        !fingerprint->context ||
+        !fingerprint->context->username ||
+        !fingerprint->context->accountname ||
+        !fingerprint->context->protocol ||
+        !fingerprint->fingerprint) {
+        return nil;
+    }
     NSString * username = [NSString stringWithUTF8String:fingerprint->context->username];
     NSString * accountName = [NSString stringWithUTF8String:fingerprint->context->accountname];
     NSString * protocol = [NSString stringWithUTF8String:fingerprint->context->protocol];
