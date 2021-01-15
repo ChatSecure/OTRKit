@@ -42,17 +42,17 @@ FOUNDATION_EXPORT double otrkitVersionNumber;
 //! Project version string for asdf.
 FOUNDATION_EXPORT const unsigned char otrkitVersionString[];
 
-#import "OTRKit_Public.h"
-#import "OTRDataOutgoingTransfer.h"
-#import "OTRTLVHandler.h"
-#import "OTRErrorUtility.h"
-#import "OTRDataGetOperation.h"
-#import "OTRFingerprint.h"
-#import "NSData+OTRDATA.h"
-#import "OTRDataRequest.h"
-#import "OTRCryptoUtility.h"
-#import "OTRHTTPMessage.h"
-#import "OTRDataHandler.h"
-#import "OTRTLV.h"
-#import "OTRDataIncomingTransfer.h"
-#import "OTRDataTransfer.h"
+#import <OTRKit/OTRKit_Public.h>
+#import <OTRKit/OTRDataOutgoingTransfer.h>
+#import <OTRKit/OTRTLVHandler.h>
+#import <OTRKit/OTRErrorUtility.h>
+#import <OTRKit/OTRDataGetOperation.h>
+#import <OTRKit/OTRFingerprint.h>
+#import <OTRKit/NSData+OTRDATA.h>
+#import <OTRKit/OTRDataRequest.h>
+#import <OTRKit/OTRCryptoUtility.h>
+#import <OTRKit/OTRHTTPMessage.h>
+#import <OTRKit/OTRDataHandler.h>
+#import <OTRKit/OTRTLV.h>
+#import <OTRKit/OTRDataIncomingTransfer.h>
+#import <OTRKit/OTRDataTransfer.h>

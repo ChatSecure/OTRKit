@@ -6,10 +6,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "OTRDataTransfer.h"
-#import "OTRDataOutgoingTransfer.h"
-#import "OTRDataIncomingTransfer.h"
-#import "OTRTLVHandler.h"
+#import <OTRKit/OTRDataTransfer.h>
+#import <OTRKit/OTRDataOutgoingTransfer.h>
+#import <OTRKit/OTRDataIncomingTransfer.h>
+#import <OTRKit/OTRTLVHandler.h>
 
 @class OTRKit;
 @class OTRDataHandler;

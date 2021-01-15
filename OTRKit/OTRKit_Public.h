@@ -35,9 +35,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OTRTLV.h"
-#import "OTRTLVHandler.h"
-#import "OTRFingerprint.h"
+#import <OTRKit/OTRTLV.h>
+#import <OTRKit/OTRTLVHandler.h>
+#import <OTRKit/OTRFingerprint.h>
 
 @class OTRKit;
 

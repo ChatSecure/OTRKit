@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "OTRFingerprint.h"
+#import <OTRKit/OTRFingerprint.h>
 
 @class OTRTLV;
 

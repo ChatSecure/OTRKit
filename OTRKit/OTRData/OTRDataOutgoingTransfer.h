@@ -6,7 +6,7 @@
 //
 //
 
-#import "OTRDataTransfer.h"
+#import <OTRKit/OTRDataTransfer.h>
 
 @interface OTRDataOutgoingTransfer : OTRDataTransfer
 
