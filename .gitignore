@@ -24,3 +24,6 @@ OTRKitDependencies-macOS/
 Pods/
 scripts/build/
 scripts/built/
+
+.build/
+.swiftpm/
