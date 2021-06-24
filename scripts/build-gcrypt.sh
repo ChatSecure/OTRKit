@@ -38,7 +38,7 @@ pushd "libgcrypt-${LIBGCRYPT_VERSION}"
 
    # Without setting the path, libgcrypt cannot find libgpg-error-config for some reason
    PATH="${PATH}:${ARCH_BUILT_BIN_DIR}"
-   ./configure --disable-shared --enable-static --with-pic --enable-threads=posix ${EXTRA_CONFIG} \
+   ./configure --disable-shared --enable-static --with-pic --enable-random=unix --enable-threads=posix ${EXTRA_CONFIG} \
    --with-sysroot="${SDK_PATH}" \
    --with-libgpg-error-prefix="${ARCH_BUILT_DIR}" \
    --prefix="${ROOTDIR}" \
